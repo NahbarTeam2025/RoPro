@@ -31,6 +31,8 @@ export default function Household() {
   const [showAdd, setShowAdd] = useState(false);
   const [loading, setLoading] = useState(true);
   const [deleteModal, setDeleteModal] = useState<{ open: boolean, id: string } | null>(null);
+  const [detailModal, setDetailModal] = useState<{ open: boolean, type: 'income' | 'expense' } | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   
   // Form state
   const [description, setDescription] = useState('');
@@ -111,7 +113,7 @@ export default function Household() {
     return () => unsubscribe();
   }, [user]);
 
-  const handleAdd = async (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     
@@ -120,14 +122,14 @@ export default function Household() {
       return;
     }
 
-    const numAmount = parseFloat(amount);
+    const numAmount = parseFloat(amount.replace(',', '.'));
     if (isNaN(numAmount) || numAmount <= 0) {
       alert('Bitte gib einen gültigen Betrag ein.');
       return;
     }
 
     try {
-      await addDoc(collection(db, 'transactions'), {
+      const transactionData = {
         description: description.trim(),
         amount: numAmount,
         type,
@@ -135,17 +137,47 @@ export default function Household() {
         date: new Date(date),
         isRecurring,
         userId: user.uid,
-        createdAt: serverTimestamp()
-      });
-      setDescription('');
-      setAmount('');
-      setCategoryId('');
-      setIsRecurring(false);
+        updatedAt: serverTimestamp()
+      };
+
+      if (editingId) {
+        await updateDoc(doc(db, 'transactions', editingId), transactionData);
+      } else {
+        await addDoc(collection(db, 'transactions'), {
+          ...transactionData,
+          createdAt: serverTimestamp()
+        });
+      }
+      
+      resetForm();
       setShowAdd(false);
     } catch (error) {
-      console.error("Error adding transaction:", error);
+      console.error("Error saving transaction:", error);
       alert('Fehler beim Speichern. Bitte versuche es erneut.');
     }
+  };
+
+  const resetForm = () => {
+    setDescription('');
+    setAmount('');
+    setCategoryId('');
+    setDate(format(new Date(), 'yyyy-MM-dd'));
+    setIsRecurring(false);
+    setEditingId(null);
+  };
+
+  const handleEdit = (t: Transaction) => {
+    setEditingId(t.id);
+    setDescription(t.description);
+    setAmount(t.amount.toString());
+    setType(t.type);
+    setCategoryId(t.category);
+    const tDate = t.date?.toDate ? t.date.toDate() : new Date();
+    setDate(format(tDate, 'yyyy-MM-dd'));
+    setIsRecurring(!!t.isRecurring);
+    setShowAdd(true);
+    setDetailModal(null); // Close detail modal if open
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleConfirmDelete = async () => {
@@ -178,14 +210,17 @@ export default function Household() {
 
   const balance = income - expenses;
 
-  const availableMonths = Array.from(new Set(transactions.map(t => {
+  // Ensure current month and selected month are always available
+  const currentMonthStr = format(new Date(), 'yyyy-MM');
+  const monthNamesSet = new Set(transactions.map(t => {
     const d = t.date?.toDate ? t.date.toDate() : new Date();
     return format(d, 'yyyy-MM');
-  }))).sort().reverse();
-
-  if (availableMonths.length === 0) {
-    availableMonths.push(format(new Date(), 'yyyy-MM'));
-  }
+  }));
+  
+  monthNamesSet.add(currentMonthStr);
+  monthNamesSet.add(filterMonth);
+  
+  const availableMonths = Array.from(monthNamesSet).sort().reverse();
 
   return (
     <div className="max-w-5xl mx-auto flex flex-col relative z-10 w-full pb-10">
@@ -204,17 +239,24 @@ export default function Household() {
             ))}
           </select>
           <button
-            onClick={() => setShowAdd(!showAdd)}
+            onClick={() => {
+              if (showAdd && editingId) {
+                resetForm();
+              } else {
+                setShowAdd(!showAdd);
+                if (!showAdd) resetForm();
+              }
+            }}
             className="glass-button-primary flex items-center gap-2 h-12 px-6 shrink-0 w-full sm:w-auto"
           >
             <Plus size={20} />
-            <span>Eintrag</span>
+            <span>{editingId ? 'Abbrechen' : 'Eintrag'}</span>
           </button>
         </div>
       </header>
 
       {showAdd && (
-        <form onSubmit={handleAdd} className="glass-card p-8 rounded-[2.5rem] mb-10 animate-in fade-in slide-in-from-top-4 duration-300">
+        <form onSubmit={handleSave} className="glass-card p-8 rounded-[2.5rem] mb-10 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
             <div className="space-y-1.5 lg:col-span-1">
               <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Typ</label>
@@ -291,9 +333,9 @@ export default function Household() {
           </div>
           <div className="flex flex-col sm:flex-row justify-end gap-3 mt-8 pt-6 border-t border-slate-200/50 dark:border-white/10">
             <button type="submit" className="px-10 h-12 glass-button-primary font-bold order-first sm:order-none">
-              Speichern
+              {editingId ? 'Aktualisieren' : 'Speichern'}
             </button>
-            <button type="button" onClick={() => setShowAdd(false)} className="px-6 h-12 glass-button-secondary font-bold">
+            <button type="button" onClick={() => { setShowAdd(false); resetForm(); }} className="px-6 h-12 glass-button-secondary font-bold">
               Abbrechen
             </button>
           </div>
@@ -302,7 +344,10 @@ export default function Household() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
-        <div className="glass-card p-4 rounded-2xl border-l-4 border-green-500 flex items-center gap-3">
+        <div 
+          onClick={() => setDetailModal({ open: true, type: 'income' })}
+          className="glass-card p-4 rounded-2xl border-l-4 border-green-500 flex items-center gap-3 cursor-pointer hover:bg-green-500/5 transition-colors"
+        >
           <div className="p-2 bg-green-500/10 text-green-500 rounded-lg shrink-0">
             <TrendingUp size={18} />
           </div>
@@ -314,7 +359,10 @@ export default function Household() {
           </div>
         </div>
 
-        <div className="glass-card p-4 rounded-2xl border-l-4 border-red-500 flex items-center gap-3">
+        <div 
+          onClick={() => setDetailModal({ open: true, type: 'expense' })}
+          className="glass-card p-4 rounded-2xl border-l-4 border-red-500 flex items-center gap-3 cursor-pointer hover:bg-red-500/5 transition-colors"
+        >
           <div className="p-2 bg-red-500/10 text-red-500 rounded-lg shrink-0">
             <TrendingDown size={18} />
           </div>
@@ -424,15 +472,17 @@ export default function Household() {
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-1">
-                        <h4 className="font-bold text-brand truncate max-w-[150px] sm:max-w-[200px]">{t.description}</h4>
+                        <h4 className="font-bold text-brand">{t.description}</h4>
                         {t.isRecurring && (
-                          <span className="p-1 bg-blue-500/10 text-blue-500 rounded-lg shrink-0" title="Wiederkehrend">
-                            <TrendingUp size={10} className="sm:w-3 sm:h-3" />
+                          <span className="text-[9px] font-black bg-blue-500/10 text-blue-500 px-1.5 py-0.5 rounded-lg uppercase tracking-tighter shrink-0">
+                            Monatlich
                           </span>
                         )}
-                        <span className="text-[9px] sm:text-[10px] font-black text-brand-muted uppercase tracking-widest bg-slate-200/50 dark:bg-black/20 px-2 py-0.5 rounded-lg border border-slate-200/30 dark:border-white/5 shrink-0">
-                          {catName}
-                        </span>
+                        {categories.find(c => c.id === t.category)?.name && (
+                          <span className="text-[9px] sm:text-[10px] font-black text-brand-muted uppercase tracking-widest bg-slate-200/50 dark:bg-black/20 px-2 py-0.5 rounded-lg border border-slate-200/30 dark:border-white/5 shrink-0">
+                            {categories.find(c => c.id === t.category)?.name}
+                          </span>
+                        )}
                       </div>
                       <div className="text-[9px] sm:text-[10px] font-bold text-brand-muted uppercase tracking-wider flex items-center gap-1">
                         <span className="shrink-0">{t.date?.toDate ? format(t.date.toDate(), 'dd.MM.yyyy', { locale: de }) : '--'}</span>
@@ -446,12 +496,20 @@ export default function Household() {
                       )}>
                         {t.type === 'income' ? '+' : '-'} {t.amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                       </div>
-                      <button 
-                        onClick={() => handleDelete(t.id)}
-                        className="p-2 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-xl md:opacity-0 group-hover:opacity-100 transition-all shrink-0"
-                      >
-                        <Trash2 size={16} className="sm:w-[18px] sm:h-[18px]" />
-                      </button>
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all shrink-0">
+                        <button 
+                          onClick={() => handleEdit(t)}
+                          className="p-2 text-brand-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-xl"
+                        >
+                          <Edit2 size={16} className="sm:w-[18px] sm:h-[18px]" />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(t.id)}
+                          className="p-2 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-xl"
+                        >
+                          <Trash2 size={16} className="sm:w-[18px] sm:h-[18px]" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -462,6 +520,115 @@ export default function Household() {
       </div>
 
       {showCatManager && <CategoryManager type="household" onClose={() => setShowCatManager(false)} />}
+
+      {/* Detail Modal */}
+      {detailModal && detailModal.open && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-md">
+          <div className="glass-card w-full max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="p-8 border-b border-slate-200/50 dark:border-white/10 flex justify-between items-center bg-[#FBFBFD]/50 dark:bg-[#1C1C1E]/50">
+              <div>
+                <h3 className="text-2xl font-black text-brand tracking-tight">
+                  {detailModal.type === 'income' ? 'Einnahmen Details' : 'Ausgaben Details'}
+                </h3>
+                <p className="text-sm text-brand-muted font-medium">
+                  {format(new Date(`${filterMonth}-01`), 'MMMM yyyy', { locale: de })}
+                </p>
+              </div>
+              <button 
+                onClick={() => setDetailModal(null)}
+                className="p-2 hover:bg-slate-500/10 rounded-xl transition-colors text-brand-muted"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+              <div className="space-y-3">
+                {(() => {
+                  const items = filteredTransactions
+                    .filter(t => t.type === detailModal.type)
+                    .sort((a, b) => {
+                      if (a.isRecurring && !b.isRecurring) return -1;
+                      if (!a.isRecurring && b.isRecurring) return 1;
+                      const timeA = a.date?.toDate?.()?.getTime() || 0;
+                      const timeB = b.date?.toDate?.()?.getTime() || 0;
+                      return timeB - timeA;
+                    });
+
+                  if (items.length === 0) {
+                    return <p className="text-center py-10 text-brand-muted font-medium italic">Keine Einträge gefunden.</p>;
+                  }
+
+                  return items.map(t => {
+                    const catName = categories.find(c => c.id === t.category)?.name || t.category || '--';
+                    return (
+                      <div key={t.id} className="p-4 rounded-2xl bg-white/50 dark:bg-white/5 border border-slate-200/30 dark:border-white/5 flex items-center justify-between group">
+                        <div className="flex items-center gap-3">
+                          <div className={cn(
+                            "w-10 h-10 rounded-xl flex items-center justify-center shadow-sm",
+                            t.type === 'income' ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
+                          )}>
+                            {t.type === 'income' ? <TrendingUp size={18} /> : <TrendingDown size={18} />}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-brand text-sm">{t.description}</span>
+                              {t.isRecurring && (
+                                <span className="text-[8px] font-black bg-blue-500 text-white px-1.5 py-0.5 rounded uppercase tracking-tighter">Monatlich</span>
+                              )}
+                            </div>
+                            <div className="text-[10px] font-bold text-brand-muted uppercase tracking-tight">
+                              {categories.find(c => c.id === t.category)?.name ? `${categories.find(c => c.id === t.category)?.name} • ` : ''}
+                              {t.date?.toDate ? format(t.date.toDate(), 'dd.MM.yyyy') : ''}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right flex items-center gap-4">
+                          <span className={cn(
+                            "font-black text-sm",
+                            t.type === 'income' ? "text-green-500" : "text-brand"
+                          )}>
+                            {t.type === 'income' ? '+' : '-'} {t.amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            <button 
+                              onClick={() => handleEdit(t)}
+                              className="p-2 text-brand-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-xl transition-all"
+                            >
+                              <Edit2 size={16} />
+                            </button>
+                            <button 
+                              onClick={(e) => {
+                                showAdd && setShowAdd(false);
+                                handleDelete(t.id);
+                              }}
+                              className="p-2 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+            </div>
+            
+            <div className="p-8 border-t border-slate-200/50 dark:border-white/10 bg-[#FBFBFD]/50 dark:bg-[#1C1C1E]/50">
+               <div className="flex justify-between items-center font-black text-brand">
+                 <span>Gesamt {detailModal.type === 'income' ? 'Einnahmen' : 'Ausgaben'}</span>
+                 <span className={detailModal.type === 'income' ? "text-green-500" : ""}>
+                   {detailModal.type === 'income' 
+                     ? income.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
+                     : expenses.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
+                   }
+                 </span>
+               </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       {deleteModal && deleteModal.open && (

@@ -424,7 +424,7 @@ export default function Dashboard() {
                        {t.type === 'income' ? <ArrowUpCircle size={16} /> : <ArrowDownCircle size={16} />}
                      </div>
                      <div className="flex-1 min-w-0">
-                       <div className="text-xs font-bold text-[#1D1D1F] dark:text-[#F5F5F7] truncate">{t.description}</div>
+                       <div className="text-xs font-bold text-[#1D1D1F] dark:text-[#F5F5F7]"> {t.description}</div>
                        <div className="text-[10px] font-medium text-[#86868B]">{format(t.date?.toDate() || new Date(), 'dd.MM')}</div>
                      </div>
                      <div className={cn("text-xs font-black", t.type === 'income' ? "text-green-500" : "text-[#1D1D1F] dark:text-[#F5F5F7]")}>{t.type === 'income' ? '+' : '-'} {t.amount.toLocaleString('de-DE')}€</div>

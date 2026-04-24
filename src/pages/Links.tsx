@@ -76,7 +76,8 @@ export default function Links() {
     if (!user) return;
     try {
       await updateDoc(doc(db, 'links', link.id), {
-        isPinned: !link.isPinned
+        isPinned: !link.isPinned,
+        updatedAt: serverTimestamp()
       });
     } catch (err) {
       console.error("Error toggling pin:", err);

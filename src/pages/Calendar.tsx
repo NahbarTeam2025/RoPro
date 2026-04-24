@@ -366,7 +366,6 @@ export default function Calendar() {
                     onChange={(e) => setNewTaskText(e.target.value)}
                     placeholder="Titel eingeben..."
                     className="glass-input text-base sm:text-lg mb-3"
-                    autoFocus
                   />
                   <input
                     type="time"

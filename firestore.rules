@@ -79,6 +79,9 @@ service cloud.firestore {
              data.userId == request.auth.uid &&
              data.createdAt is timestamp &&
              data.updatedAt is timestamp &&
+             (!('isPinned' in data) || data.isPinned is bool) &&
+             (!('color' in data) || (data.color is string && data.color.size() <= 50)) &&
+             (!('categoryId' in data) || (data.categoryId is string && data.categoryId.size() <= 100)) &&
              (!('tags' in data) || (data.tags is list && data.tags.size() <= 20));
     }
 
@@ -128,7 +131,7 @@ service cloud.firestore {
 
     // Transactions
     function isValidTransaction(data) {
-      return data.keys().hasAll(['description', 'amount', 'type', 'category', 'date', 'userId', 'createdAt']) &&
+      return data.keys().hasAll(['description', 'amount', 'type', 'category', 'date', 'userId', 'createdAt', 'updatedAt']) &&
              data.description is string && data.description.size() <= 500 &&
              data.amount is number &&
              data.type in ['income', 'expense'] &&
@@ -136,15 +139,16 @@ service cloud.firestore {
              data.date is timestamp &&
              data.userId == request.auth.uid &&
              data.createdAt is timestamp &&
+             data.updatedAt is timestamp &&
              (data.keys().hasAny(['isRecurring']) ? data.isRecurring is bool : true);
     }
 
     match /transactions/{transactionId} {
       allow get: if isSignedIn() && existing().userId == request.auth.uid;
       allow list: if isSignedIn() && existing().userId == request.auth.uid;
-      allow create: if isSignedIn() && isValidId(transactionId) && isValidTransaction(incoming()) && incoming().createdAt == request.time;
-      allow update: if isSignedIn() && isValidId(transactionId) && isValidTransaction(incoming()) && incoming().createdAt == existing().createdAt && (
-        incoming().diff(existing()).affectedKeys().hasOnly(['description', 'amount', 'type', 'category', 'date'])
+      allow create: if isSignedIn() && isValidId(transactionId) && isValidTransaction(incoming()) && incoming().createdAt == request.time && incoming().updatedAt == request.time;
+      allow update: if isSignedIn() && isValidId(transactionId) && isValidTransaction(incoming()) && incoming().createdAt == existing().createdAt && incoming().updatedAt == request.time && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['description', 'amount', 'type', 'category', 'date', 'isRecurring', 'updatedAt'])
       );
       allow delete: if isSignedIn() && isValidId(transactionId) && existing().userId == request.auth.uid;
     }
