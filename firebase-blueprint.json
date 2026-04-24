@@ -88,6 +88,17 @@
         "isRecurring": { "type": "boolean" }
       },
       "required": ["description", "amount", "type", "category", "date", "userId", "createdAt"]
+    },
+    "Savings": {
+      "title": "Savings",
+      "description": "Total saved money",
+      "type": "object",
+      "properties": {
+        "amount": { "type": "number" },
+        "userId": { "type": "string" },
+        "updatedAt": { "type": "timestamp" }
+      },
+      "required": ["amount", "userId", "updatedAt"]
     }
   },
   "firestore": {
@@ -114,6 +125,10 @@
     "/transactions/{transactionId}": {
       "schema": { "$ref": "#/entities/Transaction" },
       "description": "Stores household book transactions"
+    },
+    "/savings/{savingsId}": {
+      "schema": { "$ref": "#/entities/Savings" },
+      "description": "Stores total savings"
     }
   }
 }

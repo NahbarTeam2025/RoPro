@@ -3,7 +3,7 @@ import { updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { Trash2, Bold, Italic, List, ListOrdered, Heading2, Save } from 'lucide-react';
+import { Trash2, Bold, Italic, List, ListOrdered, Heading2, Save, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { CategorySelect } from '../components/CategorySelect';
 
@@ -106,6 +106,14 @@ export function NoteEditor({ note, onBack }: { note: Note, onBack: () => void })
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <button 
+              onClick={() => setDeleteModal({ open: true, id: note.id })}
+              className="p-2 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors flex-shrink-0 cursor-pointer"
+              title="Notiz löschen"
+            >
+              <Trash2 size={20} />
+            </button>
+            <button 
+              type="button"
               onClick={handleSave}
               disabled={!hasChanges || isSaving}
               className={cn(
@@ -119,11 +127,11 @@ export function NoteEditor({ note, onBack }: { note: Note, onBack: () => void })
               <span className="hidden sm:inline">{isSaving ? "Speichert..." : "Speichern"}</span>
             </button>
             <button 
-              onClick={() => setDeleteModal({ open: true, id: note.id })}
-              className="p-2 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors flex-shrink-0 cursor-pointer"
-              title="Notiz löschen"
+              onClick={onBack}
+              className="p-2 text-brand-muted hover:bg-slate-500/10 rounded-xl transition-all flex-shrink-0 cursor-pointer"
+              title="Schließen"
             >
-              <Trash2 size={20} />
+              <X size={20} />
             </button>
           </div>
         </div>

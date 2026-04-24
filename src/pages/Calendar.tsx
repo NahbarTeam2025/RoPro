@@ -76,11 +76,19 @@ export default function Calendar() {
 
   const handleUpdateTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !editingAppointment || !newTaskText.trim() || !newTaskTime) return;
+    if (!user || !editingAppointment || !newTaskText.trim()) return;
 
     try {
-      const [hours, minutes] = newTaskTime.split(':');
-      const date = setMinutes(setHours(selectedDay!.date, parseInt(hours)), parseInt(minutes));
+      let date = selectedDay!.date;
+      if (newTaskTime) {
+        const [hours, minutes] = newTaskTime.split(':').map(Number);
+        date = setHours(setMinutes(date, minutes), hours);
+      } else {
+        // If no time is provided, we might want to keep it at 12:00 or current time
+        // The original code was using setMinutes/setHours with required time.
+        // If time was already set on the existing appointment, maybe keep it?
+        // Let's stick to the selected day's date (at 00:00 or current) if no time.
+      }
       
       await updateDoc(doc(db, 'appointments', editingAppointment.id), {
         task: newTaskText.trim(),
@@ -213,15 +221,14 @@ export default function Calendar() {
                 onClick={() => handleDayClick(day, holidayName)}
                 className={cn(
                   "min-h-[100px] sm:min-h-[140px] bg-white dark:bg-[#02050D] p-2 sm:p-3 transition-colors cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 group relative",
-                  !isSameMonth(day, monthStart) && "bg-slate-100/30 dark:bg-black/40 text-brand-muted/30",
-                  isToday(day) && "bg-green-500/5 dark:bg-green-500/10"
+                  !isSameMonth(day, monthStart) && "bg-slate-100/30 dark:bg-black/40 text-brand-muted/30"
                 )}
               >
                 <div className="flex justify-between items-start mb-2 sm:mb-3">
                   <span className={cn(
-                    "w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center text-sm sm:text-base font-black rounded-xl transition-all",
-                    isToday(day) ? "bg-green-500 text-black shadow-lg shadow-green-500/30 scale-105" : 
-                    sunday ? "text-red-500" : "text-brand group-hover:scale-110"
+                    "w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-sm sm:text-base font-black rounded-full transition-all",
+                    isToday(day) ? "bg-green-500 text-white shadow-lg shadow-green-500/20" : 
+                    sunday ? "text-red-500" : "text-brand"
                   )}>
                     {format(day, 'd')}
                   </span>
@@ -366,7 +373,6 @@ export default function Calendar() {
                     value={newTaskTime}
                     onChange={(e) => setNewTaskTime(e.target.value)}
                     className="glass-input !h-10 text-sm"
-                    required
                   />
                 </div>
                 <div className="pt-2 flex justify-end gap-2">
@@ -379,7 +385,7 @@ export default function Calendar() {
                   </button>
                   <button 
                     type="submit" 
-                    disabled={!newTaskText.trim() || !newTaskTime || isAddingTask}
+                    disabled={!newTaskText.trim() || isAddingTask}
                     className="glass-button-primary disabled:opacity-50 py-2 h-auto text-xs sm:text-sm"
                   >
                     {isAddingTask ? 'Speichert...' : (editingAppointment ? 'Speichern' : 'Hinzufügen')}

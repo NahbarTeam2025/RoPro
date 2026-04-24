@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import { Zap } from 'lucide-react';
 
 export default function Auth() {
-  const { loginWithGoogle, loading, error } = useAuth();
+  const { user, loginWithGoogle, loading, error } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user && !loading) {
+      navigate('/');
+    }
+  }, [user, loading, navigate]);
   
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center bg-transparent text-brand-muted font-medium">Lade...</div>;

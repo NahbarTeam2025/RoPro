@@ -58,7 +58,8 @@ export function CategorySelect({ type, value, onChange, className }: CategorySel
             value={value}
             onChange={(e) => onChange(e.target.value)}
             aria-label="Kategorie auswählen"
-            className="flex-1 min-w-0 bg-transparent text-xs font-bold text-brand-muted hover:text-brand cursor-pointer outline-none uppercase tracking-wider appearance-none"
+            className="flex-1 min-w-0 bg-transparent text-xs font-bold text-brand-muted hover:text-brand cursor-pointer outline-none uppercase tracking-wider appearance-none max-h-[150px]"
+            title={value ? categories.find(c => c.id === value)?.name : "Kategorie wählen..."}
           >
             <option value="">Kategorie wählen...</option>
             {categories.map((cat) => (

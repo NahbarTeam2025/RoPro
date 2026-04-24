@@ -11,6 +11,7 @@ import Holidays from 'date-holidays';
 import { NoteEditor } from '../components/NoteEditor';
 import { PromptEditor } from '../components/PromptEditor';
 import { CategorySelect } from '../components/CategorySelect';
+import { createPortal } from 'react-dom';
 
 const hd = new Holidays('DE', 'BB');
 
@@ -50,12 +51,9 @@ export default function Dashboard() {
   const [editItem, setEditItem] = useState<{ type: 'todos' | 'notes' | 'prompts' | 'links' | 'appointments', data: any } | null>(null);
   const [deleteModal, setDeleteModal] = useState<{ open: boolean, coll: string, id: string } | null>(null);
 
-  // Current time is handled by the Clock component
-  
   useEffect(() => {
     if (!user) return;
     
-    // Find next holiday
     let dateIter = new Date();
     let foundHoliday = null;
     for (let i = 0; i < 365; i++) {
@@ -72,11 +70,9 @@ export default function Dashboard() {
     
     const todosQ = query(collection(db, 'todos'), where('userId', '==', user.uid));
     unsubscribes.push(onSnapshot(todosQ, snap => {
-// ... existing code ...
       const allTodos = snap.docs.map(d => ({ id: d.id, ...d.data() } as any));
       const processedTodos = allTodos
         .sort((a, b) => {
-           // Sort logic: completed goes to bottom
            if (a.completed !== b.completed) return a.completed ? 1 : -1;
            if (a.dueDate && b.dueDate) return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
            if (a.dueDate) return -1;
@@ -140,8 +136,6 @@ export default function Dashboard() {
         .sort((a, b) => (b.date?.toDate?.()?.getTime() || 0) - (a.date?.toDate?.()?.getTime() || 0)));
     }));
 
-    // Ensure loading is set to false even if collections are empty
-    // We give a small timeout to let the snapshots initialize
     const loadTimeout = setTimeout(() => {
       setLoading(false);
     }, 500);
@@ -156,7 +150,6 @@ export default function Dashboard() {
     if (!deleteModal) return;
     try { 
       await deleteDoc(doc(db, deleteModal.coll, deleteModal.id));
-      console.log('Document deleted successfully:', deleteModal.id);
       setDeleteModal(null);
     } catch (e: any) { 
       console.error('Delete error:', e); 
@@ -173,13 +166,11 @@ export default function Dashboard() {
         completed: !todo.completed, 
         updatedAt: serverTimestamp() 
       });
-      console.log('Todo toggled successfully:', todo.id);
     } catch (e: any) { 
       console.error('Toggle todo error:', e);
       alert('Fehler beim Aktualisieren: ' + (e.message || 'Unbekannter Fehler'));
     }
   };
-
 
   const stats = transactions.reduce((acc, t) => {
     const d = t.date?.toDate?.() || new Date();
@@ -213,27 +204,11 @@ export default function Dashboard() {
     <div className="max-w-[1500px] mx-auto flex flex-col h-full relative z-10 w-full overflow-x-hidden pb-20 px-6 sm:px-8">
       <header className="mb-12 mt-4 flex flex-row items-start justify-between relative w-full">
         <Clock />
-        
         <div className="flex flex-col gap-3">
-          {/* Google Search Icon Link */}
-          <a 
-            href="https://www.google.com" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="p-3 bg-white/50 dark:bg-white/10 hover:bg-[#007AFF] hover:text-white rounded-2xl transition-all shadow-sm group"
-            title="Google Suche"
-          >
+          <a href="https://www.google.com" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/50 dark:bg-white/10 hover:bg-[#007AFF] hover:text-white rounded-2xl transition-all shadow-sm group" title="Google Suche">
             <Search size={22} className="text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-white" />
           </a>
-
-          {/* Personal Website Icon Link */}
-          <a 
-            href="https://roberterbach.de/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="p-3 bg-white/50 dark:bg-white/10 hover:bg-[#007AFF] hover:text-white rounded-2xl transition-all shadow-sm group"
-            title="Robert Erbach Webseite"
-          >
+          <a href="https://roberterbach.de/" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/50 dark:bg-white/10 hover:bg-[#007AFF] hover:text-white rounded-2xl transition-all shadow-sm group" title="Robert Erbach Webseite">
              <Zap size={22} className="text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-white" />
           </a>
         </div>
@@ -245,8 +220,6 @@ export default function Dashboard() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 flex-1">
-          
-          {/* Termine */}
           <DashboardCard title="Termine" icon={CalendarIcon} to="/calendar">
             {appointments.length > 0 ? (
                <div className="flex flex-col gap-3">
@@ -284,31 +257,19 @@ export default function Dashboard() {
             )}
           </DashboardCard>
 
-          {/* Aufgaben */}
           <DashboardCard title="Aufgaben" icon={CheckSquare} to="/tasks">
             {todos.length > 0 ? (
                <div className="flex flex-col gap-3">
                 {todos.map(todo => (
                   <div key={todo.id} className="flex items-center gap-4 p-4 rounded-3xl bg-[#F5F5F7] dark:bg-[#2C2C2E] relative group transition-colors">
-                    <button 
-                      type="button"
-                      onClick={(e) => handleToggleTodo(e, todo)}
-                      className={cn(
-                        "w-6 h-6 rounded-lg border transition-all flex items-center justify-center shrink-0 shadow-sm",
-                        todo.completed ? "bg-[#007AFF] border-[#007AFF] text-white" : "bg-white dark:bg-[#3A3A3C] border-[#D2D2D7] dark:border-[#424245]"
-                      )}
-                    >
+                    <button type="button" onClick={(e) => handleToggleTodo(e, todo)} className={cn("w-6 h-6 rounded-lg border transition-all flex items-center justify-center shrink-0 shadow-sm", todo.completed ? "bg-[#007AFF] border-[#007AFF] text-white" : "bg-white dark:bg-[#3A3A3C] border-[#D2D2D7] dark:border-[#424245]")}>
                       {todo.completed && <Check size={14} strokeWidth={3} />}
                     </button>
                     <div className="flex-1 min-w-0 pr-12">
                       <div className="flex items-center gap-2">
                         <span className={cn("text-sm font-bold block truncate", todo.completed ? "text-[#86868B] line-through opacity-60" : "text-[#1D1D1F] dark:text-[#F5F5F7]")}>{todo.task}</span>
                         {!todo.completed && (
-                          <span className={cn(
-                            "w-1.5 h-1.5 rounded-full shrink-0",
-                            todo.priority === 'high' ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" :
-                            todo.priority === 'medium' ? "bg-orange-500" : "bg-blue-500"
-                          )} title={todo.priority} />
+                          <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", todo.priority === 'high' ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" : todo.priority === 'medium' ? "bg-orange-500" : "bg-blue-500")} title={todo.priority} />
                         )}
                       </div>
                       {todo.dueDate && <span className="text-[10px] font-medium text-[#86868B]">{format(new Date(todo.dueDate), 'dd.MM, HH:mm')} Uhr</span>}
@@ -328,23 +289,16 @@ export default function Dashboard() {
             )}
           </DashboardCard>
 
-          {/* Notizen */}
           <DashboardCard title="Notizen" icon={FileText} to="/notes">
             {notes.length > 0 ? (
                <div className="flex flex-col gap-3">
                 {notes.map(note => (
-                  <div 
-                    key={note.id} 
-                    className="p-4 rounded-3xl bg-[#F5F5F7] dark:bg-[#1C1C1E] relative group transition-colors flex items-center justify-between border-2"
-                    style={{ borderColor: note.color || 'transparent' }}
-                  >
+                  <div key={note.id} className="p-4 rounded-3xl bg-[#F5F5F7] dark:bg-[#1C1C1E] relative group transition-colors flex items-center justify-between border-2" style={{ borderColor: note.color || 'transparent' }}>
                     <div className="flex items-center gap-3 overflow-hidden">
                       {note.isPinned && <Pin size={12} className="text-green-500 fill-green-500 shrink-0" />}
                       <div className="min-w-0">
                         <h4 className="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7] truncate">{note.title || 'Ohne Titel'}</h4>
-                        <span className="text-[10px] font-medium text-[#86868B] block mt-0.5">
-                          {format(note.updatedAt?.toDate() || new Date(), 'dd. MMMM', { locale: de })}
-                        </span>
+                        <span className="text-[10px] font-medium text-[#86868B] block mt-0.5">{format(note.updatedAt?.toDate() || new Date(), 'dd. MMMM', { locale: de })}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -362,16 +316,11 @@ export default function Dashboard() {
             )}
           </DashboardCard>
 
-          {/* Prompts */}
           <DashboardCard title="Prompts" icon={MessageSquare} to="/prompts">
             {prompts.length > 0 ? (
                <div className="flex flex-col gap-3">
                 {prompts.map(prompt => (
-                  <div 
-                    key={prompt.id} 
-                    className="p-4 rounded-3xl bg-[#F5F5F7] dark:bg-[#1C1C1E] relative group transition-colors flex items-center justify-between border-2"
-                    style={{ borderColor: prompt.color || 'transparent' }}
-                  >
+                  <div key={prompt.id} className="p-4 rounded-3xl bg-[#F5F5F7] dark:bg-[#1C1C1E] relative group transition-colors flex items-center justify-between border-2" style={{ borderColor: prompt.color || 'transparent' }}>
                     <div className="flex items-center gap-3 overflow-hidden">
                       {prompt.isPinned && <Pin size={12} className="text-green-500 fill-green-500 shrink-0" />}
                       <div className="min-w-0">
@@ -394,7 +343,6 @@ export default function Dashboard() {
             )}
           </DashboardCard>
 
-          {/* Links */}
           <DashboardCard title="Links" icon={LinkIcon} to="/links">
             {links.length > 0 ? (
                <div className="flex flex-col gap-3">
@@ -402,26 +350,10 @@ export default function Dashboard() {
                   const domain = link.url.replace(/^https?:\/\//i, '').replace(/^www\./i, '').split('/')[0];
                   return (
                   <div key={link.id} className="relative group">
-                    <a 
-                      href={link.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="flex items-center gap-4 p-4 rounded-3xl bg-[#F5F5F7] dark:bg-[#2C2C2E] border-2 hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-colors pr-12"
-                      style={{ borderColor: link.color || 'transparent' }}
-                    >
+                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-3xl bg-[#F5F5F7] dark:bg-[#2C2C2E] border-2 hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-colors pr-12" style={{ borderColor: link.color || 'transparent' }}>
                       <div className="w-12 h-12 rounded-2xl bg-white dark:bg-[#3A3A3C] shadow-sm flex items-center justify-center shrink-0 overflow-hidden border border-black/5 dark:border-white/5 relative">
-                        <img 
-                          src={`https://www.google.com/s2/favicons?sz=64&domain=${domain}`} 
-                          alt="" 
-                          className="w-8 h-8 object-contain"
-                          referrerPolicy="no-referrer"
-                          onError={(e) => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2386868B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>'; }} 
-                        />
-                        {link.isPinned && (
-                          <div className="absolute top-0 right-0 p-0.5 bg-green-500 rounded-bl-lg">
-                            <Pin size={8} className="text-white fill-white" />
-                          </div>
-                        )}
+                        <img src={`https://www.google.com/s2/favicons?sz=64&domain=${domain}`} alt="" className="w-8 h-8 object-contain" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2386868B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>'; }} />
+                        {link.isPinned && <div className="absolute top-0 right-0 p-0.5 bg-green-500 rounded-bl-lg"><Pin size={8} className="text-white fill-white" /></div>}
                       </div>
                       <div className="min-w-0 flex-1">
                         <span className="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7] block truncate">{link.title}</span>
@@ -439,7 +371,6 @@ export default function Dashboard() {
             )}
           </DashboardCard>
 
-          {/* Haushaltsbuch */}
           <DashboardCard title="Haushaltsbuch" icon={Wallet} to="/household">
             <div className="grid grid-cols-3 gap-2 mb-2 bg-[#F5F5F7] dark:bg-[#2C2C2E] p-3 rounded-2xl border border-black/5 dark:border-white/5">
               <div className="text-center">
@@ -452,29 +383,21 @@ export default function Dashboard() {
               </div>
               <div className="text-center">
                 <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Bilanz</div>
-                <div className={cn("text-[11px] font-black", balance >= 0 ? "text-[#1D1D1F] dark:text-[#F5F5F7]" : "text-red-500")}>
-                  {balance.toLocaleString('de-DE')}€
-                </div>
+                <div className={cn("text-[11px] font-black", balance >= 0 ? "text-[#1D1D1F] dark:text-[#F5F5F7]" : "text-red-500")}>{balance.toLocaleString('de-DE')}€</div>
               </div>
             </div>
-
             {transactions.slice(0, 3).length > 0 ? (
                <div className="flex flex-col gap-2">
                  {transactions.slice(0, 3).map(t => (
                    <div key={t.id} className="flex items-center gap-3 p-3 rounded-2xl bg-[#F5F5F7] dark:bg-[#2C2C2E]">
-                     <div className={cn(
-                       "w-8 h-8 rounded-xl flex items-center justify-center shrink-0",
-                       t.type === 'income' ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
-                     )}>
+                     <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", t.type === 'income' ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500")}>
                        {t.type === 'income' ? <ArrowUpCircle size={16} /> : <ArrowDownCircle size={16} />}
                      </div>
                      <div className="flex-1 min-w-0">
                        <div className="text-xs font-bold text-[#1D1D1F] dark:text-[#F5F5F7] truncate">{t.description}</div>
                        <div className="text-[10px] font-medium text-[#86868B]">{format(t.date?.toDate() || new Date(), 'dd.MM')}</div>
                      </div>
-                     <div className={cn("text-xs font-black", t.type === 'income' ? "text-green-500" : "text-[#1D1D1F] dark:text-[#F5F5F7]")}>
-                       {t.type === 'income' ? '+' : '-'} {t.amount.toLocaleString('de-DE')}€
-                     </div>
+                     <div className={cn("text-xs font-black", t.type === 'income' ? "text-green-500" : "text-[#1D1D1F] dark:text-[#F5F5F7]")}>{t.type === 'income' ? '+' : '-'} {t.amount.toLocaleString('de-DE')}€</div>
                    </div>
                  ))}
                </div>
@@ -488,17 +411,9 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Custom Edit Modal - Comprehensive */}
-      {editItem && (
+      {editItem && createPortal(
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-xl animate-in fade-in duration-300">
            <div className="glass-card w-full max-w-4xl h-full max-h-[85vh] rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl relative">
-              <button 
-                onClick={() => setEditItem(null)}
-                className="absolute top-6 right-6 p-2 bg-slate-500/10 hover:bg-red-500 hover:text-white rounded-full transition-all z-[210] cursor-pointer"
-              >
-                <X size={20} />
-              </button>
-              
               <div className="flex-1 overflow-hidden">
                 {editItem.type === 'notes' && <NoteEditor note={editItem.data} onBack={() => setEditItem(null)} />}
                 {editItem.type === 'prompts' && <PromptEditor prompt={editItem.data} onBack={() => setEditItem(null)} />}
@@ -507,35 +422,23 @@ export default function Dashboard() {
                 {editItem.type === 'links' && <LinkEditForm link={editItem.data} onBack={() => setEditItem(null)} />}
               </div>
            </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* Custom Delete Modal */}
-      {deleteModal && deleteModal.open && (
+      {deleteModal && deleteModal.open && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/10 backdrop-blur-md">
           <div className="glass-card w-full max-w-sm rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
             <p className="text-sm text-[#86868B] mb-8">Dieser Eintrag wird unwiderruflich entfernt.</p>
             <div className="flex flex-col gap-3">
-              <button 
-                type="button"
-                onClick={handleDelete}
-                className="w-full h-12 bg-red-500 text-white font-bold rounded-2xl hover:bg-red-600 transition-all"
-              >
-                Löschen
-              </button>
-              <button 
-                type="button"
-                onClick={() => setDeleteModal(null)}
-                className="w-full h-12 bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-all"
-              >
-                Behalten
-              </button>
+              <button type="button" onClick={handleDelete} className="w-full h-12 bg-red-500 text-white font-bold rounded-2xl hover:bg-red-600 transition-all">Löschen</button>
+              <button type="button" onClick={() => setDeleteModal(null)} className="w-full h-12 bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-all">Behalten</button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
-
     </div>
   );
 }
@@ -596,10 +499,10 @@ function TaskEditForm({ todo, onBack }: { todo: any, onBack: () => void }) {
       </div>
 
       <div className="flex flex-col gap-3">
-        <button onClick={handleSave} disabled={isSaving} className="w-full h-12 bg-[#007AFF] text-white font-bold rounded-2xl hover:bg-[#0071E3] transition-all shadow-lg shadow-blue-500/20">
+        <button type="button" onClick={handleSave} disabled={isSaving} className="w-full h-12 bg-[#007AFF] text-white font-bold rounded-2xl hover:bg-[#0071E3] transition-all shadow-lg shadow-blue-500/20">
           {isSaving ? "Speichert..." : "Speichern"}
         </button>
-        <button onClick={onBack} className="w-full h-12 bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-all">
+        <button type="button" onClick={onBack} className="w-full h-12 bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-all">
           Abbrechen
         </button>
       </div>
@@ -639,16 +542,16 @@ function AppointmentEditForm({ appointment, onBack }: { appointment: any, onBack
           <input type="text" value={task} onChange={(e) => setTask(e.target.value)} className="glass-input h-12" required />
         </div>
         <div className="space-y-1.5 flex flex-col">
-          <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Datum & Uhrzeit</label>
-          <input type="datetime-local" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="glass-input h-12" required />
+          <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Datum & Uhrzeit (optional)</label>
+          <input type="datetime-local" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="glass-input h-12" />
         </div>
       </div>
 
       <div className="flex flex-col gap-3">
-        <button onClick={handleSave} disabled={isSaving} className="w-full h-12 bg-[#007AFF] text-white font-bold rounded-2xl hover:bg-[#0071E3] transition-all shadow-lg shadow-blue-500/20">
+        <button type="button" onClick={handleSave} disabled={isSaving || !task.trim()} className="w-full h-12 bg-[#007AFF] text-white font-bold rounded-2xl hover:bg-[#0071E3] transition-all shadow-lg shadow-blue-500/20">
           {isSaving ? "Speichert..." : "Speichern"}
         </button>
-        <button onClick={onBack} className="w-full h-12 bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-all">
+        <button type="button" onClick={onBack} className="w-full h-12 bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-all">
           Abbrechen
         </button>
       </div>
@@ -734,10 +637,10 @@ function LinkEditForm({ link, onBack }: { link: any, onBack: () => void }) {
       </div>
 
       <div className="flex flex-col gap-3">
-        <button onClick={handleSave} disabled={isSaving} className="w-full h-12 bg-[#007AFF] text-white font-bold rounded-2xl hover:bg-[#0071E3] transition-all shadow-lg shadow-blue-500/20">
+        <button type="button" onClick={handleSave} disabled={isSaving} className="w-full h-12 bg-[#007AFF] text-white font-bold rounded-2xl hover:bg-[#0071E3] transition-all shadow-lg shadow-blue-500/20">
           {isSaving ? "Speichert..." : "Speichern"}
         </button>
-        <button onClick={onBack} className="w-full h-12 bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-all">
+        <button type="button" onClick={onBack} className="w-full h-12 bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-all">
           Abbrechen
         </button>
       </div>

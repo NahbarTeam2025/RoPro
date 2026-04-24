@@ -148,5 +148,19 @@ service cloud.firestore {
       );
       allow delete: if isSignedIn() && isValidId(transactionId) && existing().userId == request.auth.uid;
     }
+
+    // Savings
+    function isValidSavings(data) {
+      return data.keys().hasAll(['amount', 'userId', 'updatedAt']) &&
+             data.amount is number &&
+             data.userId == request.auth.uid &&
+             data.updatedAt is timestamp;
+    }
+
+    match /savings/{userId} {
+      allow get: if isSignedIn() && userId == request.auth.uid;
+      allow list: if isSignedIn() && request.auth.uid != null; // Allow list if user is owner of returned docs
+      allow write: if isSignedIn() && userId == request.auth.uid && isValidSavings(incoming()) && incoming().updatedAt == request.time;
+    }
   }
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, updateDoc, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
 import { 
@@ -43,6 +43,51 @@ export default function Household() {
   const [filterMonth, setFilterMonth] = useState(format(new Date(), 'yyyy-MM'));
   const [showCatManager, setShowCatManager] = useState(false);
   const { categories } = useCategories('household');
+
+  const [savings, setSavings] = useState<{ amount: number, id: string } | null>(null);
+  const [savingsInput, setSavingsInput] = useState('');
+  const [isUpdatingSavings, setIsUpdatingSavings] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const unsubscribe = onSnapshot(doc(db, 'savings', user.uid), (snapshot) => {
+      if (snapshot.exists()) {
+        setSavings({ id: snapshot.id, amount: snapshot.data().amount });
+      } else {
+        setSavings({ id: user.uid, amount: 0 });
+      }
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  const handleUpdateSavings = async (type: 'add' | 'subtract') => {
+    if (!user || !savingsInput) return;
+    
+    const normalizedInput = savingsInput.replace(',', '.');
+    const value = parseFloat(normalizedInput);
+    if (isNaN(value)) return;
+
+    setIsUpdatingSavings(true);
+    try {
+      const currentAmount = savings?.amount || 0;
+      const newAmount = type === 'add' ? currentAmount + value : currentAmount - value;
+      
+      // Use setDoc with merge to create or update
+      await setDoc(doc(db, 'savings', user.uid), {
+        userId: user.uid,
+        amount: newAmount,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+
+      setSavingsInput('');
+    } catch (error) {
+      console.error("Error updating savings:", error);
+    } finally {
+      setIsUpdatingSavings(false);
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -256,7 +301,7 @@ export default function Household() {
       )}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
         <div className="glass-card p-4 rounded-2xl border-l-4 border-green-500 flex items-center gap-3">
           <div className="p-2 bg-green-500/10 text-green-500 rounded-lg shrink-0">
             <TrendingUp size={18} />
@@ -293,9 +338,50 @@ export default function Household() {
             <div className={cn(
               "text-lg font-black tracking-tight",
               balance >= 0 ? "text-brand" : "text-red-500"
-            )}>
+              )}>
               {balance.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
             </div>
+          </div>
+        </div>
+
+        {/* Savings Tile */}
+        <div className="glass-card p-4 rounded-2xl border-l-4 border-orange-500 flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-orange-500/10 text-orange-500 rounded-lg shrink-0">
+              <PiggyBank size={18} />
+            </div>
+            <div className="flex-1">
+              <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-0.5">Gespartes Geld</div>
+              <div className="text-lg font-black text-brand tracking-tight">
+                {savings?.amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }) || '0,00 €'}
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <input 
+              type="text" 
+              inputMode="decimal"
+              value={savingsInput}
+              onChange={(e) => setSavingsInput(e.target.value)}
+              placeholder="Betrag"
+              className="glass-input h-8 text-[10px] w-full px-2"
+            />
+            <button 
+              type="button"
+              onClick={() => handleUpdateSavings('subtract')}
+              disabled={isUpdatingSavings}
+              className="h-8 w-8 shrink-0 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all flex items-center justify-center font-black"
+              title="Abziehen"
+            >
+              -
+            </button>
+            <button 
+              onClick={() => handleUpdateSavings('add')}
+              className="h-8 w-8 shrink-0 bg-green-500/10 text-green-500 rounded-lg hover:bg-green-500 hover:text-white transition-all flex items-center justify-center font-black"
+              title="Hinzufügen"
+            >
+              +
+            </button>
           </div>
         </div>
       </div>

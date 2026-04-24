@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../contexts/ThemeContext';
 import { 
@@ -8,7 +8,7 @@ import {
   Cloud, Image as ImageIcon, BarChart2, Search, Activity, 
   Gauge, Mail, Brain, Cpu, ChevronDown, ChevronUp, Wallet,
   Code, BookOpen, Sparkles, FastForward, Layers, Compass,
-  Music, Volume2, Mic
+  Music, Volume2, Mic, Linkedin, Share2
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -33,7 +33,8 @@ export default function Layout() {
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({
     google: true,
     performance: false,
-    ai: false
+    ai: false,
+    social: true
   });
 
   const navItems = [
@@ -87,6 +88,18 @@ export default function Layout() {
         { name: 'Napkin AI', icon: Layers, url: 'https://www.napkin.ai' },
         { name: 'Suno', icon: Music, url: 'https://suno.com' },
         { name: 'ElevenLabs', icon: Volume2, url: 'https://elevenlabs.io' },
+        { name: 'Arena.ai', icon: Activity, url: 'https://chat.lmsys.org' },
+        { name: 'Copilot', icon: MessageSquare, url: 'https://copilot.microsoft.com' },
+        { name: 'Meta AI', icon: Sparkles, url: 'https://www.meta.ai' },
+        { name: 'Qwen', icon: Brain, url: 'https://chat.qwen.ai' },
+      ]
+    },
+    {
+      id: 'social',
+      name: 'Social Media',
+      icon: Share2,
+      links: [
+        { name: 'LinkedIn', icon: Linkedin, url: 'https://www.linkedin.com/in/robert-erbach-a173b2371/' },
       ]
     }
   ];
@@ -95,8 +108,11 @@ export default function Layout() {
     setOpenCategories(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
+  const { pathname } = useLocation();
+  const mainRef = React.useRef<HTMLElement>(null);
+
   return (
-    <div className="flex h-screen overflow-hidden font-sans relative">
+    <div className="flex min-h-screen font-sans relative bg-[#FBFBFD] dark:bg-black transition-colors duration-500">
       {/* Mobile sidebar overlay */}
       {isSidebarOpen && (
         <div 
@@ -108,11 +124,11 @@ export default function Layout() {
       {/* Sidebar */}
       <aside 
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-[#F2F2F7] dark:bg-[#000000] border-r border-[#D2D2D7]/30 dark:border-[#424245]/30 transform transition-transform duration-500 ease-out lg:relative lg:translate-x-0 flex flex-col shadow-2xl lg:shadow-none",
+          "fixed inset-y-0 left-0 z-50 w-64 bg-[#F2F2F7] dark:bg-[#000000] border-r border-[#D2D2D7]/30 dark:border-[#424245]/30 transform transition-transform duration-500 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 flex flex-col shadow-2xl lg:shadow-none",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="p-8 flex items-center gap-3">
+        <div className="p-8 flex items-center gap-3 shrink-0">
           <div className="w-8 h-8 flex items-center justify-center text-[#007AFF]">
             <Zap size={24} fill="currentColor" />
           </div>
@@ -139,7 +155,7 @@ export default function Layout() {
                 )}
                 onClick={() => setIsSidebarOpen(false)}
               >
-                <item.icon size={18} className={cn(({ isActive }: any) => isActive ? "text-[#007AFF]" : "text-[#86868B]")} />
+                <item.icon size={18} className="shrink-0" />
                 <span>{item.name}</span>
               </NavLink>
             ))}
@@ -188,7 +204,7 @@ export default function Layout() {
           </div>
         </nav>
 
-        <div className="p-6 border-t border-[#D2D2D7]/30 dark:border-[#424245]/30 space-y-6">
+        <div className="p-6 border-t border-[#D2D2D7]/30 dark:border-[#424245]/30 space-y-6 shrink-0">
            <button 
              onClick={toggleTheme}
              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-[#424245] dark:text-[#A1A1A6] hover:bg-[#FBFBFD] dark:hover:bg-[#1C1C1E] transition-all"
@@ -198,7 +214,7 @@ export default function Layout() {
            </button>
 
            <div className="flex items-center gap-3 px-2">
-             <div className="w-10 h-10 rounded-full bg-[#E8E8ED] dark:bg-[#1C1C1E] flex items-center justify-center text-[#1D1D1F] dark:text-[#F5F5F7] font-bold border border-[#D2D2D7]/30 dark:border-[#424245]/30">
+             <div className="w-10 h-10 rounded-full bg-[#E8E8ED] dark:bg-[#1C1C1E] flex items-center justify-center text-[#1D1D1F] dark:text-[#F5F5F7] font-bold border border-[#D2D2D7]/30 dark:border-[#424245]/30 shadow-sm">
                {user?.displayName?.[0] || 'B'}
              </div>
              <div className="flex-1 overflow-hidden">
@@ -210,8 +226,8 @@ export default function Layout() {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 bg-[#FBFBFD] dark:bg-black relative z-10 transition-colors duration-500">
-        <header className="h-16 border-b border-[#D2D2D7]/30 dark:border-[#424245]/30 flex items-center px-6 lg:hidden">
+      <div className="flex-1 flex flex-col min-w-0 h-screen relative z-10 transition-colors duration-500 overflow-hidden">
+        <header className="h-16 border-b border-[#D2D2D7]/30 dark:border-[#424245]/30 flex items-center px-6 lg:hidden shrink-0 bg-[#FBFBFD]/80 dark:bg-black/80 backdrop-blur-md z-30">
           <button 
             className="p-2 -ml-2 text-[#86868B] hover:text-[#1D1D1F] rounded-lg transition-colors"
             onClick={() => setIsSidebarOpen(true)}
@@ -224,7 +240,7 @@ export default function Layout() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-8 sm:p-10 lg:p-12 outline-none">
+        <main ref={mainRef} className="flex-1 overflow-y-auto p-8 sm:p-10 lg:p-12 outline-none custom-scrollbar">
           <Outlet />
         </main>
       </div>

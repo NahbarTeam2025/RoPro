@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { addDoc, collection, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { Trash2, Copy, Save } from 'lucide-react';
+import { Trash2, Copy, Save, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { CategorySelect } from '../components/CategorySelect';
 
@@ -124,6 +124,14 @@ export function PromptEditor({ prompt, onBack, onSave }: { prompt: Prompt, onBac
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <button 
+              onClick={() => setDeleteModal({ open: true, id: prompt.id })}
+              className="p-2 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors flex-shrink-0 cursor-pointer"
+              title="Prompt löschen"
+            >
+              <Trash2 size={20} />
+            </button>
+            <button 
+              type="button"
               onClick={handleSave}
               disabled={!hasChanges || isSaving}
               className={cn(
@@ -137,11 +145,11 @@ export function PromptEditor({ prompt, onBack, onSave }: { prompt: Prompt, onBac
               <span className="hidden sm:inline">{isSaving ? "Speichert..." : "Speichern"}</span>
             </button>
             <button 
-              onClick={() => setDeleteModal({ open: true, id: prompt.id })}
-              className="p-2 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors flex-shrink-0 cursor-pointer"
-              title="Prompt löschen"
+              onClick={onBack}
+              className="p-2 text-brand-muted hover:bg-slate-500/10 rounded-xl transition-all flex-shrink-0 cursor-pointer"
+              title="Schließen"
             >
-              <Trash2 size={20} />
+              <X size={20} />
             </button>
           </div>
         </div>
