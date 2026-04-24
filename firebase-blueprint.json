@@ -84,7 +84,8 @@
         "category": { "type": "string" },
         "date": { "type": "timestamp" },
         "userId": { "type": "string" },
-        "createdAt": { "type": "timestamp" }
+        "createdAt": { "type": "timestamp" },
+        "isRecurring": { "type": "boolean" }
       },
       "required": ["description", "amount", "type", "category", "date", "userId", "createdAt"]
     }

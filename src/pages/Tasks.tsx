@@ -138,12 +138,11 @@ export default function Tasks() {
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col h-full relative z-10">
-      <header className="mb-6 sm:mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+      <header className="mb-6 sm:mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 px-4 sm:px-0">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-brand">Aufgaben</h1>
-          <p className="mt-1 font-medium text-brand-muted">Verwalte deine täglichen Ziele und Projekte.</p>
+          <h1 className="text-3xl font-black tracking-tight text-brand uppercase italic">Aufgaben</h1>
         </div>
-        <div className="flex w-full sm:w-auto items-center gap-2">
+        <div className="flex w-full overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 items-center gap-2 custom-scrollbar">
            <button 
              onClick={() => setShowCatManager(true)}
              className="glass-button-secondary h-10 w-10 p-0 flex items-center justify-center shrink-0"
@@ -154,17 +153,17 @@ export default function Tasks() {
            <select 
               value={filterCategory} 
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="glass-input h-10 w-full sm:w-36 appearance-none bg-white dark:bg-[#050505] text-xs font-bold uppercase tracking-wider"
+              className="glass-input h-10 w-32 sm:w-36 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider shrink-0"
            >
-             <option value="all">Alle Kategorien</option>
+             <option value="all">Kategorie</option>
              {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
            </select>
            <select 
               value={filterMonth} 
               onChange={(e) => setFilterMonth(e.target.value)}
-              className="glass-input h-10 w-full sm:w-36 appearance-none bg-white dark:bg-[#050505] text-xs font-bold uppercase tracking-wider"
+              className="glass-input h-10 w-32 sm:w-36 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider shrink-0"
            >
-             <option value="all">Alle Monate</option>
+             <option value="all">Zeitraum</option>
              {availableMonths.map(m => (
                <option key={m} value={m}>{format(new Date(`${m}-01`), 'MMMM yyyy', { locale: de })}</option>
              ))}

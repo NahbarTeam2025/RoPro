@@ -32,6 +32,7 @@ export default function Notes() {
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [filterMonth, setFilterMonth] = useState<string>('all');
   const [showCatManager, setShowCatManager] = useState(false);
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean, id: string } | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -80,6 +81,18 @@ export default function Notes() {
       });
     } catch (error) {
       console.error("Error creating note:", error);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteModal || !user) return;
+    try {
+      await deleteDoc(doc(db, 'notes', deleteModal.id));
+      if (activeNote?.id === deleteModal.id) setActiveNote(null);
+      setDeleteModal(null);
+    } catch (err) {
+      console.error("Error deleting note:", err);
+      alert('Fehler beim Löschen der Notiz');
     }
   };
 
@@ -180,18 +193,12 @@ export default function Notes() {
                       )}>{note.title || 'Unbenannte Notiz'}</h3>
                       
                       <button
-                        onClick={async (e) => {
+                        onClick={(e) => {
                           e.stopPropagation();
-                          if (window.confirm('Diese Notiz wirklich löschen?')) {
-                            try {
-                              await deleteDoc(doc(db, 'notes', note.id));
-                              if (activeNote?.id === note.id) setActiveNote(null);
-                            } catch (err) {
-                              console.error("Error deleting note:", err);
-                            }
-                          }
+                          e.preventDefault();
+                          setDeleteModal({ open: true, id: note.id });
                         }}
-                        className="p-1.5 text-brand-muted hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity z-20"
+                        className="p-1.5 text-brand-muted hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition-opacity z-20"
                         title="Notiz löschen"
                       >
                         <Trash2 size={14} />
@@ -229,7 +236,33 @@ export default function Notes() {
           </div>
         )}
       </div>
-      {/* Category Manager Modal */}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal && deleteModal.open && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/10 backdrop-blur-md">
+          <div className="glass-card w-full max-w-sm rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
+            <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
+            <p className="text-sm text-[#86868B] mb-8">Diese Notiz wird unwiderruflich entfernt.</p>
+            <div className="flex flex-col gap-3">
+              <button 
+                type="button"
+                onClick={handleConfirmDelete}
+                className="w-full h-12 bg-red-500 text-white font-bold rounded-2xl hover:bg-red-600 transition-all"
+              >
+                Löschen
+              </button>
+              <button 
+                type="button"
+                onClick={() => setDeleteModal(null)}
+                className="w-full h-12 bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-all"
+              >
+                Behalten
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showCatManager && <CategoryManager type="note" onClose={() => setShowCatManager(false)} />}
     </div>
   );

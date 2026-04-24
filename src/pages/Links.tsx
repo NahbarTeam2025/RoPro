@@ -156,8 +156,7 @@ export default function Links() {
     <div className="max-w-5xl mx-auto flex flex-col h-full relative z-10 w-full pb-20">
       <header className="mb-6 sm:mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-brand">Projekt-Links</h1>
-          <p className="mt-1 font-medium text-brand-muted">Deine Sammlung wichtiger Lesezeichen.</p>
+          <h1 className="text-3xl font-black tracking-tight text-brand uppercase italic">Links</h1>
         </div>
         <div className="flex flex-col sm:flex-row w-full sm:w-auto items-center gap-2">
            <button 
@@ -219,20 +218,20 @@ export default function Links() {
               onChange={setCategoryId}
             />
           </div>
-          <div className="flex gap-2 w-full md:w-auto mt-2 md:mt-0">
+          <div className="flex flex-col gap-2 w-full md:w-auto mt-2 md:mt-0">
             <button
-              type="button"
-              onClick={() => setShowAdd(false)}
-              className="w-full md:w-auto h-10 px-4 glass-button-secondary shrink-0"
-            >
-              Abbrechen
-            </button>
-            <button
-              type="submit"
-              className="w-full md:w-auto h-10 px-6 glass-button-primary shrink-0"
-            >
-              Speichern
-            </button>
+               type="submit"
+               className="w-full md:w-auto h-10 px-6 glass-button-primary shrink-0 order-first md:order-none"
+             >
+               Speichern
+             </button>
+             <button
+               type="button"
+               onClick={() => setShowAdd(false)}
+               className="w-full md:w-auto h-10 px-4 glass-button-secondary shrink-0"
+             >
+               Abbrechen
+             </button>
           </div>
         </form>
       )}
@@ -255,13 +254,18 @@ export default function Links() {
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group glass-card rounded-3xl p-6 transition-all flex flex-col hover:shadow-xl"
+              className="group glass-card rounded-3xl p-6 transition-all flex flex-col hover:shadow-xl relative overflow-hidden"
             >
               <div className="flex items-start justify-between mb-4">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 dark:bg-green-500/10 dark:text-green-500 transition-colors">
-                  <LinkIcon size={20} />
+                <div className="w-12 h-12 rounded-2xl bg-white dark:bg-[#3A3A3C] shadow-sm flex items-center justify-center shrink-0 overflow-hidden border border-black/5 dark:border-white/5">
+                  <img 
+                    src={`https://unavatar.io/${new URL(link.url).hostname}`} 
+                    alt="" 
+                    className="w-8 h-8 object-contain"
+                    onError={(e) => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2386868B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>'; }} 
+                  />
                 </div>
-                <div className="flex gap-1 lg:opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex gap-1">
                   <button
                     onClick={(e) => handleEdit(link, e)}
                     className="p-1.5 text-brand-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all cursor-pointer"
@@ -279,15 +283,14 @@ export default function Links() {
                 </div>
               </div>
               <h3 className="font-bold text-brand mb-1 line-clamp-1">{link.title}</h3>
-              <p className="text-sm font-medium text-brand-muted line-clamp-1 mb-4 flex items-center gap-1.5">
-                <ExternalLink size={12} className="opacity-50" />
+              <p className="text-xs font-bold text-brand-muted line-clamp-1 mb-4 flex items-center gap-1.5 uppercase tracking-tighter">
                 {getDomain(link.url)}
               </p>
               
               <div className="mt-auto pt-4 border-t border-slate-200/50 dark:border-white/10 flex items-center justify-between text-[10px] font-bold text-brand-muted uppercase tracking-wider">
-                <span>{link.createdAt?.toDate ? format(link.createdAt.toDate(), 'd. MMM yyyy') : 'Gerade eben'}</span>
+                <span className="opacity-0">Placeholder</span>
                 {catName && (
-                  <span className="flex items-center gap-1 bg-slate-200/50 dark:bg-black/20 px-2 py-0.5 rounded truncate max-w-[100px]">
+                  <span className="flex items-center gap-1 bg-slate-200/50 dark:bg-black/20 px-2 py-0.5 rounded truncate max-w-[150px]">
                     <Tag size={10} />
                     <span className="truncate">{catName}</span>
                   </span>

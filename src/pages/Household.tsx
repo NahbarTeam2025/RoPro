@@ -22,6 +22,7 @@ interface Transaction {
   category: string;
   date: any;
   userId: string;
+  isRecurring?: boolean;
 }
 
 export default function Household() {
@@ -29,6 +30,7 @@ export default function Household() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [showAdd, setShowAdd] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean, id: string } | null>(null);
   
   // Form state
   const [description, setDescription] = useState('');
@@ -36,6 +38,7 @@ export default function Household() {
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [categoryId, setCategoryId] = useState('');
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [isRecurring, setIsRecurring] = useState(false);
 
   const [filterMonth, setFilterMonth] = useState(format(new Date(), 'yyyy-MM'));
   const [showCatManager, setShowCatManager] = useState(false);
@@ -65,35 +68,54 @@ export default function Household() {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !description.trim() || !amount) return;
+    if (!user) return;
+    
+    if (!description.trim()) {
+      alert('Bitte gib eine Beschreibung ein.');
+      return;
+    }
+
+    const numAmount = parseFloat(amount);
+    if (isNaN(numAmount) || numAmount <= 0) {
+      alert('Bitte gib einen gültigen Betrag ein.');
+      return;
+    }
 
     try {
       await addDoc(collection(db, 'transactions'), {
         description: description.trim(),
-        amount: parseFloat(amount),
+        amount: numAmount,
         type,
         category: categoryId,
         date: new Date(date),
+        isRecurring,
         userId: user.uid,
         createdAt: serverTimestamp()
       });
       setDescription('');
       setAmount('');
       setCategoryId('');
+      setIsRecurring(false);
       setShowAdd(false);
     } catch (error) {
       console.error("Error adding transaction:", error);
+      alert('Fehler beim Speichern. Bitte versuche es erneut.');
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Diese Transaktion wirklich löschen?')) {
-      try {
-        await deleteDoc(doc(db, 'transactions', id));
-      } catch (error) {
-        console.error("Error deleting transaction:", error);
-      }
+  const handleConfirmDelete = async () => {
+    if (!deleteModal || !user) return;
+    try {
+      await deleteDoc(doc(db, 'transactions', deleteModal.id));
+      setDeleteModal(null);
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+      alert('Fehler beim Löschen der Transaktion');
     }
+  };
+
+  const handleDelete = (id: string) => {
+    setDeleteModal({ open: true, id: id });
   };
 
   const filteredTransactions = transactions.filter(t => {
@@ -125,7 +147,6 @@ export default function Household() {
       <header className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
         <div>
           <h1 className="text-3xl font-black tracking-tight text-brand">Haushaltsbuch</h1>
-          <p className="mt-1 font-medium text-brand-muted">Behalte den Überblick über deine Finanzen.</p>
         </div>
         <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
           <select 
@@ -147,54 +168,9 @@ export default function Household() {
         </div>
       </header>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
-        <div className="glass-card p-8 rounded-[2rem] border-l-4 border-green-500">
-          <div className="flex justify-between items-start mb-4">
-            <div className="p-3 bg-green-500/10 text-green-500 rounded-2xl">
-              <TrendingUp size={24} />
-            </div>
-          </div>
-          <div className="text-sm font-bold text-brand-muted uppercase tracking-wider mb-1">Einnahmen</div>
-          <div className="text-3xl font-black text-brand tracking-tighter">
-            {income.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-          </div>
-        </div>
-
-        <div className="glass-card p-8 rounded-[2rem] border-l-4 border-red-500">
-          <div className="flex justify-between items-start mb-4">
-            <div className="p-3 bg-red-500/10 text-red-500 rounded-2xl">
-              <TrendingDown size={24} />
-            </div>
-          </div>
-          <div className="text-sm font-bold text-brand-muted uppercase tracking-wider mb-1">Ausgaben</div>
-          <div className="text-3xl font-black text-brand tracking-tighter">
-            {expenses.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-          </div>
-        </div>
-
-        <div className="glass-card p-8 rounded-[2rem] border-l-4 border-blue-500">
-          <div className="flex justify-between items-start mb-4">
-            <div className={cn(
-              "p-3 rounded-2xl transition-colors",
-              balance >= 0 ? "bg-blue-500/10 text-blue-500" : "bg-red-500/10 text-red-500"
-            )}>
-              <PiggyBank size={24} />
-            </div>
-          </div>
-          <div className="text-sm font-bold text-brand-muted uppercase tracking-wider mb-1">Bilanz</div>
-          <div className={cn(
-            "text-3xl font-black tracking-tighter",
-            balance >= 0 ? "text-brand" : "text-red-500"
-          )}>
-            {balance.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-          </div>
-        </div>
-      </div>
-
       {showAdd && (
         <form onSubmit={handleAdd} className="glass-card p-8 rounded-[2.5rem] mb-10 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
             <div className="space-y-1.5 lg:col-span-1">
               <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Typ</label>
               <div className="flex gap-2 p-1 bg-slate-500/10 rounded-2xl h-12">
@@ -252,17 +228,77 @@ export default function Household() {
                 className="glass-input h-12" required
               />
             </div>
+
+            <div className="space-y-1.5 lg:col-span-1 flex flex-col justify-center">
+              <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1 mb-2">Wiederholen</label>
+              <button
+                type="button"
+                onClick={() => setIsRecurring(!isRecurring)}
+                className={cn(
+                  "h-12 rounded-2xl border flex items-center justify-center gap-2 transition-all font-bold text-[10px] uppercase",
+                  isRecurring ? "bg-blue-500/10 border-blue-500 text-blue-500" : "bg-slate-500/10 border-transparent text-brand-muted"
+                )}
+              >
+                {isRecurring ? <Check size={16} /> : null}
+                <span>Monatlich</span>
+              </button>
+            </div>
           </div>
-          <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-slate-200/50 dark:border-white/10">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 mt-8 pt-6 border-t border-slate-200/50 dark:border-white/10">
+            <button type="submit" className="px-10 h-12 glass-button-primary font-bold order-first sm:order-none">
+              Speichern
+            </button>
             <button type="button" onClick={() => setShowAdd(false)} className="px-6 h-12 glass-button-secondary font-bold">
               Abbrechen
-            </button>
-            <button type="submit" className="px-10 h-12 glass-button-primary font-bold">
-              Speichern
             </button>
           </div>
         </form>
       )}
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+        <div className="glass-card p-4 rounded-2xl border-l-4 border-green-500 flex items-center gap-3">
+          <div className="p-2 bg-green-500/10 text-green-500 rounded-lg shrink-0">
+            <TrendingUp size={18} />
+          </div>
+          <div>
+            <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-0.5">Einnahmen</div>
+            <div className="text-lg font-black text-brand tracking-tight">
+              {income.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+            </div>
+          </div>
+        </div>
+
+        <div className="glass-card p-4 rounded-2xl border-l-4 border-red-500 flex items-center gap-3">
+          <div className="p-2 bg-red-500/10 text-red-500 rounded-lg shrink-0">
+            <TrendingDown size={18} />
+          </div>
+          <div>
+            <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-0.5">Ausgaben</div>
+            <div className="text-lg font-black text-brand tracking-tight">
+              {expenses.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+            </div>
+          </div>
+        </div>
+
+        <div className="glass-card p-4 rounded-2xl border-l-4 border-blue-500 flex items-center gap-3">
+          <div className={cn(
+            "p-2 rounded-lg transition-colors shrink-0",
+            balance >= 0 ? "bg-blue-500/10 text-blue-500" : "bg-red-500/10 text-red-500"
+          )}>
+            <PiggyBank size={18} />
+          </div>
+          <div>
+            <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-0.5">Bilanz</div>
+            <div className={cn(
+              "text-lg font-black tracking-tight",
+              balance >= 0 ? "text-brand" : "text-red-500"
+            )}>
+              {balance.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Transaction List */}
       <div className="glass-card rounded-[2.5rem] overflow-hidden flex flex-col flex-1 min-h-[500px]">
@@ -292,38 +328,43 @@ export default function Household() {
               {filteredTransactions.map(t => {
                 const catName = categories.find(c => c.id === t.category)?.name || t.category || '--';
                 return (
-                  <div key={t.id} className="p-6 flex items-center gap-5 hover:bg-slate-500/5 transition-colors group">
+                  <div key={t.id} className="p-4 sm:p-6 flex items-center gap-4 sm:gap-5 hover:bg-slate-500/5 transition-colors group">
                     <div className={cn(
-                      "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm",
+                      "w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 shadow-sm",
                       t.type === 'income' ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
                     )}>
-                      {t.type === 'income' ? <ArrowUpCircle size={24} /> : <ArrowDownCircle size={24} />}
+                      {t.type === 'income' ? <ArrowUpCircle size={20} className="sm:w-6 sm:h-6" /> : <ArrowDownCircle size={20} className="sm:w-6 sm:h-6" />}
                     </div>
                     
-                    <div className="flex-1 min-w-0 pr-10">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-bold text-brand truncate">{t.description}</h4>
-                        <span className="text-[10px] font-black text-brand-muted uppercase tracking-widest bg-slate-200/50 dark:bg-black/20 px-2 py-0.5 rounded-lg border border-slate-200/30 dark:border-white/5">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-1">
+                        <h4 className="font-bold text-brand truncate max-w-[150px] sm:max-w-[200px]">{t.description}</h4>
+                        {t.isRecurring && (
+                          <span className="p-1 bg-blue-500/10 text-blue-500 rounded-lg shrink-0" title="Wiederkehrend">
+                            <TrendingUp size={10} className="sm:w-3 sm:h-3" />
+                          </span>
+                        )}
+                        <span className="text-[9px] sm:text-[10px] font-black text-brand-muted uppercase tracking-widest bg-slate-200/50 dark:bg-black/20 px-2 py-0.5 rounded-lg border border-slate-200/30 dark:border-white/5 shrink-0">
                           {catName}
                         </span>
                       </div>
-                      <div className="text-xs font-bold text-brand-muted uppercase tracking-tighter">
-                        {t.date?.toDate ? format(t.date.toDate(), 'd. MMMM yyyy', { locale: de }) : '--'}
+                      <div className="text-[9px] sm:text-[10px] font-bold text-brand-muted uppercase tracking-wider flex items-center gap-1">
+                        <span className="shrink-0">{t.date?.toDate ? format(t.date.toDate(), 'dd.MM.yyyy', { locale: de }) : '--'}</span>
                       </div>
                     </div>
 
-                    <div className="text-right flex items-center gap-4">
+                    <div className="text-right flex items-center gap-3 sm:gap-4">
                       <div className={cn(
-                        "text-lg font-black tracking-tighter",
+                        "text-base sm:text-lg font-black tracking-tighter whitespace-nowrap",
                         t.type === 'income' ? "text-green-500" : "text-brand"
                       )}>
                         {t.type === 'income' ? '+' : '-'} {t.amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                       </div>
                       <button 
                         onClick={() => handleDelete(t.id)}
-                        className="p-2.5 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-all"
+                        className="p-2 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-xl md:opacity-0 group-hover:opacity-100 transition-all shrink-0"
                       >
-                        <Trash2 size={18} />
+                        <Trash2 size={16} className="sm:w-[18px] sm:h-[18px]" />
                       </button>
                     </div>
                   </div>
@@ -335,6 +376,32 @@ export default function Household() {
       </div>
 
       {showCatManager && <CategoryManager type="household" onClose={() => setShowCatManager(false)} />}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal && deleteModal.open && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/10 backdrop-blur-md">
+          <div className="glass-card w-full max-w-sm rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
+            <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
+            <p className="text-sm text-[#86868B] mb-8">Dieser Eintrag wird unwiderruflich entfernt.</p>
+            <div className="flex flex-col gap-3">
+              <button 
+                type="button"
+                onClick={handleConfirmDelete}
+                className="w-full h-12 bg-red-500 text-white font-bold rounded-2xl hover:bg-red-600 transition-all"
+              >
+                Löschen
+              </button>
+              <button 
+                type="button"
+                onClick={() => setDeleteModal(null)}
+                className="w-full h-12 bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-all"
+              >
+                Behalten
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

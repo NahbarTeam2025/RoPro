@@ -169,30 +169,26 @@ export default function Calendar() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 relative z-10 w-full pb-20 lg:pb-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between glass-card px-6 py-4 rounded-3xl gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand capitalize">{format(currentDate, dateFormat, { locale: de })}</h1>
-          <p className="text-brand-muted font-medium text-sm mt-1">Zeitplan und anstehende Termine</p>
-        </div>
-        <div className="flex w-full sm:w-auto items-center justify-between sm:justify-start gap-2">
-          <button onClick={prevMonth} className="p-2 border border-slate-200/50 dark:border-white/10 rounded-xl hover:bg-slate-500/10 transition-colors cursor-pointer text-brand">
-            <ChevronLeft size={20} />
+      <div className="flex flex-col sm:flex-row items-center justify-center p-6 glass-card rounded-3xl gap-6">
+        <div className="flex items-center gap-6">
+          <button onClick={prevMonth} className="p-3 border border-slate-200/50 dark:border-white/10 rounded-2xl hover:bg-slate-500/10 transition-colors cursor-pointer text-brand shadow-sm">
+            <ChevronLeft size={24} />
           </button>
-          <button onClick={() => setCurrentDate(new Date())} className="px-5 py-2.5 text-sm font-semibold border border-slate-200/50 dark:border-white/10 rounded-xl hover:bg-slate-500/10 transition-colors cursor-pointer text-brand">
-            Heute
-          </button>
-          <button onClick={nextMonth} className="p-2 border border-slate-200/50 dark:border-white/10 rounded-xl hover:bg-slate-500/10 transition-colors cursor-pointer text-brand">
-            <ChevronRight size={20} />
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tighter text-brand capitalize italic">
+            {format(currentDate, "MMMM yyyy", { locale: de })}
+          </h1>
+          <button onClick={nextMonth} className="p-3 border border-slate-200/50 dark:border-white/10 rounded-2xl hover:bg-slate-500/10 transition-colors cursor-pointer text-brand shadow-sm">
+            <ChevronRight size={24} />
           </button>
         </div>
       </div>
 
-      <div className="glass-card rounded-3xl overflow-hidden flex flex-col">
+      <div className="glass-card rounded-3xl overflow-hidden flex flex-col shadow-2xl border border-black/5 dark:border-white/5">
         {/* Days Header */}
         <div className="grid grid-cols-7 border-b border-slate-200/50 dark:border-white/10 bg-slate-100/50 dark:bg-black/20">
           {weekDayNames.map((day, idx) => (
             <div key={day} className={cn(
-              "py-3 sm:py-4 text-center text-[10px] sm:text-xs font-black uppercase tracking-widest",
+              "py-4 text-center text-[10px] font-black uppercase tracking-widest",
               idx === 6 ? "text-red-500" : "text-brand-muted"
             )}>
               {day}
@@ -201,7 +197,7 @@ export default function Calendar() {
         </div>
 
         {/* Days Grid */}
-        <div className="grid grid-cols-7 auto-rows-fr bg-slate-200/50 dark:bg-white/10 gap-px">
+        <div className="grid grid-cols-7 auto-rows-fr bg-[#F2F2F7] dark:bg-[#1C1C1E] gap-px">
           {days.map((day) => {
             const dayAppointments = appointments.filter(a => a.dueDate && isSameDay(new Date(a.dueDate), day));
             // Sort dayAppointments by time
@@ -216,46 +212,47 @@ export default function Calendar() {
                 key={day.toString()} 
                 onClick={() => handleDayClick(day, holidayName)}
                 className={cn(
-                  "min-h-[80px] sm:min-h-[120px] bg-slate-50 dark:bg-[#02050D] p-1 sm:p-2 transition-colors cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 group relative",
-                  !isSameMonth(day, monthStart) && "bg-slate-100/50 dark:bg-black/40 text-brand-muted/50",
-                  isToday(day) && "bg-green-500/5 dark:bg-green-500/10",
-                  isHoliday && "bg-blue-500/5 dark:bg-blue-500/10"
+                  "min-h-[100px] sm:min-h-[140px] bg-white dark:bg-[#02050D] p-2 sm:p-3 transition-colors cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 group relative",
+                  !isSameMonth(day, monthStart) && "bg-slate-100/30 dark:bg-black/40 text-brand-muted/30",
+                  isToday(day) && "bg-green-500/5 dark:bg-green-500/10"
                 )}
               >
-                <div className="flex justify-between items-start mb-1 sm:mb-2">
+                <div className="flex justify-between items-start mb-2 sm:mb-3">
                   <span className={cn(
-                    "w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-xs sm:text-sm font-bold rounded-lg sm:rounded-xl transition-colors",
-                    isToday(day) ? "bg-green-500 text-black shadow-lg shadow-green-500/20" : 
-                    sunday ? "text-red-500 font-black" : "text-brand group-hover:bg-slate-500/10"
+                    "w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center text-sm sm:text-base font-black rounded-xl transition-all",
+                    isToday(day) ? "bg-green-500 text-black shadow-lg shadow-green-500/30 scale-105" : 
+                    sunday ? "text-red-500" : "text-brand group-hover:scale-110"
                   )}>
                     {format(day, 'd')}
                   </span>
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity text-brand-muted hidden sm:block">
-                    <Plus size={16} />
-                  </div>
+                  {isHoliday && (
+                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]" title={holidayName || 'Feiertag'} />
+                  )}
                 </div>
                 
-                <div className="space-y-1 sm:space-y-1.5 overflow-y-auto max-h-[50px] sm:max-h-[80px] scrollbar-hide px-0.5 sm:px-1">
-                  {isHoliday && (
-                     <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-blue-500 mb-1 mx-auto sm:mx-0" title="Feiertag" />
-                  )}
+                <div className="space-y-1 overflow-y-auto max-h-[50px] sm:max-h-[90px] scrollbar-hide px-0.5">
                   {dayAppointments.map(app => (
                     <div
                       key={app.id}
                       className={cn(
-                        "block px-1 sm:px-2 py-1 sm:py-1.5 text-[8px] sm:text-[10px] font-bold tracking-wider leading-tight rounded-md sm:rounded-lg truncate border transition-colors",
+                        "block px-2 py-1.5 text-[8px] sm:text-[10px] font-bold tracking-tight leading-tight rounded-lg truncate border transition-all",
                         app.completed 
-                          ? "bg-slate-200/50 dark:bg-white/5 border-transparent text-brand-muted line-through"
-                          : "bg-blue-500/10 border-blue-500/20 text-blue-500"
+                          ? "bg-slate-200/30 dark:bg-white/5 border-transparent text-brand-muted/50 line-through"
+                          : "bg-blue-500/10 border-blue-500/10 text-blue-500 hover:shadow-sm"
                       )}
                       title={app.task}
                     >
-                      {app.completed && <Check size={8} className="inline mr-0.5 sm:mr-1" />}
-                      <span className="font-mono text-[8px] sm:text-[9px] opacity-70 mr-1">{format(new Date(app.dueDate!), 'HH:mm')}</span>
+                      {app.completed && <Check size={8} className="inline mr-1" />}
+                      <span className="font-mono text-[8px] opacity-60 mr-1">{format(new Date(app.dueDate!), 'HH:mm')}</span>
                       <span>{app.task}</span>
                     </div>
                   ))}
                 </div>
+                {!isToday(day) && !isHoliday && (
+                  <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-brand-muted">
+                    <Plus size={14} />
+                  </div>
+                )}
               </div>
             );
           })}

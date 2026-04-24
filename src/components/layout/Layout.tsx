@@ -36,12 +36,12 @@ export default function Layout() {
 
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
-    { name: 'Haushaltsbuch', icon: Wallet, path: '/household' },
     { name: 'Kalender', icon: CalendarIcon, path: '/calendar' },
     { name: 'Aufgaben', icon: CheckSquare, path: '/tasks' },
     { name: 'Notizen', icon: FileText, path: '/notes' },
-    { name: 'Prompts', icon: MessageSquare, path: '/prompts' },
     { name: 'Links', icon: LinkIcon, path: '/links' },
+    { name: 'Prompts', icon: MessageSquare, path: '/prompts' },
+    { name: 'Haushaltsbuch', icon: Wallet, path: '/household' },
   ];
 
   const categories: Category[] = [

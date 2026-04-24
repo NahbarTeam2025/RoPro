@@ -135,7 +135,8 @@ service cloud.firestore {
              data.category is string && data.category.size() <= 100 &&
              data.date is timestamp &&
              data.userId == request.auth.uid &&
-             data.createdAt is timestamp;
+             data.createdAt is timestamp &&
+             (data.keys().hasAny(['isRecurring']) ? data.isRecurring is bool : true);
     }
 
     match /transactions/{transactionId} {
