@@ -176,7 +176,7 @@ export default function Calendar() {
   const weekDayNames = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 relative z-10 w-full pb-20 lg:pb-6">
+    <div className="max-w-5xl mx-auto space-y-6 relative z-10 w-full pb-10 lg:pb-6">
       <div className="flex flex-col sm:flex-row items-center justify-center p-6 glass-card rounded-3xl gap-6">
         <div className="flex items-center gap-6">
           <button onClick={prevMonth} className="p-3 border border-slate-200/50 dark:border-white/10 rounded-2xl hover:bg-slate-500/10 transition-colors cursor-pointer text-brand shadow-sm">

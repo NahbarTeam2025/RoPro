@@ -135,7 +135,7 @@ export default function Notes() {
   });
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex flex-col md:flex-row gap-6 relative z-10 w-full pb-20 md:pb-0">
+    <div className="h-full flex flex-col md:flex-row gap-6 relative z-10 w-full pb-6">
       {/* Sidebar / List */}
       <div className={cn(
         "w-full md:w-80 flex-col glass-card rounded-3xl overflow-hidden flex-shrink-0 transition-all",

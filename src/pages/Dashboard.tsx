@@ -201,15 +201,45 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="max-w-[1500px] mx-auto flex flex-col h-full relative z-10 w-full overflow-x-hidden pb-20 px-6 sm:px-8">
+    <div className="max-w-[1500px] mx-auto flex flex-col relative z-10 w-full px-6 sm:px-8 pb-10">
       <header className="mb-12 mt-4 flex flex-row items-start justify-between relative w-full">
         <Clock />
         <div className="flex flex-col gap-3">
-          <a href="https://www.google.com" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/50 dark:bg-white/10 hover:bg-[#007AFF] hover:text-white rounded-2xl transition-all shadow-sm group" title="Google Suche">
-            <Search size={22} className="text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-white" />
+          <a href="https://www.google.com" target="_blank" rel="noopener noreferrer" className="p-2.5 bg-white/50 dark:bg-white/10 hover:bg-[#007AFF] hover:text-white rounded-2xl transition-all shadow-sm group overflow-hidden flex items-center justify-center w-11 h-11" title="Google Suche">
+            <img 
+              src="https://www.google.com/s2/favicons?sz=64&domain=google.com" 
+              alt="Google" 
+              className="w-6 h-6 object-contain" 
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+                const parent = (e.target as HTMLImageElement).parentElement;
+                if (parent) {
+                  const icon = document.createElement('div');
+                  icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
+                  icon.className = "text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-white";
+                  parent.appendChild(icon);
+                }
+              }}
+            />
           </a>
-          <a href="https://roberterbach.de/" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/50 dark:bg-white/10 hover:bg-[#007AFF] hover:text-white rounded-2xl transition-all shadow-sm group" title="Robert Erbach Webseite">
-             <Zap size={22} className="text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-white" />
+          <a href="https://roberterbach.de/" target="_blank" rel="noopener noreferrer" className="p-2.5 bg-white/50 dark:bg-white/10 hover:bg-[#007AFF] hover:text-white rounded-2xl transition-all shadow-sm group overflow-hidden flex items-center justify-center w-11 h-11" title="Robert Erbach Webseite">
+             <img 
+               src="https://www.google.com/s2/favicons?sz=64&domain=roberterbach.de" 
+               alt="" 
+               className="w-6 h-6 object-contain" 
+               referrerPolicy="no-referrer"
+               onError={(e) => {
+                 (e.target as HTMLImageElement).style.display = 'none';
+                 const parent = (e.target as HTMLImageElement).parentElement;
+                 if (parent) {
+                   const icon = document.createElement('div');
+                   icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>';
+                   icon.className = "text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-white";
+                   parent.appendChild(icon);
+                 }
+               }}
+             />
           </a>
         </div>
       </header>

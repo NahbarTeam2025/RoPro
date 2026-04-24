@@ -188,7 +188,7 @@ export default function Household() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto flex flex-col h-full relative z-10 w-full pb-20">
+    <div className="max-w-5xl mx-auto flex flex-col relative z-10 w-full pb-10">
       <header className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
         <div>
           <h1 className="text-3xl font-black tracking-tight text-brand">Haushaltsbuch</h1>

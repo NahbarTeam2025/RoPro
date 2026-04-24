@@ -30,6 +30,7 @@ export default function Layout() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({
     google: true,
     performance: false,
@@ -124,15 +125,16 @@ export default function Layout() {
       {/* Sidebar */}
       <aside 
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-[#F2F2F7] dark:bg-[#000000] border-r border-[#D2D2D7]/30 dark:border-[#424245]/30 transform transition-transform duration-500 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 flex flex-col shadow-2xl lg:shadow-none",
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed inset-y-0 left-0 z-50 bg-[#F2F2F7] dark:bg-[#000000] border-r border-[#D2D2D7]/30 dark:border-[#424245]/30 transform transition-all duration-500 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 flex flex-col shadow-2xl lg:shadow-none",
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full",
+          isSidebarCollapsed ? "lg:w-20" : "lg:w-64 w-64"
         )}
       >
-        <div className="p-8 flex items-center gap-3 shrink-0">
-          <div className="w-8 h-8 flex items-center justify-center text-[#007AFF]">
+        <div className={cn("p-8 flex items-center shrink-0", isSidebarCollapsed ? "justify-center px-0" : "gap-3")}>
+          <div className="w-8 h-8 flex items-center justify-center text-[#007AFF] shrink-0">
             <Zap size={24} fill="currentColor" />
           </div>
-          <span className="font-bold text-2xl tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7]">RoPro</span>
+          {!isSidebarCollapsed && <span className="font-bold text-2xl tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7] truncate">RoPro</span>}
           <button 
             className="lg:hidden text-[#86868B] ml-auto hover:text-[#1D1D1F] transition-colors focus-visible:ring-2 rounded" 
             onClick={() => setIsSidebarOpen(false)}
@@ -142,21 +144,23 @@ export default function Layout() {
           </button>
         </div>
 
-        <nav className="flex-1 px-4 py-2 overflow-y-auto flex flex-col gap-6 custom-scrollbar">
+        <nav className="flex-1 px-4 py-2 overflow-y-auto flex flex-col gap-6">
           <div className="space-y-1">
-            <h3 className="px-4 text-[11px] font-bold text-[#86868B] uppercase tracking-wider mb-2">Hauptmenü</h3>
+            {!isSidebarCollapsed && <h3 className="px-4 text-[11px] font-bold text-[#86868B] uppercase tracking-wider mb-2">Hauptmenü</h3>}
             {navItems.map((item) => (
               <NavLink
                 key={item.name}
                 to={item.path}
                 className={({ isActive }) => cn(
                   "sidebar-item",
-                  isActive && "sidebar-item-active"
+                  isActive && "sidebar-item-active",
+                  isSidebarCollapsed && "justify-center px-0"
                 )}
                 onClick={() => setIsSidebarOpen(false)}
+                title={isSidebarCollapsed ? item.name : undefined}
               >
                 <item.icon size={18} className="shrink-0" />
-                <span>{item.name}</span>
+                {!isSidebarCollapsed && <span>{item.name}</span>}
               </NavLink>
             ))}
           </div>
@@ -165,18 +169,22 @@ export default function Layout() {
             {categories.map((cat) => (
               <div key={cat.id} className="space-y-1">
                 <button
-                  onClick={() => toggleCategory(cat.id)}
-                  className="w-full flex items-center justify-between px-4 py-2 text-[11px] font-bold text-[#86868B] uppercase tracking-wider hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors"
+                  onClick={() => !isSidebarCollapsed && toggleCategory(cat.id)}
+                  className={cn(
+                    "w-full flex items-center text-[11px] font-bold text-[#86868B] uppercase tracking-wider hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors",
+                    isSidebarCollapsed ? "justify-center px-0" : "justify-between px-4 py-2"
+                  )}
+                  title={isSidebarCollapsed ? cat.name : undefined}
                 >
                   <div className="flex items-center gap-2">
-                    <cat.icon size={14} />
-                    {cat.name}
+                    <cat.icon size={14} className="shrink-0" />
+                    {!isSidebarCollapsed && cat.name}
                   </div>
-                  {openCategories[cat.id] ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                  {!isSidebarCollapsed && (openCategories[cat.id] ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
                 </button>
                 
                 <AnimatePresence initial={false}>
-                  {openCategories[cat.id] && (
+                  {openCategories[cat.id] && !isSidebarCollapsed && (
                     <motion.div
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
@@ -207,21 +215,35 @@ export default function Layout() {
         <div className="p-6 border-t border-[#D2D2D7]/30 dark:border-[#424245]/30 space-y-6 shrink-0">
            <button 
              onClick={toggleTheme}
-             className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-[#424245] dark:text-[#A1A1A6] hover:bg-[#FBFBFD] dark:hover:bg-[#1C1C1E] transition-all"
+             className={cn(
+               "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-[#424245] dark:text-[#A1A1A6] hover:bg-[#FBFBFD] dark:hover:bg-[#1C1C1E] transition-all",
+               isSidebarCollapsed && "justify-center px-0"
+             )}
+             title={isSidebarCollapsed ? (theme === 'dark' ? 'Heller Modus' : 'Dunkler Modus') : undefined}
            >
-             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-             <span>{theme === 'dark' ? 'Heller Modus' : 'Dunkler Modus'}</span>
+             {theme === 'dark' ? <Sun size={18} className="shrink-0" /> : <Moon size={18} className="shrink-0" />}
+             {!isSidebarCollapsed && <span>{theme === 'dark' ? 'Heller Modus' : 'Dunkler Modus'}</span>}
            </button>
 
-           <div className="flex items-center gap-3 px-2">
-             <div className="w-10 h-10 rounded-full bg-[#E8E8ED] dark:bg-[#1C1C1E] flex items-center justify-center text-[#1D1D1F] dark:text-[#F5F5F7] font-bold border border-[#D2D2D7]/30 dark:border-[#424245]/30 shadow-sm">
+           <div className={cn("flex items-center gap-3 px-2", isSidebarCollapsed && "justify-center px-0")}>
+             <div className="w-10 h-10 rounded-full bg-[#E8E8ED] dark:bg-[#1C1C1E] flex items-center justify-center text-[#1D1D1F] dark:text-[#F5F5F7] font-bold border border-[#D2D2D7]/30 dark:border-[#424245]/30 shadow-sm shrink-0">
                {user?.displayName?.[0] || 'B'}
              </div>
-             <div className="flex-1 overflow-hidden">
-               <div className="text-sm font-semibold truncate text-[#1D1D1F] dark:text-[#F5F5F7]">{user?.displayName || 'Benutzer'}</div>
-               <button className="text-[11px] font-bold text-red-500 uppercase tracking-wider hover:opacity-70 transition-opacity" onClick={logout}>Abmelden</button>
-             </div>
+             {!isSidebarCollapsed && (
+               <div className="flex-1 overflow-hidden">
+                 <div className="text-sm font-semibold truncate text-[#1D1D1F] dark:text-[#F5F5F7]">{user?.displayName || 'Benutzer'}</div>
+                 <button className="text-[11px] font-bold text-red-500 uppercase tracking-wider hover:opacity-70 transition-opacity" onClick={logout}>Abmelden</button>
+               </div>
+             )}
            </div>
+
+           <button 
+             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+             className="hidden lg:flex w-full items-center justify-center h-10 rounded-xl bg-white/50 dark:bg-white/5 border border-black/5 dark:border-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-all text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white"
+             aria-label={isSidebarCollapsed ? "Menü ausklappen" : "Menü einklappen"}
+           >
+             {isSidebarCollapsed ? <ChevronDown className="rotate-270" size={18} /> : <ChevronDown className="rotate-90" size={18} />}
+           </button>
         </div>
       </aside>
 
@@ -240,7 +262,7 @@ export default function Layout() {
           </div>
         </header>
 
-        <main ref={mainRef} className="flex-1 overflow-y-auto p-8 sm:p-10 lg:p-12 outline-none custom-scrollbar">
+        <main ref={mainRef} className="flex-1 overflow-y-auto p-8 sm:p-10 lg:p-12 outline-none">
           <Outlet />
         </main>
       </div>

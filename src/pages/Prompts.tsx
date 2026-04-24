@@ -114,7 +114,7 @@ export default function Prompts() {
   });
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex flex-col md:flex-row gap-6 relative z-10 w-full p-2 sm:p-0 pb-20 md:pb-0">
+    <div className="h-full flex flex-col md:flex-row gap-6 relative z-10 w-full p-2 sm:p-0">
       {/* Sidebar List */}
       <div className={cn(
         "w-full md:w-80 flex-col glass-card rounded-3xl overflow-hidden flex-shrink-0 transition-all",
@@ -164,7 +164,7 @@ export default function Prompts() {
             filteredPrompts.map(prompt => {
               const catName = categories.find(c => c.id === prompt.category)?.name || prompt.category || 'Allgemein';
               return (
-                <button
+                <div
                   key={prompt.id}
                   onClick={() => setActivePrompt(prompt)}
                   className={cn(
@@ -218,7 +218,7 @@ export default function Prompts() {
                       <span className="text-[8px] font-black text-blue-500 uppercase tracking-tighter ml-auto">Neu</span>
                     )}
                   </div>
-                </button>
+                </div>
               )
             })
           )}

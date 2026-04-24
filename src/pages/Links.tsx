@@ -184,7 +184,7 @@ export default function Links() {
   });
 
   return (
-    <div className="max-w-5xl mx-auto flex flex-col h-full relative z-10 w-full pb-20">
+    <div className="max-w-5xl mx-auto flex flex-col relative z-10 w-full pb-10">
       <header className="mb-6 sm:mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
           <h1 className="text-3xl font-black tracking-tight text-brand uppercase italic">Links</h1>
@@ -299,12 +299,10 @@ export default function Links() {
           {filteredLinks.map(link => {
             const catName = categories.find(c => c.id === link.categoryId)?.name || link.categoryId || '';
             return (
-            <a
+            <div
               key={link.id}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group glass-card rounded-3xl p-6 transition-all flex flex-col hover:shadow-xl relative overflow-hidden"
+              className="group glass-card rounded-3xl p-6 transition-all flex flex-col hover:shadow-xl relative overflow-hidden cursor-pointer"
+              onClick={() => window.open(link.url, '_blank', 'noopener,noreferrer')}
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -322,7 +320,7 @@ export default function Links() {
                   </div>
                   {link.isPinned && <Pin size={16} className="text-green-500 fill-green-500" />}
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                   <button
                     onClick={(e) => {
                       e.preventDefault();
@@ -367,7 +365,7 @@ export default function Links() {
                   </span>
                 )}
               </div>
-            </a>
+            </div>
           )})}
         </div>
       )}
