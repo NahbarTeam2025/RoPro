@@ -166,5 +166,27 @@ service cloud.firestore {
       allow list: if isSignedIn() && request.auth.uid != null; // Allow list if user is owner of returned docs
       allow write: if isSignedIn() && userId == request.auth.uid && isValidSavings(incoming()) && incoming().updatedAt == request.time;
     }
+
+    // Contacts
+    function isValidContact(data) {
+      return data.keys().hasAll(['name', 'userId', 'createdAt', 'updatedAt']) &&
+             data.name is string && data.name.size() <= 200 &&
+             data.userId == request.auth.uid &&
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp &&
+             (!('email' in data) || data.email is string && data.email.size() <= 200) &&
+             (!('phone' in data) || data.phone is string && data.phone.size() <= 50) &&
+             (!('birthday' in data) || data.birthday is string && data.birthday.size() <= 20) &&
+             (!('address' in data) || data.address is string && data.address.size() <= 500) &&
+             (!('notes' in data) || data.notes is string && data.notes.size() <= 2000);
+    }
+
+    match /contacts/{contactId} {
+      allow get: if isSignedIn() && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(contactId) && isValidContact(incoming()) && incoming().createdAt == request.time && incoming().updatedAt == request.time;
+      allow update: if isSignedIn() && isValidId(contactId) && isValidContact(incoming()) && incoming().createdAt == existing().createdAt && incoming().updatedAt == request.time && incoming().userId == existing().userId;
+      allow delete: if isSignedIn() && isValidId(contactId) && existing().userId == request.auth.uid;
+    }
   }
 }

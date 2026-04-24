@@ -188,71 +188,73 @@ export default function Notes() {
             />
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto">
-          {filteredNotes.length === 0 ? (
-            <div className="p-6 text-center text-sm font-medium text-brand-muted">Keine Notizen gefunden.</div>
-          ) : (
-            <div className="divide-y divide-slate-200/50 dark:divide-white/5">
-              {filteredNotes.map(note => {
-                const catName = categories.find(c => c.id === note.categoryId)?.name || note.categoryId || 'Allgemein';
-                return (
-                  <div
-                    key={note.id}
-                    className={cn(
-                      "w-full text-left p-4 hover:bg-slate-500/10 transition-colors focus:outline-none cursor-pointer group relative",
-                      activeNote?.id === note.id ? "bg-slate-500/10 border-l-4" : "border-l-4 border-transparent"
-                    )}
-                    style={{ borderLeftColor: activeNote?.id === note.id ? (note.color || '#34C759') : (note.color || 'transparent') }}
-                    onClick={() => setActiveNote(note)}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          {note.isPinned && <Pin size={12} className="text-green-500 fill-green-500 shrink-0" />}
-                          <h3 className={cn(
-                            "font-bold truncate",
-                            activeNote?.id === note.id ? "text-green-500" : "text-brand"
-                          )}>{note.title || 'Unbenannte Notiz'}</h3>
+        <div className="flex-1 bg-white/30 dark:bg-black/20 border border-slate-200/50 dark:border-white/5 rounded-[2rem] p-3 m-4 mt-0 shadow-inner overflow-hidden">
+          <div className="h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+            {filteredNotes.length === 0 ? (
+              <div className="p-6 text-center text-sm font-medium text-brand-muted">Keine Notizen gefunden.</div>
+            ) : (
+              <div className="divide-y divide-slate-200/50 dark:divide-white/5">
+                {filteredNotes.map(note => {
+                  const catName = categories.find(c => c.id === note.categoryId)?.name || note.categoryId || 'Allgemein';
+                  return (
+                    <div
+                      key={note.id}
+                      className={cn(
+                        "w-full text-left p-4 hover:bg-slate-500/10 transition-colors focus:outline-none cursor-pointer group relative",
+                        activeNote?.id === note.id ? "bg-slate-500/10 border-l-4" : "border-l-4 border-transparent"
+                      )}
+                      style={{ borderLeftColor: activeNote?.id === note.id ? (note.color || '#34C759') : (note.color || 'transparent') }}
+                      onClick={() => setActiveNote(note)}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            {note.isPinned && <Pin size={12} className="text-green-500 fill-green-500 shrink-0" />}
+                            <h3 className={cn(
+                              "font-bold truncate",
+                              activeNote?.id === note.id ? "text-green-500" : "text-brand"
+                            )}>{note.title || 'Unbenannte Notiz'}</h3>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={(e) => togglePin(e, note)}
+                            className={cn(
+                              "p-1.5 rounded-lg transition-all md:opacity-0 md:group-hover:opacity-100",
+                              note.isPinned ? "text-green-500 bg-green-500/10" : "text-brand-muted hover:bg-slate-500/10"
+                            )}
+                            title={note.isPinned ? "Fixierung lösen" : "Anpinnen"}
+                          >
+                            <Pin size={14} className={cn(note.isPinned && "fill-green-500")} />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              setDeleteModal({ open: true, id: note.id });
+                            }}
+                            className="p-1.5 text-brand-muted hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition-opacity z-20"
+                            title="Notiz löschen"
+                          >
+                            <Trash2 size={14} />
+                          </button>
                         </div>
                       </div>
-                      
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={(e) => togglePin(e, note)}
-                          className={cn(
-                            "p-1.5 rounded-lg transition-all md:opacity-0 md:group-hover:opacity-100",
-                            note.isPinned ? "text-green-500 bg-green-500/10" : "text-brand-muted hover:bg-slate-500/10"
-                          )}
-                          title={note.isPinned ? "Fixierung lösen" : "Anpinnen"}
-                        >
-                          <Pin size={14} className={cn(note.isPinned && "fill-green-500")} />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            setDeleteModal({ open: true, id: note.id });
-                          }}
-                          className="p-1.5 text-brand-muted hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition-opacity z-20"
-                          title="Notiz löschen"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-[10px] font-bold text-brand-muted uppercase tracking-widest bg-slate-200/50 dark:bg-black/20 px-2 py-0.5 rounded truncate max-w-[120px]">
+                          {catName}
+                        </span>
+                        <span className="text-xs font-medium text-brand-muted truncate ml-auto">
+                          {note.updatedAt?.toDate ? format(note.updatedAt.toDate(), 'd. MMM yyyy') : 'Gerade eben'}
+                        </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-[10px] font-bold text-brand-muted uppercase tracking-widest bg-slate-200/50 dark:bg-black/20 px-2 py-0.5 rounded truncate max-w-[120px]">
-                        {catName}
-                      </span>
-                      <span className="text-xs font-medium text-brand-muted truncate ml-auto">
-                        {note.updatedAt?.toDate ? format(note.updatedAt.toDate(), 'd. MMM yyyy') : 'Gerade eben'}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

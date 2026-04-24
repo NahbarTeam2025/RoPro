@@ -99,6 +99,23 @@
         "updatedAt": { "type": "timestamp" }
       },
       "required": ["amount", "userId", "updatedAt"]
+    },
+    "Contact": {
+      "title": "Contact",
+      "description": "Personal contact with birthday info",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "birthday": { "type": "string", "description": "ISO date string (YYYY-MM-DD)" },
+        "address": { "type": "string" },
+        "notes": { "type": "string" },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "timestamp" },
+        "updatedAt": { "type": "timestamp" }
+      },
+      "required": ["name", "userId", "createdAt", "updatedAt"]
     }
   },
   "firestore": {
@@ -129,6 +146,10 @@
     "/savings/{savingsId}": {
       "schema": { "$ref": "#/entities/Savings" },
       "description": "Stores total savings"
+    },
+    "/contacts/{contactId}": {
+       "schema": { "$ref": "#/entities/Contact" },
+       "description": "Stores user contacts"
     }
   }
 }

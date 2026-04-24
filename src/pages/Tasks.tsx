@@ -229,36 +229,9 @@ export default function Tasks() {
               <span className="text-xs font-bold text-brand-muted bg-slate-200/50 dark:bg-slate-800 px-2 py-0.5 rounded-full">{activeTodos.length}</span>
             </div>
             
-            {activeTodos.map(todo => (
-              <TaskItem 
-                key={todo.id} 
-                todo={todo} 
-                onToggle={() => toggleTodo(todo)} 
-                onDelete={() => setDeleteModal({ open: true, id: todo.id })} 
-                onEdit={() => setEditTask(todo)}
-                categories={categories} 
-              />
-            ))}
-            {activeTodos.length === 0 && (
-              <div className="p-12 text-center glass-card rounded-3xl">
-                 <div className="w-12 h-12 bg-green-500/20 text-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Check size={24} />
-                </div>
-                <h3 className="text-sm font-bold text-brand">Keine aktiven Aufgaben</h3>
-                <p className="mt-1 text-sm font-medium text-brand-muted">Du bist auf dem neuesten Stand!</p>
-              </div>
-            )}
-          </div>
-
-          {/* Completed Tasks */}
-          {completedTodos.length > 0 && (
-            <div className="pt-2">
-              <div className="flex items-center justify-between mb-3 border-b border-slate-200/50 dark:border-white/10 pb-2">
-                <h3 className="text-xs font-bold text-brand-muted uppercase tracking-wider">Abgeschlossen</h3>
-                <span className="text-xs font-bold text-brand-muted">{completedTodos.length}</span>
-              </div>
-              <div className="space-y-2 opacity-60 hover:opacity-100 transition-opacity duration-300">
-                {completedTodos.map(todo => (
+            <div className="flex-1 bg-white/30 dark:bg-black/20 border border-slate-200/50 dark:border-white/5 rounded-[2rem] p-3 shadow-inner">
+              <div className="max-h-[300px] overflow-y-auto space-y-3 pr-1 custom-scrollbar">
+                {activeTodos.map(todo => (
                   <TaskItem 
                     key={todo.id} 
                     todo={todo} 
@@ -268,6 +241,39 @@ export default function Tasks() {
                     categories={categories} 
                   />
                 ))}
+                {activeTodos.length === 0 && (
+                  <div className="p-12 text-center glass-card rounded-3xl">
+                     <div className="w-12 h-12 bg-green-500/20 text-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Check size={24} />
+                    </div>
+                    <h3 className="text-sm font-bold text-brand">Keine aktiven Aufgaben</h3>
+                    <p className="mt-1 text-sm font-medium text-brand-muted">Du bist auf dem neuesten Stand!</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Completed Tasks */}
+          {completedTodos.length > 0 && (
+            <div className="pt-2">
+              <div className="flex items-center justify-between mb-3 border-b border-slate-200/50 dark:border-white/10 pb-2">
+                <h3 className="text-xs font-bold text-brand-muted uppercase tracking-wider">Abgeschlossen</h3>
+                <span className="text-xs font-bold text-brand-muted">{completedTodos.length}</span>
+              </div>
+              <div className="bg-white/30 dark:bg-black/20 border border-slate-200/50 dark:border-white/5 rounded-[2rem] p-3 shadow-inner">
+                <div className="max-h-[200px] overflow-y-auto space-y-2 pr-1 custom-scrollbar opacity-60 hover:opacity-100 transition-opacity duration-300">
+                  {completedTodos.map(todo => (
+                    <TaskItem 
+                      key={todo.id} 
+                      todo={todo} 
+                      onToggle={() => toggleTodo(todo)} 
+                      onDelete={() => setDeleteModal({ open: true, id: todo.id })} 
+                      onEdit={() => setEditTask(todo)}
+                      categories={categories} 
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           )}

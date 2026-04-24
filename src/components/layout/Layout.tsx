@@ -8,7 +8,7 @@ import {
   Cloud, Image as ImageIcon, BarChart2, Search, Activity, 
   Gauge, Mail, Brain, Cpu, ChevronDown, ChevronUp, Wallet,
   Code, BookOpen, Sparkles, FastForward, Layers, Compass,
-  Music, Volume2, Mic, Linkedin, Share2
+  Music, Volume2, Mic, Linkedin, Share2, Users, Dices
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -31,12 +31,23 @@ export default function Layout() {
   const { theme, toggleTheme } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [randomResult, setRandomResult] = useState<string | null>(null);
+  const [isRolling, setIsRolling] = useState(false);
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({
     google: true,
     performance: false,
     ai: false,
     social: true
   });
+
+  const handleRandomize = () => {
+    setIsRolling(true);
+    setRandomResult(null);
+    setTimeout(() => {
+      setRandomResult(Math.random() > 0.5 ? 'Ja' : 'Nein');
+      setIsRolling(false);
+    }, 400);
+  };
 
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
@@ -46,6 +57,7 @@ export default function Layout() {
     { name: 'Links', icon: LinkIcon, path: '/links' },
     { name: 'Prompts', icon: MessageSquare, path: '/prompts' },
     { name: 'Haushaltsbuch', icon: Wallet, path: '/household' },
+    { name: 'Kontakte', icon: Users, path: '/contacts' },
   ];
 
   const categories: Category[] = [
@@ -212,11 +224,42 @@ export default function Layout() {
           </div>
         </nav>
 
-        <div className="p-6 border-t border-[#D2D2D7]/30 dark:border-[#424245]/30 space-y-6 shrink-0">
+        <div className="p-4 border-t border-[#D2D2D7]/30 dark:border-[#424245]/30 space-y-2 shrink-0">
+           <button 
+             onClick={handleRandomize}
+             disabled={isRolling}
+             className={cn(
+               "w-full flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium text-[#424245] dark:text-[#A1A1A6] hover:bg-brand/10 hover:text-brand transition-all relative group",
+               isSidebarCollapsed && "justify-center px-0"
+             )}
+             title={isSidebarCollapsed ? "Zufall" : undefined}
+           >
+             <Dices size={18} className={cn("shrink-0", isRolling && "animate-spin")} />
+             {!isSidebarCollapsed && (
+               <div className="flex items-center justify-between w-full">
+                 <span>Zufallsgenerator</span>
+                 {randomResult && (
+                   <motion.span 
+                     initial={{ scale: 0.5, opacity: 0 }}
+                     animate={{ scale: 1, opacity: 1 }}
+                     className="bg-brand text-white px-2 py-0.5 rounded-lg font-black text-[10px] uppercase tracking-wider"
+                   >
+                     {randomResult}
+                   </motion.span>
+                 )}
+               </div>
+             )}
+             {isSidebarCollapsed && randomResult && !isRolling && (
+               <div className="absolute top-1 right-1 bg-brand text-white text-[8px] w-4 h-4 flex items-center justify-center rounded-full font-black shadow-sm ring-2 ring-[#F2F2F7] dark:ring-[#000000]">
+                 {randomResult === 'Ja' ? 'J' : 'N'}
+               </div>
+             )}
+           </button>
+
            <button 
              onClick={toggleTheme}
              className={cn(
-               "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-[#424245] dark:text-[#A1A1A6] hover:bg-[#FBFBFD] dark:hover:bg-[#1C1C1E] transition-all",
+               "w-full flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium text-[#424245] dark:text-[#A1A1A6] hover:bg-[#FBFBFD] dark:hover:bg-[#1C1C1E] transition-all",
                isSidebarCollapsed && "justify-center px-0"
              )}
              title={isSidebarCollapsed ? (theme === 'dark' ? 'Heller Modus' : 'Dunkler Modus') : undefined}
@@ -225,24 +268,24 @@ export default function Layout() {
              {!isSidebarCollapsed && <span>{theme === 'dark' ? 'Heller Modus' : 'Dunkler Modus'}</span>}
            </button>
 
-           <div className={cn("flex items-center gap-3 px-2", isSidebarCollapsed && "justify-center px-0")}>
-             <div className="w-10 h-10 rounded-full bg-[#E8E8ED] dark:bg-[#1C1C1E] flex items-center justify-center text-[#1D1D1F] dark:text-[#F5F5F7] font-bold border border-[#D2D2D7]/30 dark:border-[#424245]/30 shadow-sm shrink-0">
+           <div className={cn("flex items-center gap-3 px-3 py-1", isSidebarCollapsed && "justify-center px-0")}>
+             <div className="w-8 h-8 rounded-full bg-[#E8E8ED] dark:bg-[#1C1C1E] flex items-center justify-center text-[#1D1D1F] dark:text-[#F5F5F7] font-bold border border-[#D2D2D7]/30 dark:border-[#424245]/30 shadow-sm shrink-0">
                {user?.displayName?.[0] || 'B'}
              </div>
              {!isSidebarCollapsed && (
                <div className="flex-1 overflow-hidden">
-                 <div className="text-sm font-semibold truncate text-[#1D1D1F] dark:text-[#F5F5F7]">{user?.displayName || 'Benutzer'}</div>
-                 <button className="text-[11px] font-bold text-red-500 uppercase tracking-wider hover:opacity-70 transition-opacity" onClick={logout}>Abmelden</button>
+                 <div className="text-[11px] font-semibold truncate text-[#1D1D1F] dark:text-[#F5F5F7] leading-none mb-0.5">{user?.displayName || 'Benutzer'}</div>
+                 <button className="text-[10px] font-bold text-red-500 uppercase tracking-wider hover:opacity-70 transition-opacity leading-none" onClick={logout}>Abmelden</button>
                </div>
              )}
            </div>
 
            <button 
              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-             className="hidden lg:flex w-full items-center justify-center h-10 rounded-xl bg-white/50 dark:bg-white/5 border border-black/5 dark:border-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-all text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white"
+             className="hidden lg:flex w-full items-center justify-center h-8 rounded-xl bg-white/50 dark:bg-white/5 border border-black/5 dark:border-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-all text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white"
              aria-label={isSidebarCollapsed ? "Menü ausklappen" : "Menü einklappen"}
            >
-             {isSidebarCollapsed ? <ChevronDown className="rotate-270" size={18} /> : <ChevronDown className="rotate-90" size={18} />}
+             {isSidebarCollapsed ? <ChevronDown className="rotate-270" size={16} /> : <ChevronDown className="rotate-90" size={16} />}
            </button>
         </div>
       </aside>

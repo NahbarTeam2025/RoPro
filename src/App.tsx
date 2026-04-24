@@ -12,6 +12,7 @@ const CalendarPage = lazy(() => import('./pages/Calendar'));
 const Links = lazy(() => import('./pages/Links'));
 const Prompts = lazy(() => import('./pages/Prompts'));
 const Household = lazy(() => import('./pages/Household'));
+const Contacts = lazy(() => import('./pages/Contacts'));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -41,6 +42,7 @@ export default function App() {
             <Route path="calendar" element={<CalendarPage />} />
             <Route path="links" element={<Links />} />
             <Route path="prompts" element={<Prompts />} />
+            <Route path="contacts" element={<Contacts />} />
           </Route>
         </Routes>
       </Suspense>

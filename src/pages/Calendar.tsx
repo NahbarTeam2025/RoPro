@@ -8,7 +8,7 @@ import {
   isSunday, parseISO, setHours, setMinutes
 } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight, Check, Calendar as CalendarIcon, X, Plus, Trash2, Search, Edit2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Calendar as CalendarIcon, X, Plus, Trash2, Search, Edit2, Cake } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Link } from 'react-router-dom';
 import Holidays from 'date-holidays';
@@ -22,6 +22,14 @@ interface Appointment {
   userId: string;
 }
 
+interface CalendarEvent {
+  id: string;
+  title: string;
+  date: Date;
+  type: 'appointment' | 'birthday';
+  completed?: boolean;
+}
+
 const hd = new Holidays('DE', 'BB');
 
 export default function Calendar() {
@@ -29,6 +37,7 @@ export default function Calendar() {
   const [deleteModal, setDeleteModal] = useState<{ open: boolean, id: string } | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [contacts, setContacts] = useState<any[]>([]);
   const [selectedDay, setSelectedDay] = useState<{ date: Date, holiday: string | null } | null>(null);
 
   // Scroll lock when modal is open
@@ -53,18 +62,31 @@ export default function Calendar() {
 
   useEffect(() => {
     if (!user) return;
-    const q = query(
+    const appointmentsQ = query(
       collection(db, 'appointments'),
       where('userId', '==', user.uid)
     );
+    
+    const contactsQ = query(
+      collection(db, 'contacts'),
+      where('userId', '==', user.uid)
+    );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubAppointments = onSnapshot(appointmentsQ, (snapshot) => {
       const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Appointment));
       const withDates = docs.filter(d => d.dueDate !== null);
       setAppointments(withDates);
     });
 
-    return () => unsubscribe();
+    const unsubContacts = onSnapshot(contactsQ, (snapshot) => {
+      const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setContacts(docs);
+    });
+
+    return () => {
+      unsubAppointments();
+      unsubContacts();
+    };
   }, [user]);
 
   const handleDayClick = (day: Date, holidayName: string | null) => {
@@ -208,8 +230,32 @@ export default function Calendar() {
         <div className="grid grid-cols-7 auto-rows-fr bg-[#F2F2F7] dark:bg-[#1C1C1E] gap-px">
           {days.map((day) => {
             const dayAppointments = appointments.filter(a => a.dueDate && isSameDay(new Date(a.dueDate), day));
-            // Sort dayAppointments by time
-            dayAppointments.sort((a,b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime());
+            const dayBirthdays = contacts.filter(c => {
+              if (!c.birthday) return false;
+              const bDay = parseISO(c.birthday);
+              return bDay.getMonth() === day.getMonth() && bDay.getDate() === day.getDate();
+            });
+
+            // Combine into temporary events for display
+            const dayEvents: CalendarEvent[] = [
+              ...dayAppointments.map(a => ({
+                id: a.id,
+                title: a.task,
+                date: new Date(a.dueDate!),
+                type: 'appointment' as const,
+                completed: a.completed
+              })),
+              ...dayBirthdays.map(c => ({
+                id: `bday-${c.id}`,
+                title: `🎂 ${c.name}`,
+                date: day, // Use the current day for sorting if no time is involved
+                type: 'birthday' as const
+              }))
+            ];
+
+            // Sort dayEvents by time
+            dayEvents.sort((a,b) => a.date.getTime() - b.date.getTime());
+            
             const holidayArr = hd.isHoliday(day);
             const isHoliday = holidayArr && holidayArr.length > 0;
             const holidayName = isHoliday ? holidayArr[0].name : null;
@@ -238,20 +284,24 @@ export default function Calendar() {
                 </div>
                 
                 <div className="space-y-1 overflow-y-auto max-h-[50px] sm:max-h-[90px] scrollbar-hide px-0.5">
-                  {dayAppointments.map(app => (
+                  {dayEvents.map(event => (
                     <div
-                      key={app.id}
+                      key={event.id}
                       className={cn(
                         "block px-2 py-1.5 text-[8px] sm:text-[10px] font-bold tracking-tight leading-tight rounded-lg truncate border transition-all",
-                        app.completed 
-                          ? "bg-slate-200/30 dark:bg-white/5 border-transparent text-brand-muted/50 line-through"
-                          : "bg-blue-500/10 border-blue-500/10 text-blue-500 hover:shadow-sm"
+                        event.type === 'birthday'
+                          ? "bg-amber-500/10 border-amber-500/10 text-amber-600 dark:text-amber-400"
+                          : event.completed 
+                            ? "bg-slate-200/30 dark:bg-white/5 border-transparent text-brand-muted/50 line-through"
+                            : "bg-blue-500/10 border-blue-500/10 text-blue-500 hover:shadow-sm"
                       )}
-                      title={app.task}
+                      title={event.title}
                     >
-                      {app.completed && <Check size={8} className="inline mr-1" />}
-                      <span className="font-mono text-[8px] opacity-60 mr-1">{format(new Date(app.dueDate!), 'HH:mm')}</span>
-                      <span>{app.task}</span>
+                      {event.type === 'appointment' && event.completed && <Check size={8} className="inline mr-1" />}
+                      {event.type === 'appointment' && (
+                        <span className="font-mono text-[8px] opacity-60 mr-1">{format(event.date, 'HH:mm')}</span>
+                      )}
+                      <span>{event.title}</span>
                     </div>
                   ))}
                 </div>
@@ -288,52 +338,73 @@ export default function Calendar() {
             
             {/* List of existing tasks for the day */}
             <div className="p-4 overflow-y-auto flex-1 bg-slate-50/50 dark:bg-black/10">
-              {appointments.filter(a => a.dueDate && isSameDay(new Date(a.dueDate), selectedDay.date)).length > 0 ? (
-                <ul className="space-y-2">
-                  {appointments.filter(a => a.dueDate && isSameDay(new Date(a.dueDate), selectedDay.date))
-                  .sort((a,b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime())
-                  .map(app => (
-                    <li key={app.id} className="flex flex-col gap-1 p-3 bg-white/50 dark:bg-white/5 border border-slate-200/50 dark:border-white/10 rounded-xl">
-                      <div className="flex items-center gap-3">
-                        <button 
-                          onClick={(e) => handleToggleTask(app, e)} 
-                          className={cn(
-                            "w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors cursor-pointer",
-                            app.completed ? "bg-slate-300 border-slate-300 dark:bg-white/20 dark:border-transparent text-white" : "border-slate-400/30 text-transparent hover:border-green-500"
-                          )}
-                        >
-                          <Check size={14} className={app.completed ? "opacity-100" : "opacity-0"} />
-                        </button>
-                        <div className={cn("flex-1 text-sm font-medium", app.completed ? "line-through text-brand-muted" : "text-brand")}>
-                           <div className="font-mono text-xs opacity-60 mb-0.5">{format(new Date(app.dueDate!), 'HH:mm')}</div>
-                           {app.task}
+              {(() => {
+                const dayAppointments = appointments.filter(a => a.dueDate && isSameDay(new Date(a.dueDate), selectedDay.date));
+                const dayBirthdays = contacts.filter(c => {
+                  if (!c.birthday) return false;
+                  const bDay = parseISO(c.birthday);
+                  return bDay.getMonth() === selectedDay.date.getMonth() && bDay.getDate() === selectedDay.date.getDate();
+                });
+
+                if (dayAppointments.length === 0 && dayBirthdays.length === 0) {
+                  return <div className="text-center py-6 text-sm text-brand-muted font-medium">Keine Termine an diesem Tag.</div>;
+                }
+
+                return (
+                  <ul className="space-y-2">
+                    {dayBirthdays.map(c => (
+                      <li key={`modal-bday-${c.id}`} className="flex items-center gap-3 p-3 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 rounded-xl">
+                        <div className="w-5 h-5 rounded bg-amber-500 text-white flex items-center justify-center shrink-0">
+                          <Cake size={12} />
                         </div>
-                        <div className="flex items-center gap-1">
-                           <button 
-                             onClick={(e) => {
-                               e.stopPropagation();
-                               setEditingAppointment(app);
-                               setNewTaskText(app.task);
-                               setNewTaskTime(format(new Date(app.dueDate!), 'HH:mm'));
-                             }}
-                             className="p-1.5 text-slate-400 hover:text-blue-500 hover:bg-blue-500/10 rounded-lg cursor-pointer transition-colors"
-                           >
-                             <Edit2 size={14} />
-                           </button>
-                           <button 
-                             onClick={(e) => handleDeleteTask(app.id, e)}
-                             className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg cursor-pointer transition-colors"
-                           >
-                             <Trash2 size={16} />
-                           </button>
+                        <div className="flex-1 text-sm font-bold text-amber-600 dark:text-amber-400">
+                          Geburtstag: {c.name}
                         </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                 <div className="text-center py-6 text-sm text-brand-muted font-medium">Keine Termine an diesem Tag.</div>
-              )}
+                      </li>
+                    ))}
+                    {dayAppointments
+                      .sort((a,b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime())
+                      .map(app => (
+                        <li key={app.id} className="flex flex-col gap-1 p-3 bg-white/50 dark:bg-white/5 border border-slate-200/50 dark:border-white/10 rounded-xl">
+                          <div className="flex items-center gap-3">
+                            <button 
+                              onClick={(e) => handleToggleTask(app, e)} 
+                              className={cn(
+                                "w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors cursor-pointer",
+                                app.completed ? "bg-slate-300 border-slate-300 dark:bg-white/20 dark:border-transparent text-white" : "border-slate-400/30 text-transparent hover:border-green-500"
+                              )}
+                            >
+                              <Check size={14} className={app.completed ? "opacity-100" : "opacity-0"} />
+                            </button>
+                            <div className={cn("flex-1 text-sm font-medium", app.completed ? "line-through text-brand-muted" : "text-brand")}>
+                               <div className="font-mono text-xs opacity-60 mb-0.5">{format(new Date(app.dueDate!), 'HH:mm')}</div>
+                               {app.task}
+                            </div>
+                            <div className="flex items-center gap-1">
+                               <button 
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   setEditingAppointment(app);
+                                   setNewTaskText(app.task);
+                                   setNewTaskTime(format(new Date(app.dueDate!), 'HH:mm'));
+                                 }}
+                                 className="p-1.5 text-slate-400 hover:text-blue-500 hover:bg-blue-500/10 rounded-lg cursor-pointer transition-colors"
+                               >
+                                 <Edit2 size={14} />
+                               </button>
+                               <button 
+                                 onClick={(e) => handleDeleteTask(app.id, e)}
+                                 className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg cursor-pointer transition-colors"
+                               >
+                                 <Trash2 size={16} />
+                               </button>
+                            </div>
+                          </div>
+                        </li>
+                      ))}
+                  </ul>
+                );
+              })()}
             </div>
 
             <div className="p-6 border-t border-slate-200/50 dark:border-white/10 bg-slate-100/50 dark:bg-black/20 shrink-0">
