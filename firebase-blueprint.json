@@ -1,0 +1,118 @@
+{
+  "entities": {
+    "Note": {
+      "title": "Note",
+      "description": "Rich-text note",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Title of the note" },
+        "content": { "type": "string", "description": "HTML content from TipTap" },
+        "categoryId": { "type": "string", "description": "Category or tag name" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "userId": { "type": "string", "description": "Owner userId" },
+        "createdAt": { "type": "timestamp" },
+        "updatedAt": { "type": "timestamp" }
+      },
+      "required": ["title", "content", "userId", "createdAt", "updatedAt"]
+    },
+    "Todo": {
+      "title": "Todo",
+      "description": "Task item",
+      "type": "object",
+      "properties": {
+        "task": { "type": "string", "description": "Task description" },
+        "dueDate": { "type": "string", "description": "Due date ISO string" },
+        "priority": { "type": "string", "enum": ["high", "medium", "low"] },
+        "completed": { "type": "boolean" },
+        "categoryId": { "type": "string", "description": "Category ID" },
+        "userId": { "type": "string", "description": "Owner userId" },
+        "createdAt": { "type": "timestamp" },
+        "updatedAt": { "type": "timestamp" }
+      },
+      "required": ["task", "priority", "completed", "userId", "createdAt", "updatedAt"]
+    },
+    "Link": {
+      "title": "Link",
+      "description": "URL bookmark",
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "URL of the link" },
+        "title": { "type": "string", "description": "Title of the link" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "categoryId": { "type": "string", "description": "Category ID" },
+        "userId": { "type": "string", "description": "Owner userId" },
+        "createdAt": { "type": "timestamp" },
+        "updatedAt": { "type": "timestamp" }
+      },
+      "required": ["url", "title", "userId", "createdAt", "updatedAt"]
+    },
+    "Prompt": {
+      "title": "Prompt",
+      "description": "User generated system prompt",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "category": { "type": "string" },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "timestamp" },
+        "updatedAt": { "type": "timestamp" }
+      },
+      "required": ["title", "content", "category", "userId", "createdAt", "updatedAt"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "User generated taxonomy category",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string", "enum": ["note", "task", "link", "prompt", "household"] },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "timestamp" },
+        "updatedAt": { "type": "timestamp" }
+      },
+      "required": ["name", "type", "userId", "createdAt", "updatedAt"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Household book entry",
+      "type": "object",
+      "properties": {
+        "description": { "type": "string" },
+        "amount": { "type": "number" },
+        "type": { "type": "string", "enum": ["income", "expense"] },
+        "category": { "type": "string" },
+        "date": { "type": "timestamp" },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "timestamp" }
+      },
+      "required": ["description", "amount", "type", "category", "date", "userId", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/notes/{noteId}": {
+      "schema": { "$ref": "#/entities/Note" },
+      "description": "Stores user notes"
+    },
+    "/todos/{todoId}": {
+      "schema": { "$ref": "#/entities/Todo" },
+      "description": "Stores user tasks"
+    },
+    "/links/{linkId}": {
+      "schema": { "$ref": "#/entities/Link" },
+      "description": "Stores user bookmarks"
+    },
+    "/prompts/{promptId}": {
+      "schema": { "$ref": "#/entities/Prompt" },
+      "description": "Stores user prompts"
+    },
+    "/categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/Category" },
+      "description": "Stores user categories"
+    },
+    "/transactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/Transaction" },
+      "description": "Stores household book transactions"
+    }
+  }
+}

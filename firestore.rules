@@ -1,0 +1,151 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isAdmin() { return false; }
+    function isSignedIn() { return request.auth != null && request.auth.uid != null; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // Notes
+    function isValidNote(data) {
+      return data.keys().hasAll(['title', 'content', 'userId', 'createdAt', 'updatedAt']) &&
+             data.title is string && data.title.size() <= 200 &&
+             data.content is string && data.content.size() <= 100000 &&
+             data.userId == request.auth.uid &&
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp &&
+             (!('categoryId' in data) || (data.categoryId is string && data.categoryId.size() <= 100)) &&
+             (!('tags' in data) || (data.tags is list && data.tags.size() <= 20));
+    }
+
+    match /notes/{noteId} {
+      allow get: if isSignedIn() && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(noteId) && isValidNote(incoming()) && incoming().createdAt == request.time && incoming().updatedAt == request.time;
+      allow update: if isSignedIn() && isValidId(noteId) && isValidNote(incoming()) && incoming().createdAt == existing().createdAt && incoming().updatedAt == request.time && incoming().userId == existing().userId;
+      allow delete: if isSignedIn() && isValidId(noteId) && existing().userId == request.auth.uid;
+    }
+
+    // Todos
+    function isValidTodo(data) {
+      return data.keys().hasAll(['task', 'priority', 'completed', 'userId', 'createdAt', 'updatedAt']) &&
+             data.task is string && data.task.size() <= 500 &&
+             data.priority in ['high', 'medium', 'low'] &&
+             data.completed is bool &&
+             data.userId == request.auth.uid &&
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp &&
+             (!('dueDate' in data) || data.dueDate == null || (data.dueDate is string && data.dueDate.size() <= 50));
+    }
+
+    match /todos/{todoId} {
+      allow get: if isSignedIn() && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(todoId) && isValidTodo(incoming()) && incoming().createdAt == request.time && incoming().updatedAt == request.time;
+      allow update: if isSignedIn() && isValidId(todoId) && isValidTodo(incoming()) && incoming().createdAt == existing().createdAt && incoming().updatedAt == request.time && incoming().userId == existing().userId;
+      allow delete: if isSignedIn() && isValidId(todoId) && existing().userId == request.auth.uid;
+    }
+
+    // Appointments
+    function isValidAppointment(data) {
+      return data.keys().hasAll(['task', 'priority', 'completed', 'userId', 'createdAt', 'updatedAt']) &&
+             data.task is string && data.task.size() <= 500 &&
+             data.priority in ['high', 'medium', 'low'] &&
+             data.completed is bool &&
+             data.userId == request.auth.uid &&
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp &&
+             (!('dueDate' in data) || data.dueDate == null || (data.dueDate is string && data.dueDate.size() <= 50));
+    }
+
+    match /appointments/{appointmentId} {
+      allow get: if isSignedIn() && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(appointmentId) && isValidAppointment(incoming()) && incoming().createdAt == request.time && incoming().updatedAt == request.time;
+      allow update: if isSignedIn() && isValidId(appointmentId) && isValidAppointment(incoming()) && incoming().createdAt == existing().createdAt && incoming().updatedAt == request.time && incoming().userId == existing().userId;
+      allow delete: if isSignedIn() && isValidId(appointmentId) && existing().userId == request.auth.uid;
+    }
+
+    // Links
+    function isValidLink(data) {
+      return data.keys().hasAll(['url', 'title', 'userId', 'createdAt', 'updatedAt']) &&
+             data.url is string && data.url.size() <= 1000 &&
+             data.title is string && data.title.size() <= 200 &&
+             data.userId == request.auth.uid &&
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp &&
+             (!('tags' in data) || (data.tags is list && data.tags.size() <= 20));
+    }
+
+    match /links/{linkId} {
+      allow get: if isSignedIn() && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(linkId) && isValidLink(incoming()) && incoming().createdAt == request.time && incoming().updatedAt == request.time;
+      allow update: if isSignedIn() && isValidId(linkId) && isValidLink(incoming()) && incoming().createdAt == existing().createdAt && incoming().updatedAt == request.time && incoming().userId == existing().userId;
+      allow delete: if isSignedIn() && isValidId(linkId) && existing().userId == request.auth.uid;
+    }
+    // Prompts
+    function isValidPrompt(data) {
+      return data.keys().hasAll(['title', 'content', 'category', 'userId', 'createdAt', 'updatedAt']) &&
+             data.title is string && data.title.size() <= 200 &&
+             data.content is string && data.content.size() <= 200000 &&
+             data.category is string && data.category.size() <= 100 &&
+             data.userId == request.auth.uid &&
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp;
+    }
+
+    match /prompts/{promptId} {
+      allow get: if isSignedIn() && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(promptId) && isValidPrompt(incoming()) && incoming().createdAt == request.time && incoming().updatedAt == request.time;
+      allow update: if isSignedIn() && isValidId(promptId) && isValidPrompt(incoming()) && incoming().createdAt == existing().createdAt && incoming().updatedAt == request.time && incoming().userId == existing().userId;
+      allow delete: if isSignedIn() && isValidId(promptId) && existing().userId == request.auth.uid;
+    }
+
+    // Categories
+    function isValidCategory(data) {
+      return data.keys().hasAll(['name', 'type', 'userId', 'createdAt', 'updatedAt']) &&
+             data.name is string && data.name.size() <= 100 &&
+             data.type is string && data.type in ['note', 'task', 'link', 'prompt', 'household'] &&
+             data.userId == request.auth.uid &&
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp;
+    }
+
+    match /categories/{categoryId} {
+      allow get: if isSignedIn() && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(categoryId) && isValidCategory(incoming()) && incoming().createdAt == request.time && incoming().updatedAt == request.time;
+      allow update: if isSignedIn() && isValidId(categoryId) && isValidCategory(incoming()) && incoming().createdAt == existing().createdAt && incoming().updatedAt == request.time && incoming().userId == existing().userId;
+      allow delete: if isSignedIn() && isValidId(categoryId) && existing().userId == request.auth.uid;
+    }
+
+    // Transactions
+    function isValidTransaction(data) {
+      return data.keys().hasAll(['description', 'amount', 'type', 'category', 'date', 'userId', 'createdAt']) &&
+             data.description is string && data.description.size() <= 500 &&
+             data.amount is number &&
+             data.type in ['income', 'expense'] &&
+             data.category is string && data.category.size() <= 100 &&
+             data.date is timestamp &&
+             data.userId == request.auth.uid &&
+             data.createdAt is timestamp;
+    }
+
+    match /transactions/{transactionId} {
+      allow get: if isSignedIn() && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(transactionId) && isValidTransaction(incoming()) && incoming().createdAt == request.time;
+      allow update: if isSignedIn() && isValidId(transactionId) && isValidTransaction(incoming()) && incoming().createdAt == existing().createdAt && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['description', 'amount', 'type', 'category', 'date'])
+      );
+      allow delete: if isSignedIn() && isValidId(transactionId) && existing().userId == request.auth.uid;
+    }
+  }
+}

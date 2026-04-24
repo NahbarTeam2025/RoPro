@@ -1,0 +1,147 @@
+import React, { useState, useEffect } from 'react';
+import { updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../lib/firebase';
+import { Trash2, Copy, Save } from 'lucide-react';
+import { cn } from '../lib/utils';
+import { CategorySelect } from '../components/CategorySelect';
+
+interface Prompt {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  userId: string;
+  updatedAt: any;
+  createdAt: any;
+}
+
+export function PromptEditor({ prompt, onBack }: { prompt: Prompt, onBack: () => void }) {
+  const [title, setTitle] = useState(prompt.title);
+  const [category, setCategory] = useState(prompt.category || '');
+  const [content, setContent] = useState(prompt.content || '');
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean, id: string } | null>(null);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await updateDoc(doc(db, 'prompts', prompt.id), {
+        title: title.trim() || 'Unbenannt',
+        category: category.trim(),
+        content: content,
+        updatedAt: serverTimestamp()
+      });
+      setHasChanges(false);
+    } catch (error) {
+      console.error("Error saving prompt:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteModal) return;
+    try {
+      await deleteDoc(doc(db, 'prompts', deleteModal.id));
+      setDeleteModal(null);
+      onBack();
+    } catch (error) {
+      console.error("Error deleting prompt:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (title !== prompt.title || category !== prompt.category || content !== prompt.content) {
+      setHasChanges(true);
+    }
+  }, [title, category, content, prompt.title, prompt.category, prompt.content]);
+
+  const copyContent = async () => {
+    try {
+        await navigator.clipboard.writeText(content);
+    } catch (err) {}
+  };
+
+  return (
+    <div className="flex-1 flex flex-col h-full bg-slate-50/50 dark:bg-transparent">
+      <div className="p-4 sm:p-6 border-b border-slate-200/50 dark:border-white/10 flex flex-col gap-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex items-center gap-2 flex-1 min-w-[200px]">
+            <button 
+              onClick={onBack}
+              className="p-2 -ml-2 text-brand-muted hover:text-brand hover:bg-slate-500/10 rounded-xl"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Prompt Titel"
+              className="text-2xl sm:text-3xl font-bold text-brand border-none focus:ring-0 p-0 w-full bg-transparent placeholder-brand-muted/50 outline-none"
+            />
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button 
+              onClick={handleSave}
+              disabled={!hasChanges || isSaving}
+              className={cn(
+                "h-10 px-6 rounded-2xl font-bold transition-all flex items-center gap-2",
+                hasChanges 
+                  ? "bg-[#007AFF] text-white hover:bg-[#0071E3] shadow-lg shadow-blue-500/20" 
+                  : "bg-slate-200 dark:bg-white/10 text-brand-muted cursor-not-allowed opacity-50"
+              )}
+            >
+              <Save size={18} />
+              <span className="hidden sm:inline">{isSaving ? "Speichert..." : "Speichern"}</span>
+            </button>
+            <button 
+              onClick={() => setDeleteModal({ open: true, id: prompt.id })}
+              className="p-2 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors flex-shrink-0 cursor-pointer"
+              title="Prompt löschen"
+            >
+              <Trash2 size={20} />
+            </button>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 mt-2 w-full">
+          <CategorySelect 
+            type="prompt" 
+            value={category} 
+            onChange={setCategory}
+            className="flex-1 max-w-sm"
+          />
+        </div>
+      </div>
+      
+      <div className="p-4 sm:p-6 border-b border-slate-200/50 dark:border-white/10 bg-slate-100/50 dark:bg-black/20 flex justify-end shrink-0">
+          <button onClick={copyContent} className="glass-button-secondary text-xs h-8">
+              <Copy size={14} /> Text kopieren
+          </button>
+      </div>
+
+      <div className="flex-1 p-4 sm:p-6 overflow-y-auto min-h-[200px]">
+          <textarea 
+            className="w-full h-full bg-transparent resize-none outline-none text-brand focus:ring-0 border-none placeholder-brand-muted font-mono text-[16px] sm:text-sm leading-relaxed"
+            placeholder="Schreibe hier deinen genialen Prompt..."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+      </div>
+
+      {deleteModal && deleteModal.open && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/40 backdrop-blur-md">
+          <div className="glass-card w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl">
+            <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
+            <p className="text-sm text-[#86868B] mb-8">Dieser Prompt wird unwiderruflich entfernt.</p>
+            <div className="flex flex-col gap-3">
+              <button onClick={handleDelete} className="w-full h-12 bg-red-500 text-white font-bold rounded-2xl hover:bg-red-600 transition-all">Löschen</button>
+              <button onClick={() => setDeleteModal(null)} className="w-full h-12 bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-all">Behalten</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

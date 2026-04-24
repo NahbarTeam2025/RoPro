@@ -1,0 +1,89 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-brand: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+body {
+  @apply antialiased break-words transition-colors duration-500 ease-out;
+  @apply bg-[#FBFBFD] text-[#1D1D1F];
+}
+
+.dark body {
+  @apply bg-[#000000] text-[#F5F5F7];
+}
+
+/* Global focus outlines */
+*:focus-visible {
+  @apply outline-none ring-2 ring-blue-500/50 ring-offset-2 ring-offset-transparent transition-shadow;
+}
+
+@layer components {
+  /* Apple-style Premium Card */
+  .glass-card {
+    @apply bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 shadow-[0_4px_24px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_32px_rgba(0,0,0,0.4)] transition-all duration-300;
+  }
+  
+  .dark .glass-card {
+    @apply bg-[#1C1C1E] border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.6)];
+  }
+
+  /* Specific Green Icons globally - making them more subtle */
+  .icon-green {
+    @apply text-blue-600;
+  }
+  .dark .icon-green {
+    @apply text-blue-400;
+  }
+  
+  /* Text colors for flexibility */
+  .text-brand {
+    @apply text-[#1D1D1F] font-brand tracking-tight;
+  }
+  .dark .text-brand {
+    @apply text-[#F5F5F7] font-brand tracking-tight;
+  }
+
+  .text-brand-muted {
+    @apply text-[#86868B];
+  }
+  .dark .text-brand-muted {
+    @apply text-[#A1A1A6];
+  }
+  
+  /* Custom Inputs for Premium UI */
+  .glass-input {
+    @apply w-full px-4 py-2.5 bg-[#F5F5F7] border border-transparent rounded-xl text-sm text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200 placeholder-[#86868B];
+  }
+  .dark .glass-input {
+    @apply bg-[#2C2C2E] border-transparent text-[#F5F5F7] focus:ring-blue-500/30 focus:bg-[#3A3A3C] placeholder-[#86868B];
+  }
+
+  /* Custom Buttons */
+  .glass-button-primary {
+    @apply h-10 px-5 bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white font-semibold text-sm rounded-xl transition-all duration-200 shadow-sm flex items-center justify-center gap-2;
+  }
+  .dark .glass-button-primary {
+    @apply bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white;
+  }
+  
+  .glass-button-secondary {
+    @apply h-10 px-5 bg-[#F5F5F7] hover:bg-[#E8E8ED] active:scale-[0.98] text-[#1D1D1F] font-semibold text-sm rounded-xl transition-all duration-200 border border-transparent shadow-sm flex items-center justify-center gap-2;
+  }
+  .dark .glass-button-secondary {
+    @apply bg-[#2C2C2E] hover:bg-[#3A3A3C] text-[#F5F5F7];
+  }
+
+  .sidebar-item {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-[#F5F5F7] dark:hover:bg-[#2C2C2E] text-[#424245] dark:text-[#A1A1A6];
+  }
+
+  .sidebar-item-active {
+    @apply bg-[#E8E8ED] dark:bg-[#3A3A3C] text-[#1D1D1F] dark:text-[#F5F5F7] font-semibold;
+  }
+}
