@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Trash2, Copy, Save } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -11,28 +11,62 @@ interface Prompt {
   content: string;
   category: string;
   userId: string;
+  isDraft?: boolean;
+  color?: string;
   updatedAt: any;
   createdAt: any;
 }
 
-export function PromptEditor({ prompt, onBack }: { prompt: Prompt, onBack: () => void }) {
+export function PromptEditor({ prompt, onBack, onSave }: { prompt: Prompt, onBack: () => void, onSave?: (prompt: Prompt) => void }) {
   const [title, setTitle] = useState(prompt.title);
   const [category, setCategory] = useState(prompt.category || '');
   const [content, setContent] = useState(prompt.content || '');
+  const [color, setColor] = useState(prompt.color || '');
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [deleteModal, setDeleteModal] = useState<{ open: boolean, id: string } | null>(null);
 
+  const colors = [
+    { name: 'Standard', value: '' },
+    { name: 'Blau', value: '#007AFF' },
+    { name: 'Grün', value: '#34C759' },
+    { name: 'Orange', value: '#FF9500' },
+    { name: 'Lila', value: '#5856D6' },
+    { name: 'Pink', value: '#FF2D55' },
+  ];
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await updateDoc(doc(db, 'prompts', prompt.id), {
+      const promptData = {
         title: title.trim() || 'Unbenannt',
         category: category.trim(),
         content: content,
+        color,
+        userId: prompt.userId,
         updatedAt: serverTimestamp()
-      });
-      setHasChanges(false);
+      };
+
+      if (prompt.isDraft) {
+        const docRef = await addDoc(collection(db, 'prompts'), {
+          ...promptData,
+          createdAt: serverTimestamp()
+        });
+        
+        // Call onSave with the new document data (estimated)
+        if (onSave) {
+          onSave({
+            ...promptData,
+            id: docRef.id,
+            isDraft: false,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          } as Prompt);
+        }
+      } else {
+        await updateDoc(doc(db, 'prompts', prompt.id), promptData);
+        setHasChanges(false);
+      }
     } catch (error) {
       console.error("Error saving prompt:", error);
     } finally {
@@ -41,7 +75,11 @@ export function PromptEditor({ prompt, onBack }: { prompt: Prompt, onBack: () =>
   };
 
   const handleDelete = async () => {
-    if (!deleteModal) return;
+    if (!deleteModal || prompt.isDraft) {
+        setDeleteModal(null);
+        if (prompt.isDraft) onBack();
+        return;
+    }
     try {
       await deleteDoc(doc(db, 'prompts', deleteModal.id));
       setDeleteModal(null);
@@ -52,10 +90,12 @@ export function PromptEditor({ prompt, onBack }: { prompt: Prompt, onBack: () =>
   };
 
   useEffect(() => {
-    if (title !== prompt.title || category !== prompt.category || content !== prompt.content) {
-      setHasChanges(true);
-    }
-  }, [title, category, content, prompt.title, prompt.category, prompt.content]);
+    const isDifferent = title !== prompt.title || 
+                        category !== prompt.category || 
+                        content !== prompt.content || 
+                        color !== (prompt.color || '');
+    setHasChanges(isDifferent);
+  }, [title, category, content, color, prompt.title, prompt.category, prompt.content, prompt.color]);
 
   const copyContent = async () => {
     try {
@@ -105,13 +145,31 @@ export function PromptEditor({ prompt, onBack }: { prompt: Prompt, onBack: () =>
             </button>
           </div>
         </div>
-        <div className="flex items-center gap-2 mt-2 w-full">
+        <div className="flex items-center gap-4 mt-2 w-full flex-wrap">
           <CategorySelect 
             type="prompt" 
             value={category} 
             onChange={setCategory}
             className="flex-1 max-w-sm"
           />
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-brand-muted uppercase tracking-wider">Farbe:</span>
+            <div className="flex items-center gap-1.5">
+               {colors.map(c => (
+                 <button
+                    key={c.name}
+                    onClick={() => setColor(c.value)}
+                    className={cn(
+                      "w-6 h-6 rounded-full border-2 transition-all",
+                      color === c.value ? "border-brand scale-110" : "border-transparent",
+                      !c.value ? "bg-slate-200 dark:bg-white/20" : ""
+                    )}
+                    style={c.value ? { backgroundColor: c.value } : {}}
+                    title={c.name}
+                 />
+               ))}
+            </div>
+          </div>
         </div>
       </div>
       

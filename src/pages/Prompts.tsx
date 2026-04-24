@@ -4,7 +4,7 @@ import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { Plus, Search, Trash2, Tag, Copy, Check, MessageSquare, Settings2 } from 'lucide-react';
+import { Plus, Search, Trash2, Tag, Copy, Check, MessageSquare, Settings2, Pin } from 'lucide-react';
 import { PromptEditor } from '../components/PromptEditor';
 import { cn } from '../lib/utils';
 import { CategorySelect } from '../components/CategorySelect';
@@ -17,6 +17,9 @@ interface Prompt {
   content: string;
   category: string;
   userId: string;
+  isPinned?: boolean;
+  isDraft?: boolean;
+  color?: string;
   updatedAt: any;
   createdAt: any;
 }
@@ -30,7 +33,6 @@ export default function Prompts() {
   const { categories } = useCategories('prompt');
 
   const [filterCategory, setFilterCategory] = useState<string>('all');
-  const [filterMonth, setFilterMonth] = useState<string>('all');
   const [showCatManager, setShowCatManager] = useState(false);
 
   useEffect(() => {
@@ -43,42 +45,50 @@ export default function Prompts() {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Prompt));
       docs.sort((a, b) => {
+        if (a.isPinned && !b.isPinned) return -1;
+        if (!a.isPinned && b.isPinned) return 1;
         const timeA = a.updatedAt?.toDate?.()?.getTime() || 0;
         const timeB = b.updatedAt?.toDate?.()?.getTime() || 0;
         return timeB - timeA;
       });
       setPrompts(docs);
-      if (activePrompt) {
+      
+      // Sync active prompt if it's not a draft
+      if (activePrompt && !activePrompt.isDraft) {
         const updated = docs.find(d => d.id === activePrompt.id);
         if (updated) setActivePrompt(updated);
       }
     });
     return () => unsubscribe();
-  }, [user]);
+  }, [user, activePrompt?.isDraft]);
 
-  const createPrompt = async () => {
-    if (!user) return;
+  const togglePin = async (e: React.MouseEvent, prompt: Prompt) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!user || prompt.isDraft) return;
     try {
-      const docRef = await addDoc(collection(db, 'prompts'), {
-        title: 'Neuer Prompt',
-        content: '',
-        category: '',
-        userId: user.uid,
-        createdAt: serverTimestamp(),
+      await updateDoc(doc(db, 'prompts', prompt.id), {
+        isPinned: !prompt.isPinned,
         updatedAt: serverTimestamp()
       });
-      setActivePrompt({
-        id: docRef.id,
-        title: 'Neuer Prompt',
-        content: '',
-        category: '',
-        userId: user.uid,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
-    } catch (error) {
-      console.error("Error creating prompt:", error);
+    } catch (err) {
+      console.error("Error toggling pin:", err);
     }
+  };
+
+  const createPrompt = () => {
+    if (!user) return;
+    const newPrompt: Prompt = {
+      id: 'draft-' + Date.now(),
+      title: '',
+      content: '',
+      category: '',
+      userId: user.uid,
+      isDraft: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    setActivePrompt(newPrompt);
   };
 
   const copyToClipboard = async (content: string, id: string) => {
@@ -91,19 +101,11 @@ export default function Prompts() {
     }
   };
 
-  const availableMonths = Array.from(new Set(prompts.map(p => {
-    if (p.updatedAt?.toDate) return format(p.updatedAt.toDate(), 'yyyy-MM');
-    if (p.createdAt?.toDate) return format(p.createdAt.toDate(), 'yyyy-MM');
-    return null;
-  }).filter(Boolean) as string[])).sort().reverse();
-
-  const filteredPrompts = prompts.filter(p => {
+  const filteredPrompts = [
+    ...(activePrompt?.isDraft ? [activePrompt] : []),
+    ...prompts
+  ].filter(p => {
     if (filterCategory !== 'all' && p.category !== filterCategory) return false;
-    if (filterMonth !== 'all') {
-       const monthStr = p.updatedAt?.toDate ? format(p.updatedAt.toDate(), 'yyyy-MM') : 
-                        (p.createdAt?.toDate ? format(p.createdAt.toDate(), 'yyyy-MM') : null);
-       if (monthStr !== filterMonth) return false;
-    }
     const queryStr = searchQuery.toLowerCase();
     const catName = categories.find(c => c.id === p.category)?.name || p.category;
     return p.title.toLowerCase().includes(queryStr) || 
@@ -140,18 +142,8 @@ export default function Prompts() {
                 onChange={(e) => setFilterCategory(e.target.value)}
                 className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider px-2"
              >
-               <option value="all">Alle</option>
+               <option value="all">Kategorie</option>
                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-             </select>
-             <select 
-                value={filterMonth} 
-                onChange={(e) => setFilterMonth(e.target.value)}
-                className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider px-2"
-             >
-               <option value="all">Datum</option>
-               {availableMonths.map(m => (
-                 <option key={m} value={m}>{format(new Date(`${m}-01`), 'MMMM', { locale: de })}</option>
-               ))}
              </select>
           </div>
           <div className="relative">
@@ -176,30 +168,55 @@ export default function Prompts() {
                   key={prompt.id}
                   onClick={() => setActivePrompt(prompt)}
                   className={cn(
-                    "w-full text-left p-4 hover:bg-slate-500/10 transition-colors focus:outline-none cursor-pointer rounded-2xl border",
-                    activePrompt?.id === prompt.id ? "bg-slate-500/10 border-green-500/50" : "border-transparent"
+                    "w-full text-left p-4 hover:bg-slate-500/10 transition-colors focus:outline-none cursor-pointer rounded-2xl border-2",
+                    activePrompt?.id === prompt.id ? "bg-slate-500/10" : ""
                   )}
+                  style={{ borderColor: activePrompt?.id === prompt.id ? (prompt.color || '#34C759') : (prompt.color || 'transparent') }}
                 >
                   <div className="flex justify-between items-start gap-2">
-                    <h3 className={cn(
-                      "font-bold truncate",
-                      activePrompt?.id === prompt.id ? "text-green-500" : "text-brand"
-                    )}>{prompt.title || 'Unbenannt'}</h3>
-                    <div
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        copyToClipboard(prompt.content, prompt.id);
-                      }}
-                      className="p-1 rounded-md hover:bg-slate-500/20 text-brand-muted hover:text-brand transition-colors cursor-pointer flex-shrink-0"
-                      title="Kopieren"
-                    >
-                       {copiedId === prompt.id ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      {prompt.isPinned && <Pin size={12} className="text-green-500 fill-green-500 shrink-0" />}
+                      <h3 className={cn(
+                        "font-bold truncate",
+                        activePrompt?.id === prompt.id ? "text-green-500" : "text-brand"
+                      )}>{prompt.title || 'Unbenannt'}</h3>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={(e) => togglePin(e, prompt)}
+                        disabled={prompt.isDraft}
+                        className={cn(
+                          "p-1 rounded-md transition-all",
+                          prompt.isPinned ? "text-green-500 bg-green-500/10" : "text-brand-muted hover:bg-slate-500/20",
+                          prompt.isDraft && "opacity-0"
+                        )}
+                        title={prompt.isPinned ? "Fixierung lösen" : "Anpinnen"}
+                      >
+                        <Pin size={14} className={cn(prompt.isPinned && "fill-green-500")} />
+                      </button>
+                      <div
+                        onClick={(e) => {
+                          if (prompt.isDraft) return;
+                          e.stopPropagation();
+                          copyToClipboard(prompt.content, prompt.id);
+                        }}
+                        className={cn(
+                          "p-1 rounded-md hover:bg-slate-500/20 text-brand-muted hover:text-brand transition-colors cursor-pointer",
+                          prompt.isDraft && "opacity-0"
+                        )}
+                        title="Kopieren"
+                      >
+                         {copiedId === prompt.id ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 mt-2">
                     <span className="text-[10px] font-bold text-brand-muted uppercase tracking-widest bg-slate-200/50 dark:bg-black/20 px-2 py-0.5 rounded truncate max-w-[120px]">
                       {catName}
                     </span>
+                    {prompt.isDraft && (
+                      <span className="text-[8px] font-black text-blue-500 uppercase tracking-tighter ml-auto">Neu</span>
+                    )}
                   </div>
                 </button>
               )
@@ -214,7 +231,15 @@ export default function Prompts() {
         !activePrompt ? "hidden md:flex" : "flex"
       )}>
         {activePrompt ? (
-          <PromptEditor key={activePrompt.id} prompt={activePrompt} onBack={() => setActivePrompt(null)} />
+          <PromptEditor 
+            key={activePrompt.id} 
+            prompt={activePrompt} 
+            onBack={() => setActivePrompt(null)} 
+            onSave={(newPrompt) => {
+              // Replace the draft with the real one
+              setActivePrompt(newPrompt);
+            }}
+          />
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-brand-muted">
             <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-4 border border-blue-500/20 text-blue-500 dark:text-green-500 dark:bg-green-500/10 dark:border-green-500/20">

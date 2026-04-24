@@ -14,6 +14,7 @@ interface Note {
   categoryId: string;
   tags: string[];
   userId: string;
+  color?: string;
   updatedAt: any;
   createdAt?: any;
 }
@@ -21,9 +22,19 @@ interface Note {
 export function NoteEditor({ note, onBack }: { note: Note, onBack: () => void }) {
   const [title, setTitle] = useState(note.title);
   const [category, setCategory] = useState(note.categoryId || '');
+  const [color, setColor] = useState(note.color || '');
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [deleteModal, setDeleteModal] = useState<{ open: boolean, id: string } | null>(null);
+
+  const colors = [
+    { name: 'Standard', value: '' },
+    { name: 'Blau', value: '#007AFF' },
+    { name: 'Grün', value: '#34C759' },
+    { name: 'Orange', value: '#FF9500' },
+    { name: 'Lila', value: '#5856D6' },
+    { name: 'Pink', value: '#FF2D55' },
+  ];
 
   const handleSave = async () => {
     if (!editor) return;
@@ -33,6 +44,7 @@ export function NoteEditor({ note, onBack }: { note: Note, onBack: () => void })
         title: title.trim() || 'Unbenannte Notiz',
         categoryId: category.trim(),
         content: editor.getHTML(),
+        color,
         updatedAt: serverTimestamp()
       });
       setHasChanges(false);
@@ -55,10 +67,10 @@ export function NoteEditor({ note, onBack }: { note: Note, onBack: () => void })
   };
 
   useEffect(() => {
-    if (title !== note.title || category !== note.categoryId) {
+    if (title !== note.title || category !== note.categoryId || color !== (note.color || '')) {
       setHasChanges(true);
     }
-  }, [title, category, note.title, note.categoryId]);
+  }, [title, category, color, note.title, note.categoryId, note.color]);
 
   const editor = useEditor({
     extensions: [StarterKit],
@@ -115,13 +127,31 @@ export function NoteEditor({ note, onBack }: { note: Note, onBack: () => void })
             </button>
           </div>
         </div>
-        <div className="flex items-center gap-2 mt-2 w-full">
+        <div className="flex items-center gap-4 mt-2 w-full flex-wrap">
           <CategorySelect 
             type="note" 
             value={category} 
             onChange={setCategory}
             className="flex-1 max-w-sm"
           />
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-brand-muted uppercase tracking-wider">Farbe:</span>
+            <div className="flex items-center gap-1.5">
+               {colors.map(c => (
+                 <button
+                    key={c.name}
+                    onClick={() => setColor(c.value)}
+                    className={cn(
+                      "w-6 h-6 rounded-full border-2 transition-all",
+                      color === c.value ? "border-brand scale-110" : "border-transparent",
+                      !c.value ? "bg-slate-200 dark:bg-white/20" : ""
+                    )}
+                    style={c.value ? { backgroundColor: c.value } : {}}
+                    title={c.name}
+                 />
+               ))}
+            </div>
+          </div>
         </div>
       </div>
 

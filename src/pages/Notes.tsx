@@ -5,7 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { NoteEditor } from '../components/NoteEditor';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { Plus, Search, Trash2, Tag, Bold, Italic, List, ListOrdered, Heading2, FileText, Settings2 } from 'lucide-react';
+import { Plus, Search, Trash2, Tag, Bold, Italic, List, ListOrdered, Heading2, FileText, Settings2, Pin } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { CategorySelect } from '../components/CategorySelect';
 import { CategoryManager } from '../components/CategoryManager';
@@ -18,6 +18,8 @@ interface Note {
   categoryId: string;
   tags: string[];
   userId: string;
+  isPinned?: boolean;
+  color?: string;
   updatedAt: any;
   createdAt?: any;
 }
@@ -44,6 +46,8 @@ export default function Notes() {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Note));
       docs.sort((a, b) => {
+        if (a.isPinned && !b.isPinned) return -1;
+        if (!a.isPinned && b.isPinned) return 1;
         const timeA = a.updatedAt?.toDate?.()?.getTime() || 0;
         const timeB = b.updatedAt?.toDate?.()?.getTime() || 0;
         return timeB - timeA;
@@ -81,6 +85,20 @@ export default function Notes() {
       });
     } catch (error) {
       console.error("Error creating note:", error);
+    }
+  };
+
+  const togglePin = async (e: React.MouseEvent, note: Note) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!user) return;
+    try {
+      await updateDoc(doc(db, 'notes', note.id), {
+        isPinned: !note.isPinned,
+        updatedAt: serverTimestamp()
+      });
+    } catch (err) {
+      console.error("Error toggling pin:", err);
     }
   };
 
@@ -182,27 +200,45 @@ export default function Notes() {
                     key={note.id}
                     className={cn(
                       "w-full text-left p-4 hover:bg-slate-500/10 transition-colors focus:outline-none cursor-pointer group relative",
-                      activeNote?.id === note.id ? "bg-slate-500/10 border-l-2 border-green-500" : "border-l-2 border-transparent"
+                      activeNote?.id === note.id ? "bg-slate-500/10 border-l-4" : "border-l-4 border-transparent"
                     )}
+                    style={{ borderLeftColor: activeNote?.id === note.id ? (note.color || '#34C759') : (note.color || 'transparent') }}
                     onClick={() => setActiveNote(note)}
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className={cn(
-                        "font-bold truncate flex-1",
-                        activeNote?.id === note.id ? "text-green-500" : "text-brand"
-                      )}>{note.title || 'Unbenannte Notiz'}</h3>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          {note.isPinned && <Pin size={12} className="text-green-500 fill-green-500 shrink-0" />}
+                          <h3 className={cn(
+                            "font-bold truncate",
+                            activeNote?.id === note.id ? "text-green-500" : "text-brand"
+                          )}>{note.title || 'Unbenannte Notiz'}</h3>
+                        </div>
+                      </div>
                       
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          setDeleteModal({ open: true, id: note.id });
-                        }}
-                        className="p-1.5 text-brand-muted hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition-opacity z-20"
-                        title="Notiz löschen"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={(e) => togglePin(e, note)}
+                          className={cn(
+                            "p-1.5 rounded-lg transition-all md:opacity-0 md:group-hover:opacity-100",
+                            note.isPinned ? "text-green-500 bg-green-500/10" : "text-brand-muted hover:bg-slate-500/10"
+                          )}
+                          title={note.isPinned ? "Fixierung lösen" : "Anpinnen"}
+                        >
+                          <Pin size={14} className={cn(note.isPinned && "fill-green-500")} />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            setDeleteModal({ open: true, id: note.id });
+                          }}
+                          className="p-1.5 text-brand-muted hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition-opacity z-20"
+                          title="Notiz löschen"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2 mt-2">
                       <span className="text-[10px] font-bold text-brand-muted uppercase tracking-widest bg-slate-200/50 dark:bg-black/20 px-2 py-0.5 rounded truncate max-w-[120px]">
@@ -213,7 +249,7 @@ export default function Notes() {
                       </span>
                     </div>
                   </div>
-                )
+                );
               })}
             </div>
           )}

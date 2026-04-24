@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { collection, query, where, onSnapshot, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { format, startOfDay, addDays } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { CheckSquare, Calendar as CalendarIcon, FileText, MessageSquare, Link as LinkIcon, Plus, ChevronRight, Check, Edit2, Trash2, Search, X, Save, Wallet, ArrowUpCircle, ArrowDownCircle, Zap } from 'lucide-react';
+import { CheckSquare, Calendar as CalendarIcon, FileText, MessageSquare, Link as LinkIcon, Plus, ChevronRight, Check, Edit2, Trash2, Search, X, Save, Wallet, ArrowUpCircle, ArrowDownCircle, Zap, Pin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
@@ -50,22 +50,8 @@ export default function Dashboard() {
   const [editItem, setEditItem] = useState<{ type: 'todos' | 'notes' | 'prompts' | 'links' | 'appointments', data: any } | null>(null);
   const [deleteModal, setDeleteModal] = useState<{ open: boolean, coll: string, id: string } | null>(null);
 
-  // Scroll lock when modal is open
-  useEffect(() => {
-    const mainContent = document.querySelector('main');
-    if (editItem || deleteModal) {
-      if (mainContent) mainContent.style.overflow = 'hidden';
-      document.body.style.overflow = 'hidden';
-    } else {
-      if (mainContent) mainContent.style.overflow = '';
-      document.body.style.overflow = '';
-    }
-    return () => { 
-      if (mainContent) mainContent.style.overflow = '';
-      document.body.style.overflow = ''; 
-    };
-  }, [editItem, deleteModal]);
-
+  // Current time is handled by the Clock component
+  
   useEffect(() => {
     if (!user) return;
     
@@ -118,21 +104,33 @@ export default function Dashboard() {
     const notesQ = query(collection(db, 'notes'), where('userId', '==', user.uid));
     unsubscribes.push(onSnapshot(notesQ, snap => {
       setNotes(snap.docs.map(d => ({ id: d.id, ...d.data() } as any))
-        .sort((a, b) => (b.updatedAt?.toDate?.()?.getTime() || 0) - (a.updatedAt?.toDate?.()?.getTime() || 0))
+        .sort((a, b) => {
+          if (a.isPinned && !b.isPinned) return -1;
+          if (!a.isPinned && b.isPinned) return 1;
+          return (b.updatedAt?.toDate?.()?.getTime() || 0) - (a.updatedAt?.toDate?.()?.getTime() || 0);
+        })
         .slice(0, 3));
     }));
 
     const promptsQ = query(collection(db, 'prompts'), where('userId', '==', user.uid));
     unsubscribes.push(onSnapshot(promptsQ, snap => {
       setPrompts(snap.docs.map(d => ({ id: d.id, ...d.data() } as any))
-        .sort((a, b) => (b.updatedAt?.toDate?.()?.getTime() || 0) - (a.updatedAt?.toDate?.()?.getTime() || 0))
+        .sort((a, b) => {
+          if (a.isPinned && !b.isPinned) return -1;
+          if (!a.isPinned && b.isPinned) return 1;
+          return (b.updatedAt?.toDate?.()?.getTime() || 0) - (a.updatedAt?.toDate?.()?.getTime() || 0);
+        })
         .slice(0, 3));
     }));
 
     const linksQ = query(collection(db, 'links'), where('userId', '==', user.uid));
     unsubscribes.push(onSnapshot(linksQ, snap => {
       setLinks(snap.docs.map(d => ({ id: d.id, ...d.data() } as any))
-        .sort((a, b) => (b.createdAt?.toDate?.()?.getTime() || 0) - (a.createdAt?.toDate?.()?.getTime() || 0))
+        .sort((a, b) => {
+          if (a.isPinned && !b.isPinned) return -1;
+          if (!a.isPinned && b.isPinned) return 1;
+          return (b.createdAt?.toDate?.()?.getTime() || 0) - (a.createdAt?.toDate?.()?.getTime() || 0);
+        })
         .slice(0, 3));
     }));
 
@@ -335,14 +333,21 @@ export default function Dashboard() {
             {notes.length > 0 ? (
                <div className="flex flex-col gap-3">
                 {notes.map(note => (
-                  <div key={note.id} className="p-4 rounded-3xl bg-[#F5F5F7] dark:bg-[#2C2C2E] relative group transition-colors">
-                    <div className="pr-12">
-                      <h4 className="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7] block truncate">{note.title || 'Ohne Titel'}</h4>
-                      <span className="text-[10px] font-medium text-[#86868B] block mt-0.5">
-                        {format(note.updatedAt?.toDate() || new Date(), 'dd. MMMM', { locale: de })}
-                      </span>
+                  <div 
+                    key={note.id} 
+                    className="p-4 rounded-3xl bg-[#F5F5F7] dark:bg-[#1C1C1E] relative group transition-colors flex items-center justify-between border-2"
+                    style={{ borderColor: note.color || 'transparent' }}
+                  >
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      {note.isPinned && <Pin size={12} className="text-green-500 fill-green-500 shrink-0" />}
+                      <div className="min-w-0">
+                        <h4 className="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7] truncate">{note.title || 'Ohne Titel'}</h4>
+                        <span className="text-[10px] font-medium text-[#86868B] block mt-0.5">
+                          {format(note.updatedAt?.toDate() || new Date(), 'dd. MMMM', { locale: de })}
+                        </span>
+                      </div>
                     </div>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEditItem({ type: 'notes', data: note }); }} className="p-2 text-[#86868B] hover:text-[#007AFF] transition-colors"><Edit2 size={14} /></button>
                       <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDeleteModal({ open: true, coll: 'notes', id: note.id }); }} className="p-2 text-[#86868B] hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
                     </div>
@@ -357,20 +362,66 @@ export default function Dashboard() {
             )}
           </DashboardCard>
 
+          {/* Prompts */}
+          <DashboardCard title="Prompts" icon={MessageSquare} to="/prompts">
+            {prompts.length > 0 ? (
+               <div className="flex flex-col gap-3">
+                {prompts.map(prompt => (
+                  <div 
+                    key={prompt.id} 
+                    className="p-4 rounded-3xl bg-[#F5F5F7] dark:bg-[#1C1C1E] relative group transition-colors flex items-center justify-between border-2"
+                    style={{ borderColor: prompt.color || 'transparent' }}
+                  >
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      {prompt.isPinned && <Pin size={12} className="text-green-500 fill-green-500 shrink-0" />}
+                      <div className="min-w-0">
+                        <h4 className="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7] truncate">{prompt.title || 'Ohne Titel'}</h4>
+                        <p className="text-[10px] font-medium text-[#86868B] line-clamp-1 mt-0.5">{prompt.content}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEditItem({ type: 'prompts', data: prompt }); }} className="p-2 text-[#86868B] hover:text-[#007AFF] transition-colors"><Edit2 size={14} /></button>
+                      <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDeleteModal({ open: true, coll: 'prompts', id: prompt.id }); }} className="p-2 text-[#86868B] hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
+                    </div>
+                  </div>
+                ))}
+               </div>
+            ) : (
+               <div className="text-center py-10 opacity-20 flex flex-col items-center">
+                 <MessageSquare size={40} strokeWidth={1} />
+                 <span className="text-xs font-bold uppercase mt-3 tracking-widest text-[9px]">Keine</span>
+               </div>
+            )}
+          </DashboardCard>
+
           {/* Links */}
           <DashboardCard title="Links" icon={LinkIcon} to="/links">
             {links.length > 0 ? (
                <div className="flex flex-col gap-3">
-                {links.map(link => (
+                {links.map(link => {
+                  const domain = link.url.replace(/^https?:\/\//i, '').replace(/^www\./i, '').split('/')[0];
+                  return (
                   <div key={link.id} className="relative group">
-                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-3xl bg-[#F5F5F7] dark:bg-[#2C2C2E] border border-transparent hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-colors pr-12">
-                      <div className="w-10 h-10 rounded-2xl bg-white dark:bg-[#3A3A3C] shadow-sm flex items-center justify-center shrink-0 overflow-hidden">
+                    <a 
+                      href={link.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="flex items-center gap-4 p-4 rounded-3xl bg-[#F5F5F7] dark:bg-[#2C2C2E] border-2 hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-colors pr-12"
+                      style={{ borderColor: link.color || 'transparent' }}
+                    >
+                      <div className="w-12 h-12 rounded-2xl bg-white dark:bg-[#3A3A3C] shadow-sm flex items-center justify-center shrink-0 overflow-hidden border border-black/5 dark:border-white/5 relative">
                         <img 
-                          src={`https://unavatar.io/${new URL(link.url).hostname}`} 
+                          src={`https://www.google.com/s2/favicons?sz=64&domain=${domain}`} 
                           alt="" 
-                          className="w-6 h-6 object-contain"
+                          className="w-8 h-8 object-contain"
+                          referrerPolicy="no-referrer"
                           onError={(e) => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2386868B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>'; }} 
                         />
+                        {link.isPinned && (
+                          <div className="absolute top-0 right-0 p-0.5 bg-green-500 rounded-bl-lg">
+                            <Pin size={8} className="text-white fill-white" />
+                          </div>
+                        )}
                       </div>
                       <div className="min-w-0 flex-1">
                         <span className="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7] block truncate">{link.title}</span>
@@ -378,7 +429,7 @@ export default function Dashboard() {
                       </div>
                     </a>
                   </div>
-                ))}
+                )})}
                </div>
             ) : (
                <div className="text-center py-10 opacity-20 flex flex-col items-center">
@@ -609,7 +660,17 @@ function LinkEditForm({ link, onBack }: { link: any, onBack: () => void }) {
   const [title, setTitle] = useState(link.title);
   const [url, setUrl] = useState(link.url);
   const [categoryId, setCategoryId] = useState(link.categoryId || '');
+  const [color, setColor] = useState(link.color || '');
   const [isSaving, setIsSaving] = useState(false);
+
+  const colors = [
+    { name: 'Standard', value: '' },
+    { name: 'Blau', value: '#007AFF' },
+    { name: 'Grün', value: '#34C759' },
+    { name: 'Orange', value: '#FF9500' },
+    { name: 'Lila', value: '#5856D6' },
+    { name: 'Pink', value: '#FF2D55' },
+  ];
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -622,6 +683,7 @@ function LinkEditForm({ link, onBack }: { link: any, onBack: () => void }) {
         title: title.trim(),
         url: finalUrl,
         categoryId,
+        color,
         updatedAt: serverTimestamp()
       });
       onBack();
@@ -649,6 +711,25 @@ function LinkEditForm({ link, onBack }: { link: any, onBack: () => void }) {
         <div className="space-y-1.5 flex flex-col">
           <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Kategorie</label>
           <CategorySelect type="link" value={categoryId} onChange={setCategoryId} className="h-12 border-none px-0" />
+        </div>
+        <div className="space-y-1.5 flex flex-col">
+          <label className="text-xs font-bold text-brand-muted uppercase tracking-wider mb-2">Farbe</label>
+          <div className="flex items-center gap-2 h-10">
+             {colors.map(c => (
+               <button
+                  key={c.name}
+                  type="button"
+                  onClick={() => setColor(c.value)}
+                  className={cn(
+                    "w-8 h-8 rounded-full border-2 transition-all",
+                    color === c.value ? "border-brand scale-110" : "border-transparent",
+                    !c.value ? "bg-slate-200 dark:bg-white/20" : ""
+                  )}
+                  style={c.value ? { backgroundColor: c.value } : {}}
+                  title={c.name}
+               />
+             ))}
+          </div>
         </div>
       </div>
 

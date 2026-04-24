@@ -6,7 +6,9 @@ import {
   LayoutDashboard, CheckSquare, Calendar as CalendarIcon, FileText, 
   Link as LinkIcon, Menu, X, Sun, Moon, Zap, MessageSquare, 
   Cloud, Image as ImageIcon, BarChart2, Search, Activity, 
-  Gauge, Mail, Brain, Cpu, ChevronDown, ChevronUp, Wallet 
+  Gauge, Mail, Brain, Cpu, ChevronDown, ChevronUp, Wallet,
+  Code, BookOpen, Sparkles, FastForward, Layers, Compass,
+  Music, Volume2, Mic
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -75,6 +77,16 @@ export default function Layout() {
         { name: 'Gemini', icon: Zap, url: 'https://gemini.google.com' },
         { name: 'ChatGPT', icon: MessageSquare, url: 'https://chat.openai.com' },
         { name: 'Claude', icon: Cpu, url: 'https://claude.ai' },
+        { name: 'Perplexity', icon: Search, url: 'https://www.perplexity.ai' },
+        { name: 'Google AI Studio', icon: Code, url: 'https://aistudio.google.com' },
+        { name: 'Notebook LM', icon: BookOpen, url: 'https://notebooklm.google.com' },
+        { name: 'Groq', icon: FastForward, url: 'https://groq.com' },
+        { name: 'DeepSeek', icon: Compass, url: 'https://www.deepseek.com' },
+        { name: 'Manus AI', icon: Sparkles, url: 'https://manus.ai' },
+        { name: 'Kimi AI', icon: MessageSquare, url: 'https://kimi.moonshot.cn' },
+        { name: 'Napkin AI', icon: Layers, url: 'https://www.napkin.ai' },
+        { name: 'Suno', icon: Music, url: 'https://suno.com' },
+        { name: 'ElevenLabs', icon: Volume2, url: 'https://elevenlabs.io' },
       ]
     }
   ];
