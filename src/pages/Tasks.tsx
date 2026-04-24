@@ -174,7 +174,7 @@ export default function Tasks() {
       <div className="flex-1 flex flex-col gap-6">
         <form onSubmit={addTask} className="glass-card p-6 rounded-3xl flex flex-col sm:flex-row gap-4 items-end">
           <div className="flex-1 w-full space-y-1.5 flex flex-col">
-            <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Neue Aufgabe</label>
+            <label className="pro-heading">Neue Aufgabe</label>
             <input
               type="text"
               value={newTask}
@@ -185,7 +185,7 @@ export default function Tasks() {
             />
           </div>
           <div className="w-full sm:w-40 space-y-1.5 flex flex-col">
-            <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Fälligkeitsdatum</label>
+            <label className="pro-heading">Fälligkeit</label>
             <input
               type="datetime-local"
               value={dueDate}
@@ -194,11 +194,11 @@ export default function Tasks() {
             />
           </div>
           <div className="w-full sm:w-32 space-y-1.5 flex flex-col">
-            <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Priorität</label>
+            <label className="pro-heading">Priorität</label>
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as any)}
-              className="glass-input h-10 appearance-none bg-white dark:bg-[#050505]"
+              className="glass-input h-10 appearance-none bg-white dark:bg-[#1C1C1E]"
             >
               <option value="high">Hoch</option>
               <option value="medium">Mittel</option>
@@ -206,7 +206,7 @@ export default function Tasks() {
             </select>
           </div>
           <div className="w-full sm:w-40 space-y-1.5 flex flex-col">
-            <label className="text-xs font-bold text-brand-muted uppercase tracking-wider mb-2">Kategorie</label>
+            <label className="pro-heading mb-2">Kategorie</label>
             <CategorySelect 
               type="task" 
               value={categoryId} 
@@ -223,14 +223,14 @@ export default function Tasks() {
 
         <div className="flex-1 space-y-8">
           {/* Active Tasks */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="font-bold text-brand">Aktive Aufgaben</h2>
-              <span className="text-xs font-bold text-brand-muted bg-slate-200/50 dark:bg-slate-800 px-2 py-0.5 rounded-full">{activeTodos.length}</span>
+              <h2 className="pro-heading !text-brand">Aktive Aufgaben</h2>
+              <span className="text-[10px] font-black text-brand-muted bg-brand/10 px-2.5 py-1 rounded-full uppercase tracking-widest">{activeTodos.length}</span>
             </div>
             
-            <div className="flex-1 bg-white/30 dark:bg-black/20 border border-slate-200/50 dark:border-white/5 rounded-[2rem] p-3 shadow-inner">
-              <div className="max-h-[300px] overflow-y-auto space-y-3 pr-1 custom-scrollbar">
+            <div className="flex-1 bg-white/30 dark:bg-white/[0.04] border border-slate-200/50 dark:border-white/5 rounded-[2.5rem] overflow-hidden shadow-inner">
+              <div className="max-h-[500px] overflow-y-auto custom-scrollbar">
                 {activeTodos.map(todo => (
                   <TaskItem 
                     key={todo.id} 
@@ -242,12 +242,12 @@ export default function Tasks() {
                   />
                 ))}
                 {activeTodos.length === 0 && (
-                  <div className="p-12 text-center glass-card rounded-3xl">
-                     <div className="w-12 h-12 bg-green-500/20 text-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <div className="p-12 text-center">
+                     <div className="w-12 h-12 bg-brand/10 text-brand rounded-2xl flex items-center justify-center mx-auto mb-4">
                       <Check size={24} />
                     </div>
-                    <h3 className="text-sm font-bold text-brand">Keine aktiven Aufgaben</h3>
-                    <p className="mt-1 text-sm font-medium text-brand-muted">Du bist auf dem neuesten Stand!</p>
+                    <h3 className="pro-heading !text-brand">Alles geschafft</h3>
+                    <p className="mt-1 text-sm font-medium text-brand-muted">Du hast keine anstehenden Aufgaben.</p>
                   </div>
                 )}
               </div>
@@ -256,13 +256,13 @@ export default function Tasks() {
 
           {/* Completed Tasks */}
           {completedTodos.length > 0 && (
-            <div className="pt-2">
-              <div className="flex items-center justify-between mb-3 border-b border-slate-200/50 dark:border-white/10 pb-2">
-                <h3 className="text-xs font-bold text-brand-muted uppercase tracking-wider">Abgeschlossen</h3>
-                <span className="text-xs font-bold text-brand-muted">{completedTodos.length}</span>
+            <div className="pt-4">
+              <div className="flex items-center justify-between mb-4 border-b border-slate-200/50 dark:border-white/10 pb-2">
+                <h3 className="pro-heading">Abgeschlossen</h3>
+                <span className="text-[10px] font-black text-brand-muted">{completedTodos.length}</span>
               </div>
-              <div className="bg-white/30 dark:bg-black/20 border border-slate-200/50 dark:border-white/5 rounded-[2rem] p-3 shadow-inner">
-                <div className="max-h-[200px] overflow-y-auto space-y-2 pr-1 custom-scrollbar opacity-60 hover:opacity-100 transition-opacity duration-300">
+              <div className="bg-white/30 dark:bg-white/[0.04] border border-slate-200/50 dark:border-white/5 rounded-[2.5rem] overflow-hidden shadow-inner">
+                <div className="max-h-[250px] overflow-y-auto custom-scrollbar opacity-60 hover:opacity-100 transition-opacity duration-300">
                   {completedTodos.map(todo => (
                     <TaskItem 
                       key={todo.id} 
@@ -405,46 +405,50 @@ function TaskItem({ todo, onToggle, onDelete, onEdit, categories }: { todo: Todo
   
   return (
     <div className={cn(
-      "group flex items-center justify-between p-4 rounded-2xl shadow-sm transition-all",
-      todo.completed ? "bg-slate-100/50 dark:bg-white/5 border border-transparent" : isOverdue ? "bg-red-500/10 border border-red-500/30" : "glass-card border-transparent dark:border-white/10"
-    )}>
+      "group flex items-center justify-between p-4 refined-list-item border-l-2 rounded-none",
+      todo.completed && "opacity-60",
+      isOverdue && !todo.completed && "bg-red-500/[0.03]"
+    )}
+    style={{ borderLeftColor: todo.completed ? 'transparent' : (isOverdue ? 'rgba(239, 68, 68, 0.6)' : 'rgba(37, 99, 235, 0.6)') }}
+    >
       <div className="flex items-start gap-4 overflow-hidden">
         <button 
+          type="button"
           onClick={onToggle}
           className={cn(
-            "flex-shrink-0 w-6 h-6 rounded border mt-0.5 flex items-center justify-center transition-colors cursor-pointer",
-            todo.completed ? "bg-green-500 border-green-500 text-black" : "border-slate-300 dark:border-slate-600 text-transparent hover:border-green-500 bg-transparent"
+            "flex-shrink-0 w-5 h-5 rounded border mt-0.5 flex items-center justify-center transition-all cursor-pointer",
+            todo.completed ? "bg-brand border-brand text-white" : "border-slate-300 dark:border-white/10 text-transparent hover:border-brand bg-transparent"
           )}
         >
-          <Check size={14} className="stroke-[3]" />
+          <Check size={12} className="stroke-[4]" />
         </button>
         <div className="min-w-0 flex flex-col justify-center cursor-pointer" onClick={onEdit}>
           <p className={cn(
-            "text-sm font-semibold truncate transition-all mb-1",
+            "text-sm font-bold truncate transition-all mb-1 tracking-tight",
             todo.completed ? "text-brand-muted line-through" : "text-brand"
           )}>
             {todo.task}
           </p>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-3">
             <span className={cn(
-              "inline-flex items-center gap-1 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded",
-              todo.priority === 'high' ? "bg-red-500/20 text-red-500" :
-              todo.priority === 'medium' ? "bg-amber-500/20 text-amber-500" :
-              "bg-green-500/20 text-green-500"
+              "pro-heading !text-[9px]",
+              todo.priority === 'high' ? "!text-red-500" :
+              todo.priority === 'medium' ? "!text-amber-500" :
+              "!text-brand"
             )}>
-              {todo.priority === 'high' ? 'Hoch' : todo.priority === 'medium' ? 'Mittel' : 'Niedrig'}
+              {todo.priority === 'high' ? 'Prio: Hoch' : todo.priority === 'medium' ? 'Prio: Mittel' : 'Prio: Niedrig'}
             </span>
             {catName && (
-              <span className="inline-flex items-center gap-1 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-500/10 text-blue-500">
+              <span className="pro-heading !text-[9px] !text-brand-muted/70">
                 {catName}
               </span>
             )}
             {todo.dueDate && (
               <span className={cn(
-                "inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider",
-                isOverdue ? "text-red-500" : "text-brand-muted"
+                "inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-[0.1em]",
+                isOverdue && !todo.completed ? "text-red-500" : "text-brand-muted/60"
               )}>
-                {isOverdue ? <AlertCircle size={12} className="stroke-[3]" /> : <Clock size={12} className="stroke-[3]" />}
+                {isOverdue && !todo.completed ? <AlertCircle size={10} className="stroke-[3]" /> : <Clock size={10} className="stroke-[3]" />}
                 {format(new Date(todo.dueDate), 'd. MMM, HH:mm')}
               </span>
             )}
@@ -454,17 +458,17 @@ function TaskItem({ todo, onToggle, onDelete, onEdit, categories }: { todo: Todo
       <div className="flex items-center gap-1">
         <button 
           onClick={onEdit}
-          className="p-2 text-brand-muted hover:text-[#007AFF] hover:bg-[#007AFF]/10 rounded-lg lg:opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+          className="p-2 text-brand-muted hover:text-brand hover:bg-brand/10 rounded-lg lg:opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
           aria-label="Aufgabe bearbeiten"
         >
-          <Edit2 size={16} />
+          <Edit2 size={14} />
         </button>
         <button 
           onClick={onDelete}
           className="p-2 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg lg:opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
           aria-label="Aufgabe löschen"
         >
-          <Trash2 size={16} />
+          <Trash2 size={14} />
         </button>
       </div>
     </div>

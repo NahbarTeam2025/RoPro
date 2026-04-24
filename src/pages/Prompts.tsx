@@ -122,7 +122,7 @@ export default function Prompts() {
       )}>
         <div className="p-4 border-b border-slate-200/50 dark:border-white/10 space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <h2 className="font-bold text-brand text-xl">Prompts</h2>
+            <h2 className="font-bold text-brand text-xl uppercase italic">Prompts</h2>
             <div className="flex items-center gap-1">
               <button 
                 onClick={() => setShowCatManager(true)}
@@ -157,71 +157,73 @@ export default function Prompts() {
             />
           </div>
         </div>
-        <div className="flex-1 bg-white/30 dark:bg-black/20 border border-slate-200/50 dark:border-white/5 rounded-[2rem] p-3 m-4 mt-0 shadow-inner overflow-hidden">
-          <div className="h-[300px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+        <div className="flex-1 bg-white/30 dark:bg-white/[0.04] border border-slate-200/50 dark:border-white/5 rounded-[2rem] m-4 mt-0 shadow-inner overflow-hidden">
+          <div className="h-full overflow-y-auto custom-scrollbar">
             {filteredPrompts.length === 0 ? (
               <div className="p-4 text-center text-sm font-medium text-brand-muted">Keine Prompts gefunden.</div>
             ) : (
-              filteredPrompts.map(prompt => {
-                const catName = categories.find(c => c.id === prompt.category)?.name || prompt.category || 'Allgemein';
-                return (
-                  <div
-                    key={prompt.id}
-                    onClick={() => setActivePrompt(prompt)}
-                    className={cn(
-                      "w-full text-left p-4 hover:bg-slate-500/10 transition-colors focus:outline-none cursor-pointer rounded-2xl border-2",
-                      activePrompt?.id === prompt.id ? "bg-slate-500/10" : ""
-                    )}
-                    style={{ borderColor: activePrompt?.id === prompt.id ? (prompt.color || '#34C759') : (prompt.color || 'transparent') }}
-                  >
-                    <div className="flex justify-between items-start gap-2">
-                      <div className="flex items-center gap-2 overflow-hidden">
-                        {prompt.isPinned && <Pin size={12} className="text-green-500 fill-green-500 shrink-0" />}
-                        <h3 className={cn(
-                          "font-bold truncate",
-                          activePrompt?.id === prompt.id ? "text-green-500" : "text-brand"
-                        )}>{prompt.title || 'Unbenannt'}</h3>
-                      </div>
-                      <div className="flex items-center gap-1 shrink-0">
-                        <button
-                          onClick={(e) => togglePin(e, prompt)}
-                          disabled={prompt.isDraft}
-                          className={cn(
-                            "p-1 rounded-md transition-all",
-                            prompt.isPinned ? "text-green-500 bg-green-500/10" : "text-brand-muted hover:bg-slate-500/20",
-                            prompt.isDraft && "opacity-0"
-                          )}
-                          title={prompt.isPinned ? "Fixierung lösen" : "Anpinnen"}
-                        >
-                          <Pin size={14} className={cn(prompt.isPinned && "fill-green-500")} />
-                        </button>
-                        <div
-                          onClick={(e) => {
-                            if (prompt.isDraft) return;
-                            e.stopPropagation();
-                            copyToClipboard(prompt.content, prompt.id);
-                          }}
-                          className={cn(
-                            "p-1 rounded-md hover:bg-slate-500/20 text-brand-muted hover:text-brand transition-colors cursor-pointer",
-                            prompt.isDraft && "opacity-0"
-                          )}
-                          title="Kopieren"
-                        >
-                           {copiedId === prompt.id ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+              <div className="flex flex-col">
+                {filteredPrompts.map(prompt => {
+                  const catName = categories.find(c => c.id === prompt.category)?.name || prompt.category || 'Allgemein';
+                  return (
+                    <div
+                      key={prompt.id}
+                      onClick={() => setActivePrompt(prompt)}
+                      className={cn(
+                        "w-full text-left p-5 refined-list-item transition-all focus:outline-none cursor-pointer group relative border-l-2 rounded-none",
+                        activePrompt?.id === prompt.id ? "bg-white/50 dark:bg-white/10" : "bg-transparent border-transparent"
+                      )}
+                      style={{ borderLeftColor: prompt.color ? `${prompt.color}99` : 'rgba(37, 99, 235, 0.6)' }}
+                    >
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          {prompt.isPinned && <Pin size={12} className="text-brand fill-brand shrink-0" />}
+                          <h3 className={cn(
+                            "font-bold truncate text-sm tracking-tight",
+                            activePrompt?.id === prompt.id ? "text-brand" : "text-brand/80"
+                          )}>{prompt.title || 'Unbenannt'}</h3>
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            onClick={(e) => togglePin(e, prompt)}
+                            disabled={prompt.isDraft}
+                            className={cn(
+                              "p-1 rounded-md transition-all",
+                              prompt.isPinned ? "text-brand bg-brand/10" : "text-brand-muted hover:bg-slate-500/20",
+                              prompt.isDraft && "opacity-0"
+                            )}
+                            title={prompt.isPinned ? "Fixierung lösen" : "Anpinnen"}
+                          >
+                            <Pin size={14} className={cn(prompt.isPinned && "fill-brand")} />
+                          </button>
+                          <div
+                            onClick={(e) => {
+                              if (prompt.isDraft) return;
+                              e.stopPropagation();
+                              copyToClipboard(prompt.content, prompt.id);
+                            }}
+                            className={cn(
+                              "p-1 rounded-md hover:bg-slate-500/20 text-brand-muted hover:text-brand transition-colors cursor-pointer",
+                              prompt.isDraft && "opacity-0"
+                            )}
+                            title="Kopieren"
+                          >
+                             {copiedId === prompt.id ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                          </div>
                         </div>
                       </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="pro-heading">
+                          {catName}
+                        </span>
+                        {prompt.isDraft && (
+                          <span className="text-[8px] font-black text-brand uppercase tracking-tighter ml-auto">Neu</span>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-[10px] font-bold text-brand-muted uppercase tracking-widest bg-slate-200/50 dark:bg-black/20 px-2 py-0.5 rounded truncate max-w-[120px]">
-                        {catName}
-                      </span>
-                      {prompt.isDraft && (
-                        <span className="text-[8px] font-black text-blue-500 uppercase tracking-tighter ml-auto">Neu</span>
-                      )}
-                    </div>
-                  </div>
-                )
-              })
+                  )
+                })}
+              </div>
             )}
           </div>
         </div>

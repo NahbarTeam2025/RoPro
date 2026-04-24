@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { collection, query, where, onSnapshot, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { motion, AnimatePresence } from 'motion/react';
+import { collection, query, where, onSnapshot, updateDoc, deleteDoc, doc, serverTimestamp, orderBy } from 'firebase/firestore';
 import { format, startOfDay, addDays } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { CheckSquare, Calendar as CalendarIcon, FileText, MessageSquare, Link as LinkIcon, Plus, ChevronRight, Check, Edit2, Trash2, Search, X, Save, Wallet, ArrowUpCircle, ArrowDownCircle, Zap, Pin } from 'lucide-react';
+import { CheckSquare, Calendar as CalendarIcon, FileText, MessageSquare, Link as LinkIcon, Plus, ChevronRight, Check, Edit2, Trash2, Search, X, Save, Wallet, ArrowUpCircle, ArrowDownCircle, Zap, Pin, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
@@ -25,7 +26,7 @@ function Clock() {
 
   return (
     <div className="text-left">
-      <h1 className="text-6xl font-black tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7] leading-none">
+      <h1 className="text-6xl font-black tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7] leading-none italic">
         {format(currentTime, 'HH:mm')}
       </h1>
       <p className="text-xl font-medium text-[#86868B] mt-3 capitalize font-sans">
@@ -43,6 +44,7 @@ export default function Dashboard() {
   const [notes, setNotes] = useState<any[]>([]);
   const [prompts, setPrompts] = useState<any[]>([]);
   const [links, setLinks] = useState<any[]>([]);
+  const [contacts, setContacts] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [nextHoliday, setNextHoliday] = useState<{ date: Date, name: string } | null>(null);
   
@@ -130,6 +132,11 @@ export default function Dashboard() {
         .slice(0, 3));
     }));
 
+    const contactsQ = query(collection(db, 'contacts'), where('userId', '==', user.uid), orderBy('name', 'asc'));
+    unsubscribes.push(onSnapshot(contactsQ, snap => {
+      setContacts(snap.docs.map(d => ({ id: d.id, ...d.data() } as any)));
+    }));
+
     const transQ = query(collection(db, 'transactions'), where('userId', '==', user.uid));
     unsubscribes.push(onSnapshot(transQ, snap => {
       setTransactions(snap.docs.map(d => ({ id: d.id, ...d.data() } as any))
@@ -159,7 +166,6 @@ export default function Dashboard() {
 
   const handleToggleTodo = async (e: React.MouseEvent, todo: any) => {
     e.stopPropagation();
-    e.preventDefault();
     try {
       const todoRef = doc(db, 'todos', todo.id);
       await updateDoc(todoRef, { 
@@ -168,7 +174,6 @@ export default function Dashboard() {
       });
     } catch (e: any) { 
       console.error('Toggle todo error:', e);
-      alert('Fehler beim Aktualisieren: ' + (e.message || 'Unbekannter Fehler'));
     }
   };
 
@@ -185,16 +190,16 @@ export default function Dashboard() {
   const balance = stats.income - stats.expenses;
 
   const DashboardCard = ({ title, icon: Icon, to, children }: any) => (
-    <div className="glass-card flex flex-col rounded-[2rem] overflow-hidden h-full border border-[#D2D2D7]/30 dark:border-[#424245]/30">
-      <div className="p-6 border-b border-[#D2D2D7]/20 dark:border-[#424245]/20 flex justify-between items-center bg-[#FBFBFD]/50 dark:bg-[#1C1C1E]/50">
+    <div className="glass-card flex flex-col rounded-[2.5rem] overflow-hidden h-full border border-black/5 dark:border-white/[0.06] shadow-sm hover:shadow-md transition-shadow">
+      <div className="px-6 py-5 flex justify-between items-center">
         <Link to={to} className="flex items-center gap-3">
-           <div className="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
-             <Icon size={20} />
+           <div className="p-2 rounded-xl bg-brand/10 text-brand">
+             <Icon size={16} />
            </div>
-           <h2 className="font-bold text-lg tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7]">{title}</h2>
+           <h2 className="pro-heading">{title}</h2>
         </Link>
       </div>
-      <div className="p-6 flex-1 flex flex-col gap-4">
+      <div className="px-6 pb-6 pt-0 flex-1 flex flex-col gap-3">
         {children}
       </div>
     </div>
@@ -246,26 +251,26 @@ export default function Dashboard() {
 
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-           {[1,2,3,4,5,6].map(i => <div key={i} className="h-80 bg-white dark:bg-[#1C1C1E] rounded-[2.5rem] border border-black/5 dark:border-white/5" />)}
+           {[1,2,3,4,5,6,7,8,9].map(i => <div key={i} className="h-80 bg-white dark:bg-[#1C1C1E] rounded-[2.5rem] border border-black/5 dark:border-white/5" />)}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 flex-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8 mt-4 md:mt-0 flex-1">
           <DashboardCard title="Termine" icon={CalendarIcon} to="/calendar">
             {appointments.length > 0 ? (
-               <div className="flex flex-col gap-3">
+               <div className="flex flex-col -mx-6">
                 {appointments.map(app => (
-                  <div key={app.id} className="flex items-center gap-4 p-4 rounded-3xl bg-[#F5F5F7] dark:bg-[#2C2C2E] relative group transition-colors">
-                    <div className="w-12 h-12 rounded-2xl bg-white dark:bg-[#3A3A3C] shadow-sm flex flex-col items-center justify-center shrink-0">
-                       <span className="text-sm font-black text-[#1D1D1F] dark:text-[#F5F5F7] leading-none">{format(new Date(app.dueDate), 'dd')}</span>
-                       <span className="text-[10px] font-bold text-[#007AFF] uppercase tracking-tighter">{format(new Date(app.dueDate), 'MMM', { locale: de })}</span>
+                  <div key={app.id} className="refined-list-item flex items-center gap-4 px-6 py-4 relative group">
+                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/10 border border-black/5 dark:border-white/10 shadow-sm flex flex-col items-center justify-center shrink-0">
+                       <span className="text-xs font-black text-brand leading-none">{format(new Date(app.dueDate), 'dd')}</span>
+                       <span className="text-[8px] font-bold text-brand-muted uppercase tracking-tighter">{format(new Date(app.dueDate), 'MMM', { locale: de })}</span>
                     </div>
-                    <div className="flex-1 min-w-0 pr-12">
-                      <span className="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7] block truncate">{app.task}</span>
-                      <span className="text-[11px] font-medium text-[#86868B]">{format(new Date(app.dueDate), 'HH:mm')} Uhr</span>
+                    <div className="flex-1 min-w-0 pr-10">
+                      <span className="text-xs font-bold text-brand block truncate tracking-tight">{app.task}</span>
+                      <span className="text-[10px] font-medium text-brand-muted">{format(new Date(app.dueDate), 'HH:mm')} Uhr</span>
                     </div>
-                    <div className="absolute right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEditItem({ type: 'appointments', data: app }); }} className="p-2 text-[#86868B] hover:text-[#007AFF] transition-colors"><Edit2 size={14} /></button>
-                      <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDeleteModal({ open: true, coll: 'appointments', id: app.id }); }} className="p-2 text-[#86868B] hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
+                    <div className="absolute right-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button type="button" onClick={(e) => { e.stopPropagation(); setEditItem({ type: 'appointments', data: app }); }} className="p-1.5 text-brand-muted hover:text-brand transition-colors"><Edit2 size={12} /></button>
+                      <button type="button" onClick={(e) => { e.stopPropagation(); setDeleteModal({ open: true, coll: 'appointments', id: app.id }); }} className="p-1.5 text-brand-muted hover:text-red-500 transition-colors"><Trash2 size={12} /></button>
                     </div>
                   </div>
                 ))}
@@ -289,27 +294,36 @@ export default function Dashboard() {
 
           <DashboardCard title="Aufgaben" icon={CheckSquare} to="/tasks">
             {todos.length > 0 ? (
-               <div className="flex flex-col gap-3">
-                {todos.map(todo => (
-                  <div key={todo.id} className="flex items-center gap-4 p-4 rounded-3xl bg-[#F5F5F7] dark:bg-[#2C2C2E] relative group transition-colors">
-                    <button type="button" onClick={(e) => handleToggleTodo(e, todo)} className={cn("w-6 h-6 rounded-lg border transition-all flex items-center justify-center shrink-0 shadow-sm", todo.completed ? "bg-[#007AFF] border-[#007AFF] text-white" : "bg-white dark:bg-[#3A3A3C] border-[#D2D2D7] dark:border-[#424245]")}>
-                      {todo.completed && <Check size={14} strokeWidth={3} />}
-                    </button>
-                    <div className="flex-1 min-w-0 pr-12">
-                      <div className="flex items-center gap-2">
-                        <span className={cn("text-sm font-bold block truncate", todo.completed ? "text-[#86868B] line-through opacity-60" : "text-[#1D1D1F] dark:text-[#F5F5F7]")}>{todo.task}</span>
-                        {!todo.completed && (
-                          <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", todo.priority === 'high' ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" : todo.priority === 'medium' ? "bg-orange-500" : "bg-blue-500")} title={todo.priority} />
-                        )}
+               <div className="flex flex-col -mx-6 min-h-[180px]">
+                <AnimatePresence initial={false}>
+                  {todos.map(todo => (
+                    <motion.div 
+                      layout
+                      key={todo.id} 
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="refined-list-item flex items-center gap-4 px-6 py-4 relative group"
+                    >
+                      <button type="button" onClick={(e) => handleToggleTodo(e, todo)} className={cn("w-5 h-5 rounded-lg border transition-all flex items-center justify-center shrink-0 shadow-sm", todo.completed ? "bg-brand border-brand text-white" : "bg-white dark:bg-white/10 border-slate-200 dark:border-white/10")}>
+                        {todo.completed && <Check size={12} strokeWidth={3} />}
+                      </button>
+                      <div className="flex-1 min-w-0 pr-10">
+                        <div className="flex items-center gap-2">
+                          <span className={cn("text-xs font-bold block truncate tracking-tight", todo.completed ? "text-brand-muted line-through opacity-60" : "text-brand")}>{todo.task}</span>
+                          {!todo.completed && (
+                            <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", todo.priority === 'high' ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" : todo.priority === 'medium' ? "bg-orange-500" : "bg-brand")} title={todo.priority} />
+                          )}
+                        </div>
                       </div>
-                      {todo.dueDate && <span className="text-[10px] font-medium text-[#86868B]">{format(new Date(todo.dueDate), 'dd.MM, HH:mm')} Uhr</span>}
-                    </div>
-                    <div className="absolute right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEditItem({ type: 'todos', data: todo }); }} className="p-2 text-[#86868B] hover:text-[#007AFF] transition-colors"><Edit2 size={14} /></button>
-                      <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDeleteModal({ open: true, coll: 'todos', id: todo.id }); }} className="p-2 text-[#86868B] hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
-                    </div>
-                  </div>
-                ))}
+                      <div className="absolute right-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button type="button" onClick={(e) => { e.stopPropagation(); setEditItem({ type: 'todos', data: todo }); }} className="p-1.5 text-brand-muted hover:text-brand transition-colors"><Edit2 size={12} /></button>
+                        <button type="button" onClick={(e) => { e.stopPropagation(); setDeleteModal({ open: true, coll: 'todos', id: todo.id }); }} className="p-1.5 text-brand-muted hover:text-red-500 transition-colors"><Trash2 size={12} /></button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
                </div>
             ) : (
                <div className="text-center py-10 opacity-20 flex flex-col items-center">
@@ -321,19 +335,19 @@ export default function Dashboard() {
 
           <DashboardCard title="Notizen" icon={FileText} to="/notes">
             {notes.length > 0 ? (
-               <div className="flex flex-col gap-3">
+               <div className="flex flex-col -mx-6">
                 {notes.map(note => (
-                  <div key={note.id} className="p-4 rounded-3xl bg-[#F5F5F7] dark:bg-[#1C1C1E] relative group transition-colors flex items-center justify-between border-2" style={{ borderColor: note.color || 'transparent' }}>
-                    <div className="flex items-center gap-3 overflow-hidden">
-                      {note.isPinned && <Pin size={12} className="text-green-500 fill-green-500 shrink-0" />}
+                  <div key={note.id} className="refined-list-item flex items-center justify-between gap-3 px-6 py-4 relative group border-l-2 rounded-none" style={{ borderLeftColor: note.color ? `${note.color}99` : 'rgba(37, 99, 235, 0.6)' }}>
+                    <div className="flex items-center gap-3 overflow-hidden ml-1">
+                      {note.isPinned && <Pin size={10} className="text-brand fill-brand shrink-0" />}
                       <div className="min-w-0">
-                        <h4 className="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7] truncate">{note.title || 'Ohne Titel'}</h4>
-                        <span className="text-[10px] font-medium text-[#86868B] block mt-0.5">{format(note.updatedAt?.toDate() || new Date(), 'dd. MMMM', { locale: de })}</span>
+                        <h4 className="text-xs font-bold text-brand truncate tracking-tight">{note.title || 'Ohne Titel'}</h4>
+                        <span className="text-[9px] font-bold text-brand-muted/70 block mt-0.5 uppercase tracking-tighter">{format(note.updatedAt?.toDate() || new Date(), 'dd. MMM', { locale: de })}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEditItem({ type: 'notes', data: note }); }} className="p-2 text-[#86868B] hover:text-[#007AFF] transition-colors"><Edit2 size={14} /></button>
-                      <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDeleteModal({ open: true, coll: 'notes', id: note.id }); }} className="p-2 text-[#86868B] hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
+                      <button type="button" onClick={(e) => { e.stopPropagation(); setEditItem({ type: 'notes', data: note }); }} className="p-1.5 text-brand-muted hover:text-brand transition-colors"><Edit2 size={12} /></button>
+                      <button type="button" onClick={(e) => { e.stopPropagation(); setDeleteModal({ open: true, coll: 'notes', id: note.id }); }} className="p-1.5 text-brand-muted hover:text-red-500 transition-colors"><Trash2 size={12} /></button>
                     </div>
                   </div>
                 ))}
@@ -348,19 +362,19 @@ export default function Dashboard() {
 
           <DashboardCard title="Prompts" icon={MessageSquare} to="/prompts">
             {prompts.length > 0 ? (
-               <div className="flex flex-col gap-3">
+               <div className="flex flex-col -mx-6">
                 {prompts.map(prompt => (
-                  <div key={prompt.id} className="p-4 rounded-3xl bg-[#F5F5F7] dark:bg-[#1C1C1E] relative group transition-colors flex items-center justify-between border-2" style={{ borderColor: prompt.color || 'transparent' }}>
-                    <div className="flex items-center gap-3 overflow-hidden">
-                      {prompt.isPinned && <Pin size={12} className="text-green-500 fill-green-500 shrink-0" />}
+                  <div key={prompt.id} className="refined-list-item flex items-center justify-between gap-3 px-6 py-4 relative group border-l-2 rounded-none" style={{ borderLeftColor: prompt.color ? `${prompt.color}99` : 'rgba(37, 99, 235, 0.6)' }}>
+                    <div className="flex items-center gap-3 overflow-hidden ml-1">
+                      {prompt.isPinned && <Pin size={10} className="text-brand fill-brand shrink-0" />}
                       <div className="min-w-0">
-                        <h4 className="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7] truncate">{prompt.title || 'Ohne Titel'}</h4>
-                        <p className="text-[10px] font-medium text-[#86868B] line-clamp-1 mt-0.5">{prompt.content}</p>
+                        <h4 className="text-xs font-bold text-brand truncate tracking-tight">{prompt.title || 'Ohne Titel'}</h4>
+                        <p className="text-[10px] font-medium text-brand-muted line-clamp-1 mt-0.5">{prompt.content}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEditItem({ type: 'prompts', data: prompt }); }} className="p-2 text-[#86868B] hover:text-[#007AFF] transition-colors"><Edit2 size={14} /></button>
-                      <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDeleteModal({ open: true, coll: 'prompts', id: prompt.id }); }} className="p-2 text-[#86868B] hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
+                      <button type="button" onClick={(e) => { e.stopPropagation(); setEditItem({ type: 'prompts', data: prompt }); }} className="p-1.5 text-brand-muted hover:text-brand transition-colors"><Edit2 size={12} /></button>
+                      <button type="button" onClick={(e) => { e.stopPropagation(); setDeleteModal({ open: true, coll: 'prompts', id: prompt.id }); }} className="p-1.5 text-brand-muted hover:text-red-500 transition-colors"><Trash2 size={12} /></button>
                     </div>
                   </div>
                 ))}
@@ -375,19 +389,19 @@ export default function Dashboard() {
 
           <DashboardCard title="Links" icon={LinkIcon} to="/links">
             {links.length > 0 ? (
-               <div className="flex flex-col gap-3">
+               <div className="flex flex-col -mx-6">
                 {links.map(link => {
                   const domain = link.url.replace(/^https?:\/\//i, '').replace(/^www\./i, '').split('/')[0];
                   return (
-                  <div key={link.id} className="relative group">
-                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-3xl bg-[#F5F5F7] dark:bg-[#2C2C2E] border-2 hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-colors pr-12" style={{ borderColor: link.color || 'transparent' }}>
-                      <div className="w-12 h-12 rounded-2xl bg-white dark:bg-[#3A3A3C] shadow-sm flex items-center justify-center shrink-0 overflow-hidden border border-black/5 dark:border-white/5 relative">
-                        <img src={`https://www.google.com/s2/favicons?sz=64&domain=${domain}`} alt="" className="w-8 h-8 object-contain" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2386868B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>'; }} />
-                        {link.isPinned && <div className="absolute top-0 right-0 p-0.5 bg-green-500 rounded-bl-lg"><Pin size={8} className="text-white fill-white" /></div>}
+                  <div key={link.id} className="relative group overflow-hidden">
+                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="refined-list-item flex items-center gap-3 px-6 py-4 pr-10">
+                      <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/10 shadow-sm flex items-center justify-center shrink-0 overflow-hidden border border-black/5 dark:border-white/10 relative">
+                        <img src={`https://www.google.com/s2/favicons?sz=64&domain=${domain}`} alt="" className="w-6 h-6 object-contain" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2386868B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>'; }} />
+                        {link.isPinned && <div className="absolute top-0 right-0 p-0.5 bg-brand rounded-bl-lg"><Pin size={6} className="text-white fill-white" /></div>}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <span className="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7] block truncate">{link.title}</span>
-                        <span className="text-[10px] text-[#86868B] block truncate font-medium">{link.url}</span>
+                        <span className="text-xs font-bold text-brand block truncate tracking-tight">{link.title}</span>
+                        <span className="text-[10px] text-brand-muted block truncate font-medium uppercase tracking-tighter opacity-70">{domain}</span>
                       </div>
                     </a>
                   </div>
@@ -402,7 +416,7 @@ export default function Dashboard() {
           </DashboardCard>
 
           <DashboardCard title="Haushaltsbuch" icon={Wallet} to="/household">
-            <div className="grid grid-cols-3 gap-2 mb-2 bg-[#F5F5F7] dark:bg-[#2C2C2E] p-3 rounded-2xl border border-black/5 dark:border-white/5">
+            <div className="grid grid-cols-3 gap-2 mb-2 bg-white/30 dark:bg-white/[0.04] p-3 rounded-2xl border border-black/5 dark:border-white/5">
               <div className="text-center">
                 <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Plus</div>
                 <div className="text-[11px] font-black text-green-500">+{stats.income.toLocaleString('de-DE')}€</div>
@@ -417,9 +431,9 @@ export default function Dashboard() {
               </div>
             </div>
             {transactions.slice(0, 3).length > 0 ? (
-               <div className="flex flex-col gap-2">
+               <div className="flex flex-col -mx-6 -mb-6">
                  {transactions.slice(0, 3).map(t => (
-                   <div key={t.id} className="flex items-center gap-3 p-3 rounded-2xl bg-[#F5F5F7] dark:bg-[#2C2C2E]">
+                   <div key={t.id} className="flex items-center gap-3 px-6 py-4 refined-list-item">
                      <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", t.type === 'income' ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500")}>
                        {t.type === 'income' ? <ArrowUpCircle size={16} /> : <ArrowDownCircle size={16} />}
                      </div>
@@ -436,6 +450,29 @@ export default function Dashboard() {
                  <Wallet size={40} strokeWidth={1} />
                  <span className="text-xs font-bold uppercase mt-3 tracking-widest text-[9px]">Keine Einträge</span>
                </div>
+            )}
+          </DashboardCard>
+
+          <DashboardCard title="Kontakte" icon={Users} to="/contacts">
+            {contacts.length > 0 ? (
+              <div className="flex flex-col -mx-6 h-[200px] overflow-y-auto custom-scrollbar">
+                {contacts.map(contact => (
+                  <div key={contact.id} className="refined-list-item flex items-center gap-3 px-6 py-4">
+                    <div className="w-8 h-8 rounded-xl bg-brand/10 text-brand flex items-center justify-center font-black text-xs shrink-0 lowercase">
+                      {contact.name[0]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs font-bold text-brand block truncate tracking-tight">{contact.name}</span>
+                      {contact.phone && <span className="text-[10px] text-brand-muted block truncate font-medium uppercase tracking-tighter opacity-70">{contact.phone}</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10 opacity-20 flex flex-col items-center">
+                <Users size={40} strokeWidth={1} />
+                <span className="text-xs font-bold uppercase mt-3 tracking-widest text-[9px]">Keine Kontakte</span>
+              </div>
             )}
           </DashboardCard>
         </div>

@@ -226,7 +226,7 @@ export default function Household() {
     <div className="max-w-5xl mx-auto flex flex-col relative z-10 w-full pb-10">
       <header className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-brand">Haushaltsbuch</h1>
+          <h1 className="text-3xl font-black tracking-tight text-brand uppercase italic">Haushaltsbuch</h1>
         </div>
         <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
           <select 

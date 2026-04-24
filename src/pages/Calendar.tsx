@@ -215,11 +215,11 @@ export default function Calendar() {
 
       <div className="glass-card rounded-3xl overflow-hidden flex flex-col shadow-2xl border border-black/5 dark:border-white/5">
         {/* Days Header */}
-        <div className="grid grid-cols-7 border-b border-slate-200/50 dark:border-white/10 bg-slate-100/50 dark:bg-black/20">
+        <div className="grid grid-cols-7 border-b border-slate-200/50 dark:border-white/10 bg-white/30 dark:bg-black/20">
           {weekDayNames.map((day, idx) => (
             <div key={day} className={cn(
-              "py-4 text-center text-[10px] font-black uppercase tracking-widest",
-              idx === 6 ? "text-red-500" : "text-brand-muted"
+              "py-4 text-center pro-heading",
+              idx === 6 ? "text-red-500" : "text-brand-muted opacity-60"
             )}>
               {day}
             </div>
@@ -227,7 +227,7 @@ export default function Calendar() {
         </div>
 
         {/* Days Grid */}
-        <div className="grid grid-cols-7 auto-rows-fr bg-[#F2F2F7] dark:bg-[#1C1C1E] gap-px">
+        <div className="grid grid-cols-7 auto-rows-fr bg-[#F2F2F7] dark:bg-white/[0.02] gap-[1px]">
           {days.map((day) => {
             const dayAppointments = appointments.filter(a => a.dueDate && isSameDay(new Date(a.dueDate), day));
             const dayBirthdays = contacts.filter(c => {
@@ -266,20 +266,20 @@ export default function Calendar() {
                 key={day.toString()} 
                 onClick={() => handleDayClick(day, holidayName)}
                 className={cn(
-                  "min-h-[100px] sm:min-h-[140px] bg-white dark:bg-[#02050D] p-2 sm:p-3 transition-colors cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 group relative",
-                  !isSameMonth(day, monthStart) && "bg-slate-100/30 dark:bg-black/40 text-brand-muted/30"
+                  "min-h-[100px] sm:min-h-[140px] bg-white dark:bg-[#1a1a1a] p-2 sm:p-3 transition-colors cursor-pointer hover:bg-slate-50 dark:hover:bg-white/[0.05] group relative",
+                  !isSameMonth(day, monthStart) && "opacity-20 pointer-events-none"
                 )}
               >
                 <div className="flex justify-between items-start mb-2 sm:mb-3">
                   <span className={cn(
-                    "w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-sm sm:text-base font-black rounded-full transition-all",
-                    isToday(day) ? "bg-green-500 text-white shadow-lg shadow-green-500/20" : 
+                    "w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-sm font-black transition-all",
+                    isToday(day) ? "bg-brand text-white rounded-full shadow-lg shadow-blue-500/20" : 
                     sunday ? "text-red-500" : "text-brand"
                   )}>
                     {format(day, 'd')}
                   </span>
                   {isHoliday && (
-                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]" title={holidayName || 'Feiertag'} />
+                    <div className="w-1.5 h-1.5 rounded-full bg-brand shadow-[0_0_8px_rgba(37,99,235,0.4)]" title={holidayName || 'Feiertag'} />
                   )}
                 </div>
                 
@@ -288,12 +288,12 @@ export default function Calendar() {
                     <div
                       key={event.id}
                       className={cn(
-                        "block px-2 py-1.5 text-[8px] sm:text-[10px] font-bold tracking-tight leading-tight rounded-lg truncate border transition-all",
+                        "block px-2 py-1.5 text-[8px] sm:text-[9px] font-black tracking-tight leading-tight rounded-lg truncate transition-all",
                         event.type === 'birthday'
-                          ? "bg-amber-500/10 border-amber-500/10 text-amber-600 dark:text-amber-400"
+                          ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
                           : event.completed 
-                            ? "bg-slate-200/30 dark:bg-white/5 border-transparent text-brand-muted/50 line-through"
-                            : "bg-blue-500/10 border-blue-500/10 text-blue-500 hover:shadow-sm"
+                            ? "bg-slate-200/30 dark:bg-white/5 text-brand-muted/50 line-through"
+                            : "bg-brand/10 text-brand hover:shadow-sm"
                       )}
                       title={event.title}
                     >
@@ -301,7 +301,7 @@ export default function Calendar() {
                       {event.type === 'appointment' && (
                         <span className="font-mono text-[8px] opacity-60 mr-1">{format(event.date, 'HH:mm')}</span>
                       )}
-                      <span>{event.title}</span>
+                      <span className="uppercase tracking-tighter">{event.title}</span>
                     </div>
                   ))}
                 </div>

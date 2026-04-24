@@ -143,14 +143,14 @@ export function NoteEditor({ note, onBack }: { note: Note, onBack: () => void })
             className="flex-1 max-w-sm"
           />
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold text-brand-muted uppercase tracking-wider">Farbe:</span>
+            <span className="pro-heading">Farbe:</span>
             <div className="flex items-center gap-1.5">
                {colors.map(c => (
                  <button
                     key={c.name}
                     onClick={() => setColor(c.value)}
                     className={cn(
-                      "w-6 h-6 rounded-full border-2 transition-all",
+                      "w-6 h-6 rounded-full border-2 transition-all shadow-sm",
                       color === c.value ? "border-brand scale-110" : "border-transparent",
                       !c.value ? "bg-slate-200 dark:bg-white/20" : ""
                     )}
@@ -164,34 +164,34 @@ export function NoteEditor({ note, onBack }: { note: Note, onBack: () => void })
       </div>
 
       {editor && (
-        <div className="flex items-center gap-1 px-4 sm:px-6 py-2 sm:py-3 border-b border-slate-200/50 dark:border-white/10 bg-slate-100/50 dark:bg-black/20 flex-wrap shrink-0">
+        <div className="flex items-center gap-1 px-4 sm:px-6 py-2 sm:py-3 border-b border-slate-200/50 dark:border-white/10 bg-white/30 dark:bg-black/20 flex-wrap shrink-0">
           <button
             onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-            className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('heading', { level: 2 }) ? 'bg-blue-500/20 text-blue-600 dark:text-green-400 dark:bg-green-500/20' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
+            className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('heading', { level: 2 }) ? 'bg-brand/10 text-brand' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
           >
             <Heading2 size={16} />
           </button>
           <button
             onClick={() => editor.chain().focus().toggleBold().run()}
-            className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('bold') ? 'bg-blue-500/20 text-blue-600 dark:text-green-400 dark:bg-green-500/20' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
+            className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('bold') ? 'bg-brand/10 text-brand' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
           >
             <Bold size={16} />
           </button>
           <button
             onClick={() => editor.chain().focus().toggleItalic().run()}
-            className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('italic') ? 'bg-blue-500/20 text-blue-600 dark:text-green-400 dark:bg-green-500/20' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
+            className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('italic') ? 'bg-brand/10 text-brand' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
           >
             <Italic size={16} />
           </button>
           <button
             onClick={() => editor.chain().focus().toggleBulletList().run()}
-            className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('bulletList') ? 'bg-blue-500/20 text-blue-600 dark:text-green-400 dark:bg-green-500/20' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
+            className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('bulletList') ? 'bg-brand/10 text-brand' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
           >
             <List size={16} />
           </button>
           <button
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
-            className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('orderedList') ? 'bg-blue-500/20 text-blue-600 dark:text-green-400 dark:bg-green-500/20' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
+            className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('orderedList') ? 'bg-brand/10 text-brand' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
           >
             <ListOrdered size={16} />
           </button>

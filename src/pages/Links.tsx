@@ -304,14 +304,19 @@ export default function Links() {
                 return (
                 <div
                   key={link.id}
-                  className="group glass-card rounded-3xl p-6 transition-all flex flex-col hover:shadow-xl relative overflow-hidden cursor-pointer h-full"
+                  className="group glass-card rounded-3xl p-6 transition-all flex flex-col hover:shadow-xl relative overflow-hidden cursor-pointer h-full border border-black/5 dark:border-white/[0.06]"
                   onClick={() => window.open(link.url, '_blank', 'noopener,noreferrer')}
                 >
+                  {/* Category Indicator Dot */}
+                  <div 
+                    className="absolute top-6 right-6 w-2 h-2 rounded-full shadow-sm"
+                    style={{ backgroundColor: link.color || '#2563EB' }}
+                  />
+
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <div 
-                        className="w-12 h-12 rounded-2xl bg-white dark:bg-[#3A3A3C] shadow-sm flex items-center justify-center shrink-0 overflow-hidden border-2"
-                        style={{ borderColor: link.color || 'transparent' }}
+                        className="w-12 h-12 rounded-2xl bg-white dark:bg-[#2C2C2E] shadow-sm flex items-center justify-center shrink-0 overflow-hidden border border-black/5 dark:border-white/5"
                       >
                         <img 
                           src={`https://www.google.com/s2/favicons?sz=64&domain=${getDomain(link.url)}`} 
@@ -321,9 +326,8 @@ export default function Links() {
                           onError={(e) => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2386868B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>'; }} 
                         />
                       </div>
-                      {link.isPinned && <Pin size={16} className="text-green-500 fill-green-500" />}
                     </div>
-                    <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex gap-1 pr-6" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={(e) => {
                           e.preventDefault();
@@ -332,39 +336,38 @@ export default function Links() {
                         }}
                         className={cn(
                           "p-1.5 rounded-lg transition-all",
-                          link.isPinned ? "text-green-500 bg-green-500/10" : "text-brand-muted hover:bg-slate-500/10"
+                          link.isPinned ? "text-brand bg-brand/10" : "text-brand-muted hover:bg-slate-500/10"
                         )}
                         title={link.isPinned ? "Fixierung lösen" : "Anpinnen"}
                       >
-                        <Pin size={16} className={cn(link.isPinned && "fill-green-500")} />
+                        <Pin size={14} className={cn(link.isPinned && "fill-brand")} />
                       </button>
                       <button
                         onClick={(e) => handleEdit(link, e)}
-                        className="p-1.5 text-brand-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all cursor-pointer"
+                        className="p-1.5 text-brand-muted hover:text-brand hover:bg-brand/10 rounded-lg transition-all cursor-pointer"
                         aria-label="Link bearbeiten"
                       >
-                        <Edit2 size={16} />
+                        <Edit2 size={14} />
                       </button>
                       <button
                         onClick={(e) => deleteLink(e, link.id)}
                         className="p-1.5 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all cursor-pointer"
                         aria-label="Link löschen"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
-                  <h3 className="font-bold text-brand mb-1 line-clamp-1">{link.title}</h3>
-                  <p className="text-xs font-bold text-brand-muted line-clamp-1 mb-4 flex items-center gap-1.5 uppercase tracking-tighter">
+                  <h3 className="font-bold text-brand mb-1 line-clamp-1 tracking-tight">{link.title}</h3>
+                  <p className="text-[10px] font-black text-brand-muted/70 line-clamp-1 mb-4 flex items-center gap-1.5 uppercase tracking-wider">
                     {getDomain(link.url)}
                   </p>
                   
-                  <div className="mt-auto pt-4 border-t border-slate-200/50 dark:border-white/10 flex items-center justify-between text-[10px] font-bold text-brand-muted uppercase tracking-wider">
+                  <div className="mt-auto pt-4 border-t border-slate-200/50 dark:border-white/10 flex items-center justify-between">
                     <span className="opacity-0">Placeholder</span>
                     {catName && (
-                      <span className="flex items-center gap-1 bg-slate-200/50 dark:bg-black/20 px-2 py-0.5 rounded truncate max-w-[150px]">
-                        <Tag size={10} />
-                        <span className="truncate">{catName}</span>
+                      <span className="pro-heading !text-[9px] truncate max-w-[150px]">
+                        {catName}
                       </span>
                     )}
                   </div>

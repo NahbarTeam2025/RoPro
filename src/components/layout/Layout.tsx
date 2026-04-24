@@ -126,6 +126,14 @@ export default function Layout() {
 
   return (
     <div className="flex min-h-screen font-sans relative bg-[#FBFBFD] dark:bg-black transition-colors duration-500">
+      {/* Decorative Background Blurs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full bg-blue-600/[0.08] dark:bg-blue-600/[0.12] blur-[120px]" />
+        <div className="absolute bottom-[5%] left-[5%] w-[45%] h-[45%] rounded-full bg-purple-600/[0.06] dark:bg-purple-600/[0.1] blur-[120px]" />
+        <div className="absolute bottom-[-80px] right-[-60px] w-[350px] h-[350px] rounded-full bg-[radial-gradient(circle,_rgba(99,37,235,0.18)_0%,_transparent_65%)] blur-[80px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40%] h-[40%] rounded-full bg-blue-400/[0.03] dark:bg-blue-400/[0.05] blur-[100px]" />
+      </div>
+
       {/* Mobile sidebar overlay */}
       {isSidebarOpen && (
         <div 
@@ -137,7 +145,7 @@ export default function Layout() {
       {/* Sidebar */}
       <aside 
         className={cn(
-          "fixed inset-y-0 left-0 z-50 bg-[#F2F2F7] dark:bg-[#000000] border-r border-[#D2D2D7]/30 dark:border-[#424245]/30 transform transition-all duration-500 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 flex flex-col shadow-2xl lg:shadow-none",
+          "fixed inset-y-0 left-0 z-50 bg-white/80 dark:bg-white/[0.03] backdrop-blur-xl border-r border-[#D2D2D7]/30 dark:border-white/[0.06] transform transition-all duration-500 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 flex flex-col shadow-2xl lg:shadow-none",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full",
           isSidebarCollapsed ? "lg:w-20" : "lg:w-64 w-64"
         )}
@@ -156,7 +164,7 @@ export default function Layout() {
           </button>
         </div>
 
-        <nav className="flex-1 px-4 py-2 overflow-y-auto flex flex-col gap-6">
+        <nav className="flex-1 py-2 overflow-y-auto flex flex-col gap-6">
           <div className="space-y-1">
             {!isSidebarCollapsed && <h3 className="px-4 text-[11px] font-bold text-[#86868B] uppercase tracking-wider mb-2">Hauptmenü</h3>}
             {navItems.map((item) => (
@@ -224,17 +232,17 @@ export default function Layout() {
           </div>
         </nav>
 
-        <div className="p-4 border-t border-[#D2D2D7]/30 dark:border-[#424245]/30 space-y-2 shrink-0">
+        <div className="p-3 border-t border-[#D2D2D7]/30 dark:border-[#424245]/30 space-y-1.5 shrink-0">
            <button 
              onClick={handleRandomize}
              disabled={isRolling}
              className={cn(
-               "w-full flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium text-[#424245] dark:text-[#A1A1A6] hover:bg-brand/10 hover:text-brand transition-all relative group",
+               "w-full flex items-center gap-3 px-3 py-1.5 rounded-xl text-sm font-medium text-[#424245] dark:text-[#A1A1A6] hover:bg-brand/10 hover:text-brand transition-all relative group",
                isSidebarCollapsed && "justify-center px-0"
              )}
              title={isSidebarCollapsed ? "Zufall" : undefined}
            >
-             <Dices size={18} className={cn("shrink-0", isRolling && "animate-spin")} />
+             <Dices size={16} className={cn("shrink-0", isRolling && "animate-spin")} />
              {!isSidebarCollapsed && (
                <div className="flex items-center justify-between w-full">
                  <span>Zufallsgenerator</span>
@@ -242,7 +250,7 @@ export default function Layout() {
                    <motion.span 
                      initial={{ scale: 0.5, opacity: 0 }}
                      animate={{ scale: 1, opacity: 1 }}
-                     className="bg-brand text-white px-2 py-0.5 rounded-lg font-black text-[10px] uppercase tracking-wider"
+                     className="bg-brand text-white px-2 py-0.5 rounded-lg font-black text-[9px] uppercase tracking-wider"
                    >
                      {randomResult}
                    </motion.span>
@@ -250,7 +258,7 @@ export default function Layout() {
                </div>
              )}
              {isSidebarCollapsed && randomResult && !isRolling && (
-               <div className="absolute top-1 right-1 bg-brand text-white text-[8px] w-4 h-4 flex items-center justify-center rounded-full font-black shadow-sm ring-2 ring-[#F2F2F7] dark:ring-[#000000]">
+               <div className="absolute top-0.5 right-0.5 bg-brand text-white text-[8px] w-3.5 h-3.5 flex items-center justify-center rounded-full font-black shadow-sm ring-2 ring-[#F2F2F7] dark:ring-[#000000]">
                  {randomResult === 'Ja' ? 'J' : 'N'}
                </div>
              )}
@@ -259,33 +267,33 @@ export default function Layout() {
            <button 
              onClick={toggleTheme}
              className={cn(
-               "w-full flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium text-[#424245] dark:text-[#A1A1A6] hover:bg-[#FBFBFD] dark:hover:bg-[#1C1C1E] transition-all",
+               "w-full flex items-center gap-3 px-3 py-1.5 rounded-xl text-sm font-medium text-[#424245] dark:text-[#A1A1A6] hover:bg-[#FBFBFD] dark:hover:bg-[#1C1C1E] transition-all",
                isSidebarCollapsed && "justify-center px-0"
              )}
              title={isSidebarCollapsed ? (theme === 'dark' ? 'Heller Modus' : 'Dunkler Modus') : undefined}
            >
-             {theme === 'dark' ? <Sun size={18} className="shrink-0" /> : <Moon size={18} className="shrink-0" />}
+             {theme === 'dark' ? <Sun size={16} className="shrink-0" /> : <Moon size={16} className="shrink-0" />}
              {!isSidebarCollapsed && <span>{theme === 'dark' ? 'Heller Modus' : 'Dunkler Modus'}</span>}
            </button>
 
-           <div className={cn("flex items-center gap-3 px-3 py-1", isSidebarCollapsed && "justify-center px-0")}>
-             <div className="w-8 h-8 rounded-full bg-[#E8E8ED] dark:bg-[#1C1C1E] flex items-center justify-center text-[#1D1D1F] dark:text-[#F5F5F7] font-bold border border-[#D2D2D7]/30 dark:border-[#424245]/30 shadow-sm shrink-0">
+           <div className={cn("flex items-center gap-3 px-2 py-1", isSidebarCollapsed && "justify-center px-0")}>
+             <div className="w-7 h-7 rounded-full bg-[#E8E8ED] dark:bg-[#1C1C1E] flex items-center justify-center text-[#1D1D1F] dark:text-[#F5F5F7] font-bold border border-[#D2D2D7]/30 dark:border-[#424245]/30 shadow-sm shrink-0 text-xs">
                {user?.displayName?.[0] || 'B'}
              </div>
              {!isSidebarCollapsed && (
                <div className="flex-1 overflow-hidden">
-                 <div className="text-[11px] font-semibold truncate text-[#1D1D1F] dark:text-[#F5F5F7] leading-none mb-0.5">{user?.displayName || 'Benutzer'}</div>
-                 <button className="text-[10px] font-bold text-red-500 uppercase tracking-wider hover:opacity-70 transition-opacity leading-none" onClick={logout}>Abmelden</button>
+                 <div className="text-[10px] font-semibold truncate text-[#1D1D1F] dark:text-[#F5F5F7] leading-none mb-0.5">{user?.displayName || 'Benutzer'}</div>
+                 <button className="text-[9px] font-black text-red-500 uppercase tracking-wider hover:opacity-70 transition-opacity leading-none" onClick={logout}>Abmelden</button>
                </div>
              )}
            </div>
 
            <button 
              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-             className="hidden lg:flex w-full items-center justify-center h-8 rounded-xl bg-white/50 dark:bg-white/5 border border-black/5 dark:border-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-all text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white"
+             className="hidden lg:flex w-full items-center justify-center h-7 rounded-xl bg-white/50 dark:bg-white/5 border border-black/5 dark:border-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-all text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white"
              aria-label={isSidebarCollapsed ? "Menü ausklappen" : "Menü einklappen"}
            >
-             {isSidebarCollapsed ? <ChevronDown className="rotate-270" size={16} /> : <ChevronDown className="rotate-90" size={16} />}
+             {isSidebarCollapsed ? <p className="text-[10px] font-bold">»</p> : <p className="text-[10px] font-bold">«</p>}
            </button>
         </div>
       </aside>

@@ -5,6 +5,8 @@
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-brand: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --color-brand: #60A5FA;
+  --color-brand-muted: #86868B;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -15,12 +17,12 @@ body {
 }
 
 .dark body {
-  @apply bg-[#000000] text-[#F5F5F7];
+  @apply bg-[#000000] text-[#e5e5e5];
 }
 
 /* Global focus outlines */
 *:focus-visible {
-  @apply outline-none ring-2 ring-blue-500/50 ring-offset-2 ring-offset-transparent transition-shadow;
+  @apply outline-none ring-2 ring-brand/50 ring-offset-2 ring-offset-transparent transition-shadow;
 }
 
 /* Hide scrollbars globally */
@@ -36,19 +38,37 @@ body {
 @layer components {
   /* Apple-style Premium Card */
   .glass-card {
-    @apply bg-white dark:bg-[#1C1C1E] border border-black/5 dark:border-white/5 shadow-[0_4px_24px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_32px_rgba(0,0,0,0.4)] transition-all duration-300;
+    @apply bg-white dark:bg-white/[0.04] backdrop-blur-xl border border-black/5 dark:border-white/[0.08] shadow-[0_4px_24px_rgba(0,0,0,0.02)] transition-all duration-300;
   }
   
   .dark .glass-card {
-    @apply bg-[#1C1C1E] border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.6)];
+    @apply shadow-[0_8px_32px_rgba(0,0,0,0.4)];
+  }
+
+  /* Refined List Items */
+  .refined-list-item {
+    @apply bg-transparent border-b border-black/[0.02] dark:border-white/[0.04] transition-all duration-200 rounded-none;
+  }
+  
+  .refined-list-item:hover {
+    @apply bg-black/[0.02] dark:bg-white/[0.03];
+  }
+
+  .refined-list-item:last-child {
+    @apply border-b-0;
+  }
+
+  /* Pro Section Heading */
+  .pro-heading {
+    @apply text-[10px] sm:text-[11px] font-black uppercase tracking-[0.08em] text-brand-muted;
   }
 
   /* Specific Green Icons globally - making them more subtle */
   .icon-green {
-    @apply text-blue-600;
+    @apply text-brand;
   }
   .dark .icon-green {
-    @apply text-blue-400;
+    @apply text-brand;
   }
   
   /* Text colors for flexibility */
@@ -56,7 +76,7 @@ body {
     @apply text-[#1D1D1F] font-brand tracking-tight;
   }
   .dark .text-brand {
-    @apply text-[#F5F5F7] font-brand tracking-tight;
+    @apply text-[#e5e5e5] font-brand tracking-tight;
   }
 
   .text-brand-muted {
@@ -68,18 +88,15 @@ body {
   
   /* Custom Inputs for Premium UI */
   .glass-input {
-    @apply w-full px-4 py-2.5 bg-[#F5F5F7] border border-transparent rounded-xl text-sm text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all duration-200 placeholder-[#86868B];
+    @apply w-full px-4 py-2.5 bg-[#F5F5F7] border border-transparent rounded-xl text-sm text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-brand/20 focus:bg-white transition-all duration-200 placeholder-[#86868B];
   }
   .dark .glass-input {
-    @apply bg-[#2C2C2E] border-transparent text-[#F5F5F7] focus:ring-blue-500/30 focus:bg-[#3A3A3C] placeholder-[#86868B];
+    @apply bg-[#2C2C2E] border-transparent text-[#F5F5F7] focus:ring-brand/30 focus:bg-[#3A3A3C] placeholder-[#86868B];
   }
 
   /* Custom Buttons */
   .glass-button-primary {
-    @apply h-10 px-5 bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white font-semibold text-sm rounded-xl transition-all duration-200 shadow-sm flex items-center justify-center gap-2;
-  }
-  .dark .glass-button-primary {
-    @apply bg-[#007AFF] hover:bg-[#0071E3] active:scale-[0.98] text-white;
+    @apply h-10 px-5 bg-brand hover:bg-brand/90 active:scale-[0.98] text-black font-bold text-sm rounded-xl transition-all duration-200 shadow-sm flex items-center justify-center gap-2;
   }
   
   .glass-button-secondary {
@@ -90,10 +107,10 @@ body {
   }
 
   .sidebar-item {
-    @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-[#F5F5F7] dark:hover:bg-[#2C2C2E] text-[#424245] dark:text-[#A1A1A6];
+    @apply flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all hover:bg-black/5 dark:hover:bg-white/5 text-[#424245] dark:text-[#A1A1A6] mr-4 rounded-r-xl;
   }
 
   .sidebar-item-active {
-    @apply bg-[#E8E8ED] dark:bg-[#3A3A3C] text-[#1D1D1F] dark:text-[#F5F5F7] font-semibold;
+    @apply bg-blue-600/15 border-l-2 border-blue-600 text-blue-600 dark:text-blue-400 font-bold pl-[14px] rounded-l-none;
   }
 }

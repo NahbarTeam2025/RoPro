@@ -139,70 +139,72 @@ export default function Contacts() {
 
   return (
     <div className="max-w-6xl mx-auto flex flex-col h-full">
-      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 sm:mb-12">
         <div>
-          <h1 className="text-4xl font-black text-brand tracking-tight mb-1">Kontakte</h1>
+          <h1 className="text-4xl font-black text-brand tracking-tight mb-1 uppercase italic">Kontakte</h1>
         </div>
         <button 
           onClick={() => setIsAddModalOpen(true)}
-          className="glass-button-primary flex items-center gap-2 px-6 py-3"
+          className="glass-button-primary flex items-center gap-2 px-6 py-3 h-12"
         >
           <Plus size={20} />
-          <span>Kontakt hinzufügen</span>
+          <span className="font-bold">Kontakt hinzufügen</span>
         </button>
       </header>
 
-      <div className="flex flex-col lg:flex-row gap-8 flex-1 min-h-0">
+      <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 flex-1 min-h-0">
         {/* Left: Contact List */}
         <div className="lg:w-1/3 flex flex-col gap-4">
           <div className="relative mb-2">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted" size={18} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted" size={16} />
             <input 
               type="text"
               placeholder="Suchen..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="glass-input w-full pl-12 pr-4 py-3 text-sm"
+              className="glass-input w-full pl-11 pr-4 py-3 text-sm shadow-sm"
             />
           </div>
 
-          <div className="flex-1 bg-white/30 dark:bg-black/20 border border-slate-200/50 dark:border-white/5 rounded-[2rem] p-3 shadow-inner">
-            <div className="h-[250px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+          <div className="bg-white/30 dark:bg-white/[0.04] border border-slate-200/50 dark:border-white/5 rounded-[2.5rem] shadow-inner overflow-hidden h-[200px]">
+            <div className="h-full overflow-y-auto custom-scrollbar">
               {loading ? (
                 <div className="text-center py-10 text-brand-muted font-medium">Laden...</div>
               ) : filteredContacts.length === 0 ? (
-                <div className="text-center py-10 text-brand-muted font-medium italic">Keine Kontakte gefunden.</div>
+                <div className="text-center py-10 text-brand-muted font-bold tracking-tight uppercase text-[10px]">Keine Kontakte</div>
               ) : (
-                filteredContacts.map(contact => (
-                  <button
-                    key={contact.id}
-                    onClick={() => setSelectedContact(contact)}
-                    className={cn(
-                      "w-full text-left p-4 rounded-2xl flex items-center gap-4 transition-all border",
-                      selectedContact?.id === contact.id 
-                        ? "bg-brand text-white border-brand shadow-lg translate-x-1" 
-                        : "bg-white/50 dark:bg-white/5 border-slate-200/50 dark:border-white/5 hover:bg-white/80 dark:hover:bg-white/10 hover:border-brand/30"
-                    )}
-                  >
-                    <div className={cn(
-                      "w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg shrink-0",
-                      selectedContact?.id === contact.id ? "bg-white/20" : "bg-brand/10 text-brand"
-                    )}>
-                      {contact.name[0].toUpperCase()}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className={cn("font-bold truncate", selectedContact?.id === contact.id ? "text-white" : "text-brand uppercase tracking-tight")}>
-                        {contact.name}
-                      </div>
-                      {(contact.email || contact.phone) && (
-                        <div className={cn("text-[10px] truncate", selectedContact?.id === contact.id ? "text-white/70" : "text-brand-muted font-medium")}>
-                          {contact.phone || contact.email}
-                        </div>
+                <div className="flex flex-col">
+                  {filteredContacts.map(contact => (
+                    <button
+                      key={contact.id}
+                      onClick={() => setSelectedContact(contact)}
+                      className={cn(
+                        "w-full text-left px-6 py-4 refined-list-item flex items-center gap-3 transition-all group",
+                        selectedContact?.id === contact.id 
+                          ? "bg-brand text-white shadow-lg shadow-blue-500/20 z-10" 
+                          : ""
                       )}
-                    </div>
-                    <ChevronRight size={18} className={cn("shrink-0", selectedContact?.id === contact.id ? "text-white/40" : "text-brand-muted opacity-0 group-hover:opacity-100")} />
-                  </button>
-                ))
+                    >
+                      <div className={cn(
+                        "w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0 shadow-sm transition-colors lowercase",
+                        selectedContact?.id === contact.id ? "bg-white/20" : "bg-brand/10 text-brand group-hover:bg-brand/20"
+                      )}>
+                        {contact.name[0]}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className={cn("font-bold truncate tracking-tight text-xs", selectedContact?.id === contact.id ? "text-white" : "text-brand")}>
+                          {contact.name}
+                        </div>
+                        {(contact.email || contact.phone) && (
+                          <div className={cn("text-[10px] truncate font-medium uppercase tracking-tighter opacity-70", selectedContact?.id === contact.id ? "text-white/70" : "text-brand-muted")}>
+                            {contact.phone || contact.email}
+                          </div>
+                        )}
+                      </div>
+                      <ChevronRight size={14} className={cn("shrink-0 transition-opacity", selectedContact?.id === contact.id ? "text-white/40" : "text-brand-muted opacity-0 group-hover:opacity-100")} />
+                    </button>
+                  ))}
+                </div>
               )}
             </div>
           </div>

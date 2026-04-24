@@ -143,7 +143,7 @@ export default function Notes() {
       )}>
         <div className="p-4 border-b border-slate-200/50 dark:border-white/10 space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <h2 className="font-bold text-brand text-xl">Notizen</h2>
+            <h2 className="font-bold text-brand text-xl uppercase italic">Notizen</h2>
             <div className="flex items-center gap-1">
               <button 
                 onClick={() => setShowCatManager(true)} 
@@ -188,31 +188,31 @@ export default function Notes() {
             />
           </div>
         </div>
-        <div className="flex-1 bg-white/30 dark:bg-black/20 border border-slate-200/50 dark:border-white/5 rounded-[2rem] p-3 m-4 mt-0 shadow-inner overflow-hidden">
-          <div className="h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+        <div className="flex-1 bg-white/30 dark:bg-white/[0.04] border border-slate-200/50 dark:border-white/5 rounded-[2rem] m-4 mt-0 shadow-inner overflow-hidden">
+          <div className="h-full overflow-y-auto custom-scrollbar">
             {filteredNotes.length === 0 ? (
               <div className="p-6 text-center text-sm font-medium text-brand-muted">Keine Notizen gefunden.</div>
             ) : (
-              <div className="divide-y divide-slate-200/50 dark:divide-white/5">
+              <div className="flex flex-col">
                 {filteredNotes.map(note => {
                   const catName = categories.find(c => c.id === note.categoryId)?.name || note.categoryId || 'Allgemein';
                   return (
                     <div
                       key={note.id}
                       className={cn(
-                        "w-full text-left p-4 hover:bg-slate-500/10 transition-colors focus:outline-none cursor-pointer group relative",
-                        activeNote?.id === note.id ? "bg-slate-500/10 border-l-4" : "border-l-4 border-transparent"
+                        "w-full text-left p-5 refined-list-item transition-all focus:outline-none cursor-pointer group relative border-l-2 rounded-none",
+                        activeNote?.id === note.id ? "bg-white/50 dark:bg-white/10" : "bg-transparent border-transparent"
                       )}
-                      style={{ borderLeftColor: activeNote?.id === note.id ? (note.color || '#34C759') : (note.color || 'transparent') }}
+                      style={{ borderLeftColor: activeNote?.id === note.id ? (note.color ? `${note.color}99` : 'rgba(37, 99, 235, 0.6)') : 'transparent' }}
                       onClick={() => setActiveNote(note)}
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            {note.isPinned && <Pin size={12} className="text-green-500 fill-green-500 shrink-0" />}
+                            {note.isPinned && <Pin size={12} className="text-brand fill-brand shrink-0" />}
                             <h3 className={cn(
-                              "font-bold truncate",
-                              activeNote?.id === note.id ? "text-green-500" : "text-brand"
+                              "font-bold truncate text-sm tracking-tight",
+                              activeNote?.id === note.id ? "text-brand" : "text-brand/80"
                             )}>{note.title || 'Unbenannte Notiz'}</h3>
                           </div>
                         </div>
@@ -222,11 +222,11 @@ export default function Notes() {
                             onClick={(e) => togglePin(e, note)}
                             className={cn(
                               "p-1.5 rounded-lg transition-all md:opacity-0 md:group-hover:opacity-100",
-                              note.isPinned ? "text-green-500 bg-green-500/10" : "text-brand-muted hover:bg-slate-500/10"
+                              note.isPinned ? "text-brand bg-brand/10" : "text-brand-muted hover:bg-slate-500/10"
                             )}
                             title={note.isPinned ? "Fixierung lösen" : "Anpinnen"}
                           >
-                            <Pin size={14} className={cn(note.isPinned && "fill-green-500")} />
+                            <Pin size={14} className={cn(note.isPinned && "fill-brand")} />
                           </button>
                           <button
                             onClick={(e) => {
@@ -242,10 +242,10 @@ export default function Notes() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="text-[10px] font-bold text-brand-muted uppercase tracking-widest bg-slate-200/50 dark:bg-black/20 px-2 py-0.5 rounded truncate max-w-[120px]">
+                        <span className="pro-heading">
                           {catName}
                         </span>
-                        <span className="text-xs font-medium text-brand-muted truncate ml-auto">
+                        <span className="text-[9px] font-bold text-brand-muted/50 truncate ml-auto uppercase tracking-tighter">
                           {note.updatedAt?.toDate ? format(note.updatedAt.toDate(), 'd. MMM yyyy') : 'Gerade eben'}
                         </span>
                       </div>
