@@ -279,12 +279,15 @@ export default function Tasks() {
                   )}
                </div>
             </div>
+          </div>
+
+          <div className="flex justify-center border-t border-white/5 pt-8">
             <button
               type="submit"
-              className="glass-button-primary h-12 px-10 ml-auto rounded-2xl shadow-lg shadow-brand/10 hover:shadow-brand/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+              className="glass-button-primary h-14 px-12 rounded-[1.25rem] shadow-xl shadow-brand/20 hover:shadow-brand/30 active:scale-95 transition-all flex items-center justify-center gap-3 group"
             >
-              <Plus size={20} />
-              <span className="font-black uppercase tracking-widest text-xs">Hinzufügen</span>
+              <Plus size={24} className="group-hover:rotate-90 transition-transform duration-300" />
+              <span className="font-black uppercase tracking-[0.2em] text-xs">Aufgabe Hinzufügen</span>
             </button>
           </div>
         </form>
