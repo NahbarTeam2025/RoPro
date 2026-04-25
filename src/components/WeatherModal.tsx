@@ -88,7 +88,7 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
 
             <div className="flex-1 overflow-y-auto p-8 pt-4 custom-scrollbar">
               {/* Current Weather Card */}
-              <div className="glass-card p-8 rounded-[2rem] mb-8 bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-white/20">
+              <div className="p-4 mb-4">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-8">
                   <div className="flex items-center gap-6">
                     <div className="w-24 h-24 flex items-center justify-center p-2">
@@ -133,7 +133,7 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
                 </h3>
                 <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
                   {data.daily.time.map((time, i) => (
-                    <div key={time} className="glass-card p-3 rounded-2xl flex flex-col items-center gap-1.5 text-center transition-all bg-white/5 hover:bg-white/10 border-white/5">
+                    <div key={time} className="p-3 flex flex-col items-center gap-1.5 text-center transition-all">
                       <span className="text-[9px] font-black uppercase text-brand-muted truncate w-full">
                         {i === 0 ? 'Heute' : format(new Date(time), 'EEE', { locale: de })}
                       </span>
@@ -152,7 +152,7 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
                 <h3 className="text-[11px] font-black text-brand uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                   <TrendingUp size={14} /> 2-Wochen Trend
                 </h3>
-                <div className="h-64 w-full glass-card p-6 rounded-[2rem]">
+                <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={trendData}>
                       <defs>
