@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { collection, query, where, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
@@ -26,6 +27,7 @@ interface Note {
 
 export default function Notes() {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [notes, setNotes] = useState<Note[]>([]);
   const [activeNote, setActiveNote] = useState<Note | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,6 +55,14 @@ export default function Notes() {
         return timeB - timeA;
       });
       setNotes(docs);
+      
+      // Auto-select if ID in URL
+      const selectedId = searchParams.get('id');
+      if (selectedId && !activeNote) {
+        const found = docs.find(d => d.id === selectedId);
+        if (found) setActiveNote(found);
+      }
+
       if (activeNote) {
         // Update active note if it changed remotely
         const updated = docs.find(d => d.id === activeNote.id);
@@ -143,7 +153,7 @@ export default function Notes() {
       )}>
         <div className="p-4 border-b border-slate-200/50 dark:border-white/10 space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <h2 className="font-bold text-brand text-xl uppercase italic">Notizen</h2>
+            <h2 className="font-bold text-brand text-xl uppercase">Notizen</h2>
             <div className="flex items-center gap-1">
               <button 
                 onClick={() => setShowCatManager(true)} 

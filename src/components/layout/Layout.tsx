@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -8,10 +8,13 @@ import {
   Cloud, Image as ImageIcon, BarChart2, Search, Activity, 
   Gauge, Mail, Brain, Cpu, ChevronDown, ChevronUp, Wallet,
   Code, BookOpen, Sparkles, FastForward, Layers, Compass,
-  Music, Volume2, Mic, Linkedin, Share2, Users, Dices
+  Music, Volume2, Mic, Linkedin, Share2, Users, Dices, LogOut, Shield,
+  Command
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
+import GlobalSearch from '../GlobalSearch';
+import DailyBriefing from '../DailyBriefing';
 
 interface ExternalLink {
   name: string;
@@ -31,14 +34,27 @@ export default function Layout() {
   const { theme, toggleTheme } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isBriefingOpen, setIsBriefingOpen] = useState(true);
   const [randomResult, setRandomResult] = useState<string | null>(null);
   const [isRolling, setIsRolling] = useState(false);
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({
-    google: true,
+    google: false,
     performance: false,
     ai: false,
-    social: true
+    social: false
   });
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleRandomize = () => {
     setIsRolling(true);
@@ -54,10 +70,11 @@ export default function Layout() {
     { name: 'Kalender', icon: CalendarIcon, path: '/calendar' },
     { name: 'Aufgaben', icon: CheckSquare, path: '/tasks' },
     { name: 'Notizen', icon: FileText, path: '/notes' },
-    { name: 'Links', icon: LinkIcon, path: '/links' },
-    { name: 'Prompts', icon: MessageSquare, path: '/prompts' },
     { name: 'Haushaltsbuch', icon: Wallet, path: '/household' },
+    { name: 'Prompts', icon: MessageSquare, path: '/prompts' },
+    { name: 'Links', icon: LinkIcon, path: '/links' },
     { name: 'Kontakte', icon: Users, path: '/contacts' },
+    { name: 'Safe', icon: Shield, path: '/passwords' },
   ];
 
   const categories: Category[] = [
@@ -161,6 +178,28 @@ export default function Layout() {
             aria-label="Sidebar schließen"
           >
             <X size={20} />
+          </button>
+        </div>
+
+        {/* Global Search Button */}
+        <div className={cn("px-4 mb-4", isSidebarCollapsed && "px-3")}>
+          <button
+            onClick={() => setIsSearchOpen(true)}
+            className={cn(
+              "w-full flex items-center gap-3 px-4 h-10 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 text-brand-muted hover:text-brand hover:bg-brand/10 hover:border-brand/20 transition-all group",
+              isSidebarCollapsed && "justify-center px-0"
+            )}
+          >
+            <Search size={18} className="shrink-0 group-hover:scale-110 transition-transform" />
+            {!isSidebarCollapsed && (
+              <div className="flex items-center justify-between w-full">
+                <span className="text-sm font-medium">Suchen...</span>
+                <div className="flex items-center gap-1 opacity-50">
+                  <Command size={10} />
+                  <span className="text-[10px] font-black">K</span>
+                </div>
+              </div>
+            )}
           </button>
         </div>
 
@@ -276,15 +315,22 @@ export default function Layout() {
              {!isSidebarCollapsed && <span>{theme === 'dark' ? 'Heller Modus' : 'Dunkler Modus'}</span>}
            </button>
 
-           <div className={cn("flex items-center gap-3 px-2 py-1", isSidebarCollapsed && "justify-center px-0")}>
-             <div className="w-7 h-7 rounded-full bg-[#E8E8ED] dark:bg-[#1C1C1E] flex items-center justify-center text-[#1D1D1F] dark:text-[#F5F5F7] font-bold border border-[#D2D2D7]/30 dark:border-[#424245]/30 shadow-sm shrink-0 text-xs">
-               {user?.displayName?.[0] || 'B'}
-             </div>
-             {!isSidebarCollapsed && (
-               <div className="flex-1 overflow-hidden">
-                 <div className="text-[10px] font-semibold truncate text-[#1D1D1F] dark:text-[#F5F5F7] leading-none mb-0.5">{user?.displayName || 'Benutzer'}</div>
-                 <button className="text-[9px] font-black text-red-500 uppercase tracking-wider hover:opacity-70 transition-opacity leading-none" onClick={logout}>Abmelden</button>
-               </div>
+           <div className={cn("px-2 py-1", isSidebarCollapsed && "flex justify-center")}>
+             {!isSidebarCollapsed ? (
+               <button 
+                 className="w-full text-left px-3 py-2 text-[9px] font-black text-red-500 uppercase tracking-wider hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all" 
+                 onClick={logout}
+               >
+                 Abmelden
+               </button>
+             ) : (
+               <button 
+                 onClick={logout} 
+                 className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-all" 
+                 title="Abmelden"
+               >
+                 <LogOut size={16} />
+               </button>
              )}
            </div>
 
@@ -317,6 +363,9 @@ export default function Layout() {
           <Outlet />
         </main>
       </div>
+
+      <GlobalSearch isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <DailyBriefing isOpen={isBriefingOpen} onClose={() => setIsBriefingOpen(false)} />
     </div>
   );
 }

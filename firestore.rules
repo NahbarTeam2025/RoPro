@@ -188,5 +188,64 @@ service cloud.firestore {
       allow update: if isSignedIn() && isValidId(contactId) && isValidContact(incoming()) && incoming().createdAt == existing().createdAt && incoming().updatedAt == request.time && incoming().userId == existing().userId;
       allow delete: if isSignedIn() && isValidId(contactId) && existing().userId == request.auth.uid;
     }
+
+    // Vault Configuration
+    function isValidVaultConfig(data) {
+      return data.keys().hasAll(['validationString', 'salt', 'userId', 'updatedAt']) &&
+             data.validationString is string && data.validationString.size() <= 1000 &&
+             data.salt is string && data.salt.size() <= 500 &&
+             data.userId == request.auth.uid &&
+             data.updatedAt is timestamp;
+    }
+
+    match /vaultConfigs/{configId} {
+      allow get: if isSignedIn() && (existing().userId == request.auth.uid || configId == 'dummy'); // Dummy for check
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(configId) && isValidVaultConfig(incoming()) && incoming().updatedAt == request.time;
+      allow update: if isSignedIn() && isValidId(configId) && isValidVaultConfig(incoming()) && incoming().updatedAt == request.time && incoming().userId == existing().userId;
+      allow delete: if isSignedIn() && isValidId(configId) && existing().userId == request.auth.uid;
+    }
+
+    // Passwords
+    function isValidPassword(data) {
+      return data.keys().hasAll(['name', 'username', 'password', 'userId', 'createdAt', 'updatedAt']) &&
+             data.name is string && data.name.size() <= 2000 &&
+             data.username is string && data.username.size() <= 2000 &&
+             data.password is string && data.password.size() <= 2000 &&
+             data.userId == request.auth.uid &&
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp &&
+             (!('url' in data) || (data.url is string && data.url.size() <= 2000)) &&
+             (!('note' in data) || (data.note is string && data.note.size() <= 10000)) &&
+             (!('category' in data) || (data.category is string && data.category.size() <= 1000));
+    }
+
+    match /passwords/{passwordId} {
+      allow get: if isSignedIn() && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(passwordId) && isValidPassword(incoming()) && incoming().createdAt == request.time && incoming().updatedAt == request.time;
+      allow update: if isSignedIn() && isValidId(passwordId) && isValidPassword(incoming()) && incoming().createdAt == existing().createdAt && incoming().updatedAt == request.time && incoming().userId == existing().userId;
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+
+    // Media
+    function isValidMedia(data) {
+      return data.keys().hasAll(['name', 'typ', 'storageUrl', 'storagePath', 'fileType', 'fileSize', 'userId', 'uploadedAt']) &&
+             data.name is string && data.name.size() <= 1000 &&
+             data.typ in ['dokument', 'bild', 'video', 'audio', 'sonstiges'] &&
+             data.storageUrl is string && data.storageUrl.size() <= 2000 &&
+             data.storagePath is string && data.storagePath.size() <= 2000 &&
+             data.fileType is string && data.fileType.size() <= 200 &&
+             data.fileSize is number &&
+             data.userId == request.auth.uid &&
+             data.uploadedAt is timestamp;
+    }
+
+    match /media/{fileId} {
+      allow get: if isSignedIn() && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(fileId) && isValidMedia(incoming()) && incoming().uploadedAt == request.time;
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
   }
 }

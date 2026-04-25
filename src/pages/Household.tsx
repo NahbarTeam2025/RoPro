@@ -23,6 +23,7 @@ interface Transaction {
   date: any;
   userId: string;
   isRecurring?: boolean;
+  interval?: 'monthly' | 'yearly';
 }
 
 export default function Household() {
@@ -33,6 +34,7 @@ export default function Household() {
   const [deleteModal, setDeleteModal] = useState<{ open: boolean, id: string } | null>(null);
   const [detailModal, setDetailModal] = useState<{ open: boolean, type: 'income' | 'expense' } | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [activeView, setActiveView] = useState<'transactions' | 'abos'>('transactions');
   
   // Form state
   const [description, setDescription] = useState('');
@@ -41,6 +43,7 @@ export default function Household() {
   const [categoryId, setCategoryId] = useState('');
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [isRecurring, setIsRecurring] = useState(false);
+  const [interval, setInterval] = useState<'monthly' | 'yearly'>('monthly');
 
   const [filterMonth, setFilterMonth] = useState(format(new Date(), 'yyyy-MM'));
   const [showCatManager, setShowCatManager] = useState(false);
@@ -136,6 +139,7 @@ export default function Household() {
         category: categoryId,
         date: new Date(date),
         isRecurring,
+        interval: isRecurring ? interval : null,
         userId: user.uid,
         updatedAt: serverTimestamp()
       };
@@ -163,6 +167,7 @@ export default function Household() {
     setCategoryId('');
     setDate(format(new Date(), 'yyyy-MM-dd'));
     setIsRecurring(false);
+    setInterval('monthly');
     setEditingId(null);
   };
 
@@ -175,6 +180,7 @@ export default function Household() {
     const tDate = t.date?.toDate ? t.date.toDate() : new Date();
     setDate(format(tDate, 'yyyy-MM-dd'));
     setIsRecurring(!!t.isRecurring);
+    setInterval(t.interval || 'monthly');
     setShowAdd(true);
     setDetailModal(null); // Close detail modal if open
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -222,11 +228,29 @@ export default function Household() {
   
   const availableMonths = Array.from(monthNamesSet).sort().reverse();
 
+  // Groups recurring transactions to get unique "Abos"
+  const recurringItems = transactions.filter(t => t.isRecurring && t.type === 'expense');
+  
+  // Group by description/amount to show unique subscriptions
+  // Important: We sort by date desc first so we get the most recent instance if there are multiple
+  const sortedRecurring = [...recurringItems].sort((a, b) => (b.date?.toDate?.()?.getTime() || 0) - (a.date?.toDate?.()?.getTime() || 0));
+  const activeAbos = Array.from(new Map(sortedRecurring.map(item => [`${item.description}-${item.amount}`, item])).values());
+  
+  const monthlyRecurringSum = activeAbos
+    .filter(a => a.interval === 'monthly' || !a.interval)
+    .reduce((sum, a) => sum + a.amount, 0);
+    
+  const yearlyRecurringSum = activeAbos
+    .filter(a => a.interval === 'yearly')
+    .reduce((sum, a) => sum + a.amount, 0);
+    
+  const totalPerYearSum = (monthlyRecurringSum * 12) + yearlyRecurringSum;
+
   return (
     <div className="max-w-5xl mx-auto flex flex-col relative z-10 w-full pb-10">
       <header className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-brand uppercase italic">Haushaltsbuch</h1>
+          <h1 className="text-3xl font-black tracking-tight text-brand uppercase">Haushaltsbuch</h1>
         </div>
         <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
           <select 
@@ -318,17 +342,29 @@ export default function Household() {
 
             <div className="space-y-1.5 lg:col-span-1 flex flex-col justify-center">
               <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1 mb-2">Wiederholen</label>
-              <button
-                type="button"
-                onClick={() => setIsRecurring(!isRecurring)}
-                className={cn(
-                  "h-12 rounded-2xl border flex items-center justify-center gap-2 transition-all font-bold text-[10px] uppercase",
-                  isRecurring ? "bg-blue-500/10 border-blue-500 text-blue-500" : "bg-slate-500/10 border-transparent text-brand-muted"
+              <div className="flex gap-1">
+                <button
+                  type="button"
+                  onClick={() => setIsRecurring(!isRecurring)}
+                  className={cn(
+                    "flex-1 h-12 rounded-2xl border flex items-center justify-center gap-2 transition-all font-bold text-[10px] uppercase",
+                    isRecurring ? "bg-blue-500/10 border-blue-500 text-blue-500" : "bg-slate-500/10 border-transparent text-brand-muted"
+                  )}
+                >
+                  {isRecurring ? <Check size={14} /> : null}
+                  <span>Ja</span>
+                </button>
+                {isRecurring && (
+                  <select
+                    value={interval}
+                    onChange={(e) => setInterval(e.target.value as any)}
+                    className="flex-1 h-12 glass-input px-2 text-[10px] font-bold uppercase"
+                  >
+                    <option value="monthly">Monatlich</option>
+                    <option value="yearly">Jährlich</option>
+                  </select>
                 )}
-              >
-                {isRecurring ? <Check size={16} /> : null}
-                <span>Monatlich</span>
-              </button>
+              </div>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row justify-end gap-3 mt-8 pt-6 border-t border-slate-200/50 dark:border-white/10">
@@ -346,7 +382,7 @@ export default function Household() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
         <div 
           onClick={() => setDetailModal({ open: true, type: 'income' })}
-          className="glass-card p-4 rounded-2xl border-l-4 border-green-500 flex items-center gap-3 cursor-pointer hover:bg-green-500/5 transition-colors"
+          className="glass-card p-4 rounded-2xl border border-white/[0.06] flex items-center gap-3 cursor-pointer hover:bg-green-500/5 transition-colors"
         >
           <div className="p-2 bg-green-500/10 text-green-500 rounded-lg shrink-0">
             <TrendingUp size={18} />
@@ -361,7 +397,7 @@ export default function Household() {
 
         <div 
           onClick={() => setDetailModal({ open: true, type: 'expense' })}
-          className="glass-card p-4 rounded-2xl border-l-4 border-red-500 flex items-center gap-3 cursor-pointer hover:bg-red-500/5 transition-colors"
+          className="glass-card p-4 rounded-2xl border border-white/[0.06] flex items-center gap-3 cursor-pointer hover:bg-red-500/5 transition-colors"
         >
           <div className="p-2 bg-red-500/10 text-red-500 rounded-lg shrink-0">
             <TrendingDown size={18} />
@@ -374,7 +410,7 @@ export default function Household() {
           </div>
         </div>
 
-        <div className="glass-card p-4 rounded-2xl border-l-4 border-blue-500 flex items-center gap-3">
+        <div className="glass-card p-4 rounded-2xl border border-white/[0.06] flex items-center gap-3">
           <div className={cn(
             "p-2 rounded-lg transition-colors shrink-0",
             balance >= 0 ? "bg-blue-500/10 text-blue-500" : "bg-red-500/10 text-red-500"
@@ -393,7 +429,7 @@ export default function Household() {
         </div>
 
         {/* Savings Tile */}
-        <div className="glass-card p-4 rounded-2xl border-l-4 border-orange-500 flex flex-col gap-3">
+        <div className="glass-card p-4 rounded-2xl border border-white/[0.06] flex flex-col gap-3">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-orange-500/10 text-orange-500 rounded-lg shrink-0">
               <PiggyBank size={18} />
@@ -434,10 +470,29 @@ export default function Household() {
         </div>
       </div>
 
-      {/* Transaction List */}
+      {/* Transaction List / Abos View */}
       <div className="glass-card rounded-[2.5rem] overflow-hidden flex flex-col flex-1 min-h-[500px]">
-        <div className="p-8 border-b border-slate-200/50 dark:border-white/10 flex justify-between items-center bg-[#FBFBFD]/50 dark:bg-[#1C1C1E]/50">
-          <h2 className="font-extrabold text-brand text-xl tracking-tight">Transaktionen</h2>
+        <div className="p-8 border-b border-slate-200/50 dark:border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-[#FBFBFD]/50 dark:bg-[#1C1C1E]/50 gap-4">
+          <div className="flex bg-slate-500/10 p-1 rounded-2xl w-full sm:w-auto">
+            <button
+              onClick={() => setActiveView('transactions')}
+              className={cn(
+                "flex-1 sm:px-6 py-2 rounded-xl text-xs font-bold transition-all",
+                activeView === 'transactions' ? "bg-white dark:bg-brand text-brand dark:text-white shadow-sm" : "text-brand-muted hover:text-brand"
+              )}
+            >
+              Transaktionen
+            </button>
+            <button
+              onClick={() => setActiveView('abos')}
+              className={cn(
+                "flex-1 sm:px-6 py-2 rounded-xl text-xs font-bold transition-all",
+                activeView === 'abos' ? "bg-white dark:bg-brand text-brand dark:text-white shadow-sm" : "text-brand-muted hover:text-brand"
+              )}
+            >
+              Abos
+            </button>
+          </div>
           <div className="flex items-center gap-2">
             <button 
               onClick={() => setShowCatManager(true)}
@@ -449,74 +504,145 @@ export default function Household() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
-          {filteredTransactions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full py-20 text-brand-muted space-y-4">
-              <div className="w-16 h-16 bg-blue-500/5 rounded-[2rem] flex items-center justify-center opacity-40">
-                <Wallet size={40} strokeWidth={1} />
+        {activeView === 'abos' ? (
+          <div className="flex-1 flex flex-col">
+            {/* Abo Summary Cards */}
+            <div className="p-6 grid grid-cols-1 sm:grid-cols-3 gap-4 border-b border-slate-200/50 dark:border-white/10 bg-slate-500/5">
+              <div className="p-4 rounded-2xl bg-white/50 dark:bg-white/5 border border-slate-200/30 dark:border-white/5">
+                <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-1">Monatlich gesamt</div>
+                <div className="text-xl font-black text-brand tracking-tight">
+                  {monthlyRecurringSum.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                </div>
               </div>
-              <p className="font-bold tracking-tight">Keine Transaktionen in diesem Monat.</p>
+              <div className="p-4 rounded-2xl bg-white/50 dark:bg-white/5 border border-slate-200/30 dark:border-white/5">
+                <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-1">Jährl. Abos</div>
+                <div className="text-xl font-black text-brand tracking-tight">
+                  {yearlyRecurringSum.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                </div>
+              </div>
+              <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20">
+                <div className="text-[9px] font-bold text-blue-500 uppercase tracking-widest mb-1">Pro Jahr total</div>
+                <div className="text-xl font-black text-blue-600 dark:text-blue-400 tracking-tight">
+                  {totalPerYearSum.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                </div>
+              </div>
             </div>
-          ) : (
-            <div className="divide-y divide-slate-200/50 dark:divide-white/5">
-              {filteredTransactions.map(t => {
-                const catName = categories.find(c => c.id === t.category)?.name || t.category || '--';
-                return (
-                  <div key={t.id} className="p-4 sm:p-6 flex items-center gap-4 sm:gap-5 hover:bg-slate-500/5 transition-colors group">
-                    <div className={cn(
-                      "w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 shadow-sm",
-                      t.type === 'income' ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
-                    )}>
-                      {t.type === 'income' ? <ArrowUpCircle size={20} className="sm:w-6 sm:h-6" /> : <ArrowDownCircle size={20} className="sm:w-6 sm:h-6" />}
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-1">
-                        <h4 className="font-bold text-brand">{t.description}</h4>
-                        {t.isRecurring && (
-                          <span className="text-[9px] font-black bg-blue-500/10 text-blue-500 px-1.5 py-0.5 rounded-lg uppercase tracking-tighter shrink-0">
-                            Monatlich
-                          </span>
-                        )}
-                        {categories.find(c => c.id === t.category)?.name && (
-                          <span className="text-[9px] sm:text-[10px] font-black text-brand-muted uppercase tracking-widest bg-slate-200/50 dark:bg-black/20 px-2 py-0.5 rounded-lg border border-slate-200/30 dark:border-white/5 shrink-0">
-                            {categories.find(c => c.id === t.category)?.name}
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-[9px] sm:text-[10px] font-bold text-brand-muted uppercase tracking-wider flex items-center gap-1">
-                        <span className="shrink-0">{t.date?.toDate ? format(t.date.toDate(), 'dd.MM.yyyy', { locale: de }) : '--'}</span>
-                      </div>
-                    </div>
 
-                    <div className="text-right flex items-center gap-3 sm:gap-4">
-                      <div className={cn(
-                        "text-base sm:text-lg font-black tracking-tighter whitespace-nowrap",
-                        t.type === 'income' ? "text-green-500" : "text-brand"
-                      )}>
-                        {t.type === 'income' ? '+' : '-'} {t.amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              {activeAbos.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full py-20 text-brand-muted space-y-4">
+                  <div className="w-16 h-16 bg-blue-500/5 rounded-[2rem] flex items-center justify-center opacity-40">
+                    <PieChartIcon size={40} strokeWidth={1} />
+                  </div>
+                  <p className="font-bold tracking-tight">Keine Abonnements gefunden.</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-slate-200/50 dark:divide-white/5">
+                  {activeAbos.map(abo => (
+                    <div key={abo.id} className="p-4 sm:p-6 flex items-center gap-4 sm:gap-5 hover:bg-slate-500/5 transition-colors">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 shadow-sm bg-blue-500/10 text-blue-500">
+                        <PieChartIcon size={20} className="sm:w-6 sm:h-6" />
                       </div>
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all shrink-0">
-                        <button 
-                          onClick={() => handleEdit(t)}
-                          className="p-2 text-brand-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-xl"
-                        >
-                          <Edit2 size={16} className="sm:w-[18px] sm:h-[18px]" />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(t.id)}
-                          className="p-2 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-xl"
-                        >
-                          <Trash2 size={16} className="sm:w-[18px] sm:h-[18px]" />
-                        </button>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-1">
+                          <h4 className="font-bold text-brand">{abo.description}</h4>
+                          <span className="text-[9px] font-black bg-blue-600/15 text-brand px-1.5 py-0.5 rounded-lg uppercase tracking-tighter shrink-0 border border-blue-500/10">
+                            {abo.interval === 'yearly' ? 'Jährlich' : 'Monatlich'}
+                          </span>
+                        </div>
+                        <div className="text-[9px] sm:text-[10px] font-bold text-brand-muted uppercase tracking-wider flex items-center gap-1">
+                          {categories.find(c => c.id === abo.category)?.name && (
+                            <span className="mr-1">{categories.find(c => c.id === abo.category)?.name}</span>
+                          )}
+                          {abo.date?.toDate && (
+                            <span>Zuletzt: {format(abo.date.toDate(), 'dd.MM.yyyy', { locale: de })}</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-base sm:text-lg font-black tracking-tighter text-brand">
+                          {abo.amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                        </div>
+                        <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest">
+                          {abo.interval === 'yearly' ? 'pro Jahr' : 'pro Monat'}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            {filteredTransactions.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full py-20 text-brand-muted space-y-4">
+                <div className="w-16 h-16 bg-blue-500/5 rounded-[2rem] flex items-center justify-center opacity-40">
+                  <Wallet size={40} strokeWidth={1} />
+                </div>
+                <p className="font-bold tracking-tight">Keine Transaktionen in diesem Monat.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-200/50 dark:divide-white/5">
+                {filteredTransactions.map(t => {
+                  const catName = categories.find(c => c.id === t.category)?.name || t.category || '--';
+                  return (
+                    <div key={t.id} className="p-4 sm:p-6 flex items-center gap-4 sm:gap-5 hover:bg-slate-500/5 transition-colors group">
+                      <div className={cn(
+                        "w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 shadow-sm",
+                        t.type === 'income' ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
+                      )}>
+                        {t.type === 'income' ? <ArrowUpCircle size={20} className="sm:w-6 sm:h-6" /> : <ArrowDownCircle size={20} className="sm:w-6 sm:h-6" />}
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-1">
+                          <h4 className="font-bold text-brand">{t.description}</h4>
+                          {t.isRecurring && (
+                            <span className="text-[9px] font-black bg-blue-600/15 text-brand px-1.5 py-0.5 rounded-lg uppercase tracking-tighter shrink-0 border border-blue-500/10">
+                              {t.interval === 'yearly' ? 'Jährlich' : 'Monatlich'}
+                            </span>
+                          )}
+                          {categories.find(c => c.id === t.category)?.name && (
+                            <span className="text-[9px] sm:text-[10px] font-black text-brand-muted uppercase tracking-widest bg-slate-200/50 dark:bg-black/20 px-2 py-0.5 rounded-lg border border-slate-200/30 dark:border-white/5 shrink-0">
+                              {categories.find(c => c.id === t.category)?.name}
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[9px] sm:text-[10px] font-bold text-brand-muted uppercase tracking-wider flex items-center gap-1">
+                          <span className="shrink-0">{t.date?.toDate ? format(t.date.toDate(), 'dd.MM.yyyy', { locale: de }) : '--'}</span>
+                        </div>
+                      </div>
+
+                      <div className="text-right flex items-center gap-3 sm:gap-4">
+                        <div className={cn(
+                          "text-base sm:text-lg font-black tracking-tighter whitespace-nowrap",
+                          t.type === 'income' ? "text-green-500" : "text-brand"
+                        )}>
+                          {t.type === 'income' ? '+' : '-'} {t.amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                        </div>
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all shrink-0">
+                          <button 
+                            onClick={() => handleEdit(t)}
+                            className="p-2 text-brand-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-xl"
+                          >
+                            <Edit2 size={16} className="sm:w-[18px] sm:h-[18px]" />
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(t.id)}
+                            className="p-2 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-xl"
+                          >
+                            <Trash2 size={16} className="sm:w-[18px] sm:h-[18px]" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {showCatManager && <CategoryManager type="household" onClose={() => setShowCatManager(false)} />}
@@ -556,7 +682,7 @@ export default function Household() {
                     });
 
                   if (items.length === 0) {
-                    return <p className="text-center py-10 text-brand-muted font-medium italic">Keine Einträge gefunden.</p>;
+                    return <p className="text-center py-10 text-brand-muted font-medium">Keine Einträge gefunden.</p>;
                   }
 
                   return items.map(t => {
@@ -574,7 +700,9 @@ export default function Household() {
                             <div className="flex items-center gap-2">
                               <span className="font-bold text-brand text-sm">{t.description}</span>
                               {t.isRecurring && (
-                                <span className="text-[8px] font-black bg-blue-500 text-white px-1.5 py-0.5 rounded uppercase tracking-tighter">Monatlich</span>
+                                <span className="text-[8px] font-black bg-blue-600/15 text-brand px-1.5 py-0.5 rounded uppercase tracking-tighter border border-blue-500/10">
+                                  {t.interval === 'yearly' ? 'Jährlich' : 'Monatlich'}
+                                </span>
                               )}
                             </div>
                             <div className="text-[10px] font-bold text-brand-muted uppercase tracking-tight">

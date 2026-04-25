@@ -204,7 +204,7 @@ export default function Calendar() {
           <button onClick={prevMonth} className="p-3 border border-slate-200/50 dark:border-white/10 rounded-2xl hover:bg-slate-500/10 transition-colors cursor-pointer text-brand shadow-sm">
             <ChevronLeft size={24} />
           </button>
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tighter text-brand capitalize italic">
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tighter text-brand capitalize">
             {format(currentDate, "MMMM yyyy", { locale: de })}
           </h1>
           <button onClick={nextMonth} className="p-3 border border-slate-200/50 dark:border-white/10 rounded-2xl hover:bg-slate-500/10 transition-colors cursor-pointer text-brand shadow-sm">

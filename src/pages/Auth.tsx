@@ -29,7 +29,7 @@ export default function Auth() {
         <div className="w-20 h-20 flex items-center justify-center mx-auto mb-6 text-[#007AFF]">
           <Zap size={56} fill="currentColor" />
         </div>
-        <h1 className="text-5xl font-black mb-3 tracking-tighter text-brand italic">RoPro</h1>
+        <h1 className="text-5xl font-black mb-3 tracking-tighter text-brand">RoPro</h1>
         <p className="text-sm font-bold text-brand-muted mb-10 leading-relaxed uppercase tracking-widest px-4">The High-End Productivity OS</p>
         
         {error && (

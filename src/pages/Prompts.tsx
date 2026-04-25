@@ -122,7 +122,7 @@ export default function Prompts() {
       )}>
         <div className="p-4 border-b border-slate-200/50 dark:border-white/10 space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <h2 className="font-bold text-brand text-xl uppercase italic">Prompts</h2>
+            <h2 className="font-bold text-brand text-xl uppercase">Prompts</h2>
             <div className="flex items-center gap-1">
               <button 
                 onClick={() => setShowCatManager(true)}

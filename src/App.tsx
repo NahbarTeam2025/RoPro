@@ -13,6 +13,7 @@ const Links = lazy(() => import('./pages/Links'));
 const Prompts = lazy(() => import('./pages/Prompts'));
 const Household = lazy(() => import('./pages/Household'));
 const Contacts = lazy(() => import('./pages/Contacts'));
+const Passwords = lazy(() => import('./pages/Passwords'));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -43,6 +44,7 @@ export default function App() {
             <Route path="links" element={<Links />} />
             <Route path="prompts" element={<Prompts />} />
             <Route path="contacts" element={<Contacts />} />
+            <Route path="passwords" element={<Passwords />} />
           </Route>
         </Routes>
       </Suspense>

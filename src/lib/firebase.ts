@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 import aiStudioConfig from '../../firebase-applet-config.json';
 
 // Detect if we are running in an environment with VITE_FIREBASE_API_KEY (e.g., Cloudflare Pages)
@@ -24,3 +25,4 @@ const databaseId = import.meta.env.VITE_FIREBASE_API_KEY
   : aiStudioConfig.firestoreDatabaseId;
 
 export const db = getFirestore(app, databaseId);
+export const storage = getStorage(app);

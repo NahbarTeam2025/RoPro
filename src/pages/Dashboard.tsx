@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { collection, query, where, onSnapshot, updateDoc, deleteDoc, doc, serverTimestamp, orderBy } from 'firebase/firestore';
 import { format, startOfDay, addDays } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { CheckSquare, Calendar as CalendarIcon, FileText, MessageSquare, Link as LinkIcon, Plus, ChevronRight, Check, Edit2, Trash2, Search, X, Save, Wallet, ArrowUpCircle, ArrowDownCircle, Zap, Pin, Users } from 'lucide-react';
+import { CheckSquare, Calendar as CalendarIcon, FileText, MessageSquare, Link as LinkIcon, Plus, ChevronRight, Check, Edit2, Trash2, Search, X, Save, Wallet, ArrowUpCircle, ArrowDownCircle, Zap, Pin, Users, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
@@ -26,7 +26,7 @@ function Clock() {
 
   return (
     <div className="text-left">
-      <h1 className="text-6xl font-black tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7] leading-none italic">
+      <h1 className="text-6xl font-black tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7] leading-none">
         {format(currentTime, 'HH:mm')}
       </h1>
       <p className="text-xl font-medium text-[#86868B] mt-3 capitalize font-sans">
@@ -210,7 +210,7 @@ export default function Dashboard() {
       <header className="mb-12 mt-4 flex flex-row items-start justify-between relative w-full">
         <Clock />
         <div className="flex flex-col gap-3">
-          <a href="https://www.google.com" target="_blank" rel="noopener noreferrer" className="p-2.5 bg-white/50 dark:bg-white/10 hover:bg-[#007AFF] hover:text-white rounded-2xl transition-all shadow-sm group overflow-hidden flex items-center justify-center w-11 h-11" title="Google Suche">
+          <a href="https://www.google.com" target="_blank" rel="noopener noreferrer" className="p-1 hover:scale-110 transition-all group flex items-center justify-center" title="Google Suche">
             <img 
               src="https://www.google.com/s2/favicons?sz=64&domain=google.com" 
               alt="Google" 
@@ -228,7 +228,7 @@ export default function Dashboard() {
               }}
             />
           </a>
-          <a href="https://roberterbach.de/" target="_blank" rel="noopener noreferrer" className="p-2.5 bg-white/50 dark:bg-white/10 hover:bg-[#007AFF] hover:text-white rounded-2xl transition-all shadow-sm group overflow-hidden flex items-center justify-center w-11 h-11" title="Robert Erbach Webseite">
+          <a href="https://roberterbach.de/" target="_blank" rel="noopener noreferrer" className="p-1 hover:scale-110 transition-all group flex items-center justify-center" title="Robert Erbach Webseite">
              <img 
                src="https://www.google.com/s2/favicons?sz=64&domain=roberterbach.de" 
                alt="" 
@@ -360,6 +360,44 @@ export default function Dashboard() {
             )}
           </DashboardCard>
 
+          <DashboardCard title="Haushaltsbuch" icon={Wallet} to="/household">
+            <div className="grid grid-cols-3 gap-2 mb-2 bg-white/30 dark:bg-white/[0.04] p-3 rounded-2xl border border-black/5 dark:border-white/5">
+              <div className="text-center">
+                <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Plus</div>
+                <div className="text-[11px] font-black text-green-500">+{stats.income.toLocaleString('de-DE')}€</div>
+              </div>
+              <div className="text-center border-x border-black/5 dark:border-white/5">
+                <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Minus</div>
+                <div className="text-[11px] font-black text-red-500">-{stats.expenses.toLocaleString('de-DE')}€</div>
+              </div>
+              <div className="text-center">
+                <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Bilanz</div>
+                <div className={cn("text-[11px] font-black", balance >= 0 ? "text-[#1D1D1F] dark:text-[#F5F5F7]" : "text-red-500")}>{balance.toLocaleString('de-DE')}€</div>
+              </div>
+            </div>
+            {transactions.slice(0, 3).length > 0 ? (
+               <div className="flex flex-col -mx-6 -mb-6">
+                 {transactions.slice(0, 3).map(t => (
+                   <div key={t.id} className="flex items-center gap-3 px-6 py-4 refined-list-item">
+                     <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", t.type === 'income' ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500")}>
+                       {t.type === 'income' ? <ArrowUpCircle size={16} /> : <ArrowDownCircle size={16} />}
+                     </div>
+                     <div className="flex-1 min-w-0">
+                       <div className="text-xs font-bold text-[#1D1D1F] dark:text-[#F5F5F7]"> {t.description}</div>
+                       <div className="text-[10px] font-medium text-[#86868B]">{format(t.date?.toDate() || new Date(), 'dd.MM')}</div>
+                     </div>
+                     <div className={cn("text-xs font-black", t.type === 'income' ? "text-green-500" : "text-[#1D1D1F] dark:text-[#F5F5F7]")}>{t.type === 'income' ? '+' : '-'} {t.amount.toLocaleString('de-DE')}€</div>
+                   </div>
+                 ))}
+               </div>
+            ) : (
+               <div className="text-center py-10 opacity-20 flex flex-col items-center">
+                 <Wallet size={40} strokeWidth={1} />
+                 <span className="text-xs font-bold uppercase mt-3 tracking-widest text-[9px]">Keine Einträge</span>
+               </div>
+            )}
+          </DashboardCard>
+
           <DashboardCard title="Prompts" icon={MessageSquare} to="/prompts">
             {prompts.length > 0 ? (
                <div className="flex flex-col -mx-6">
@@ -415,44 +453,6 @@ export default function Dashboard() {
             )}
           </DashboardCard>
 
-          <DashboardCard title="Haushaltsbuch" icon={Wallet} to="/household">
-            <div className="grid grid-cols-3 gap-2 mb-2 bg-white/30 dark:bg-white/[0.04] p-3 rounded-2xl border border-black/5 dark:border-white/5">
-              <div className="text-center">
-                <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Plus</div>
-                <div className="text-[11px] font-black text-green-500">+{stats.income.toLocaleString('de-DE')}€</div>
-              </div>
-              <div className="text-center border-x border-black/5 dark:border-white/5">
-                <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Minus</div>
-                <div className="text-[11px] font-black text-red-500">-{stats.expenses.toLocaleString('de-DE')}€</div>
-              </div>
-              <div className="text-center">
-                <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Bilanz</div>
-                <div className={cn("text-[11px] font-black", balance >= 0 ? "text-[#1D1D1F] dark:text-[#F5F5F7]" : "text-red-500")}>{balance.toLocaleString('de-DE')}€</div>
-              </div>
-            </div>
-            {transactions.slice(0, 3).length > 0 ? (
-               <div className="flex flex-col -mx-6 -mb-6">
-                 {transactions.slice(0, 3).map(t => (
-                   <div key={t.id} className="flex items-center gap-3 px-6 py-4 refined-list-item">
-                     <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", t.type === 'income' ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500")}>
-                       {t.type === 'income' ? <ArrowUpCircle size={16} /> : <ArrowDownCircle size={16} />}
-                     </div>
-                     <div className="flex-1 min-w-0">
-                       <div className="text-xs font-bold text-[#1D1D1F] dark:text-[#F5F5F7]"> {t.description}</div>
-                       <div className="text-[10px] font-medium text-[#86868B]">{format(t.date?.toDate() || new Date(), 'dd.MM')}</div>
-                     </div>
-                     <div className={cn("text-xs font-black", t.type === 'income' ? "text-green-500" : "text-[#1D1D1F] dark:text-[#F5F5F7]")}>{t.type === 'income' ? '+' : '-'} {t.amount.toLocaleString('de-DE')}€</div>
-                   </div>
-                 ))}
-               </div>
-            ) : (
-               <div className="text-center py-10 opacity-20 flex flex-col items-center">
-                 <Wallet size={40} strokeWidth={1} />
-                 <span className="text-xs font-bold uppercase mt-3 tracking-widest text-[9px]">Keine Einträge</span>
-               </div>
-            )}
-          </DashboardCard>
-
           <DashboardCard title="Kontakte" icon={Users} to="/contacts">
             {contacts.length > 0 ? (
               <div className="flex flex-col -mx-6 h-[200px] overflow-y-auto custom-scrollbar">
@@ -474,6 +474,14 @@ export default function Dashboard() {
                 <span className="text-xs font-bold uppercase mt-3 tracking-widest text-[9px]">Keine Kontakte</span>
               </div>
             )}
+          </DashboardCard>
+
+          <DashboardCard title="Safe" icon={Shield} to="/passwords">
+            <div className="text-center py-10 opacity-50 flex flex-col items-center">
+              <Shield size={40} className="text-brand" strokeWidth={1.5} />
+              <span className="text-[10px] font-bold uppercase mt-4 tracking-widest text-brand">Passwörter & Dokumente</span>
+              <p className="text-[10px] text-[#86868B] mt-2 px-6">Sicher verschlüsselt aufbewahrt.</p>
+            </div>
           </DashboardCard>
         </div>
       )}

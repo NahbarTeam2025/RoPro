@@ -140,7 +140,7 @@ export default function Tasks() {
     <div className="max-w-4xl mx-auto flex flex-col relative z-10 pb-6">
       <header className="mb-6 sm:mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 px-4 sm:px-0">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-brand uppercase italic">Aufgaben</h1>
+          <h1 className="text-3xl font-black tracking-tight text-brand uppercase">Aufgaben</h1>
         </div>
         <div className="flex w-full overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 items-center gap-2 custom-scrollbar">
            <button 

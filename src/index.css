@@ -111,6 +111,6 @@ body {
   }
 
   .sidebar-item-active {
-    @apply bg-blue-600/15 border-l-2 border-blue-600 text-blue-600 dark:text-blue-400 font-bold pl-[14px] rounded-l-none;
+    @apply border-l-2 border-blue-600 text-blue-600 dark:text-blue-400 font-bold pl-[14px] rounded-l-none rounded-r-lg bg-transparent shadow-none hover:bg-transparent;
   }
 }

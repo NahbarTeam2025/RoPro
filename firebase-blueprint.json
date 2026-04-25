@@ -85,7 +85,8 @@
         "date": { "type": "timestamp" },
         "userId": { "type": "string" },
         "createdAt": { "type": "timestamp" },
-        "isRecurring": { "type": "boolean" }
+        "isRecurring": { "type": "boolean" },
+        "interval": { "type": "string", "enum": ["monthly", "yearly"] }
       },
       "required": ["description", "amount", "type", "category", "date", "userId", "createdAt"]
     },
@@ -116,6 +117,51 @@
         "updatedAt": { "type": "timestamp" }
       },
       "required": ["name", "userId", "createdAt", "updatedAt"]
+    },
+    "PasswordEntry": {
+      "title": "PasswordEntry",
+      "description": "Encrypted password storage",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Encrypted title/service name" },
+        "username": { "type": "string", "description": "Encrypted username" },
+        "password": { "type": "string", "description": "Encrypted password" },
+        "url": { "type": "string", "description": "Encrypted login URL" },
+        "note": { "type": "string", "description": "Encrypted note" },
+        "category": { "type": "string", "description": "Encrypted category" },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "timestamp" },
+        "updatedAt": { "type": "timestamp" }
+      },
+      "required": ["name", "username", "password", "userId", "createdAt", "updatedAt"]
+    },
+    "VaultConfig": {
+      "title": "VaultConfig",
+      "description": "Configuration for the encrypted vault",
+      "type": "object",
+      "properties": {
+        "validationString": { "type": "string", "description": "Encrypted test string for password verification" },
+        "userId": { "type": "string" },
+        "updatedAt": { "type": "timestamp" }
+      },
+      "required": ["validationString", "userId", "updatedAt"]
+    },
+    "Media": {
+      "title": "Media",
+      "description": "User uploaded media file metadata",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "typ": { "type": "string", "enum": ["dokument", "bild", "video", "audio", "sonstiges"] },
+        "kategorie": { "type": "string" },
+        "storageUrl": { "type": "string" },
+        "storagePath": { "type": "string" },
+        "fileType": { "type": "string" },
+        "fileSize": { "type": "number" },
+        "userId": { "type": "string" },
+        "uploadedAt": { "type": "timestamp" }
+      },
+      "required": ["name", "typ", "storageUrl", "storagePath", "fileType", "fileSize", "userId", "uploadedAt"]
     }
   },
   "firestore": {
@@ -150,6 +196,18 @@
     "/contacts/{contactId}": {
        "schema": { "$ref": "#/entities/Contact" },
        "description": "Stores user contacts"
+    },
+    "/passwords/{passwordId}": {
+      "schema": { "$ref": "#/entities/PasswordEntry" },
+      "description": "Stores encrypted passwords"
+    },
+    "/vaultConfigs/{configId}": {
+      "schema": { "$ref": "#/entities/VaultConfig" },
+      "description": "Stores vault configuration"
+    },
+    "/media/{fileId}": {
+      "schema": { "$ref": "#/entities/Media" },
+      "description": "Stores user media metadata"
     }
   }
 }

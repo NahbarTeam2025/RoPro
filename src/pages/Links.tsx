@@ -188,7 +188,7 @@ export default function Links() {
     <div className="max-w-5xl mx-auto flex flex-col relative z-10 w-full pb-10">
       <header className="mb-6 sm:mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-brand uppercase italic">Links</h1>
+          <h1 className="text-3xl font-black tracking-tight text-brand uppercase">Links</h1>
         </div>
         <div className="flex flex-col sm:flex-row w-full sm:w-auto items-center gap-2">
            <button 

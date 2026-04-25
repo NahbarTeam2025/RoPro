@@ -13,6 +13,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { format, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { cn } from '../lib/utils';
+import { useSearchParams } from 'react-router-dom';
 
 interface Contact {
   id: string;
@@ -29,6 +30,7 @@ interface Contact {
 
 export default function Contacts() {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -62,6 +64,13 @@ export default function Contacts() {
       })) as Contact[];
       setContacts(data);
       setLoading(false);
+
+      // Handle search selection
+      const selectedId = searchParams.get('id');
+      if (selectedId) {
+        const found = data.find(c => c.id === selectedId);
+        if (found) setSelectedContact(found);
+      }
     });
 
     return () => unsubscribe();
@@ -141,7 +150,7 @@ export default function Contacts() {
     <div className="max-w-6xl mx-auto flex flex-col h-full">
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 sm:mb-12">
         <div>
-          <h1 className="text-4xl font-black text-brand tracking-tight mb-1 uppercase italic">Kontakte</h1>
+          <h1 className="text-4xl font-black text-brand tracking-tight mb-1 uppercase">Kontakte</h1>
         </div>
         <button 
           onClick={() => setIsAddModalOpen(true)}
