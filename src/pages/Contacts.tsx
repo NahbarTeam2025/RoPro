@@ -195,8 +195,8 @@ export default function Contacts() {
                       )}
                     >
                       <div className={cn(
-                        "w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0 shadow-sm transition-colors lowercase",
-                        selectedContact?.id === contact.id ? "bg-white/20" : "bg-brand/10 text-brand group-hover:bg-brand/20"
+                        "w-8 h-8 flex items-center justify-center font-black text-sm shrink-0 transition-colors lowercase",
+                        selectedContact?.id === contact.id ? "bg-white/20" : "text-brand"
                       )}>
                         {contact.name[0]}
                       </div>
@@ -232,7 +232,7 @@ export default function Contacts() {
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
                   <div className="flex items-center gap-6">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-brand/10 text-brand flex items-center justify-center text-3xl sm:text-4xl font-black shadow-inner shrink-0">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 text-brand flex items-center justify-center text-5xl sm:text-6xl font-black shrink-0">
                       {selectedContact.name[0].toUpperCase()}
                     </div>
                     <div className="min-w-0">

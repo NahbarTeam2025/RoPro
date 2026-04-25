@@ -193,8 +193,8 @@ export default function Dashboard() {
     <div className="glass-card flex flex-col rounded-[2.5rem] overflow-hidden h-full border border-black/5 dark:border-white/[0.06] shadow-sm hover:shadow-md transition-shadow">
       <div className="px-6 py-5 flex justify-between items-center">
         <Link to={to} className="flex items-center gap-3">
-           <div className="p-2 rounded-xl bg-brand/10 text-brand">
-             <Icon size={16} />
+           <div className="text-brand">
+             <Icon size={20} />
            </div>
            <h2 className="pro-heading">{title}</h2>
         </Link>
@@ -260,7 +260,7 @@ export default function Dashboard() {
                <div className="flex flex-col -mx-6">
                 {appointments.map(app => (
                   <div key={app.id} className="refined-list-item flex items-center gap-4 px-6 py-4 relative group">
-                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/10 border border-black/5 dark:border-white/10 shadow-sm flex flex-col items-center justify-center shrink-0">
+                    <div className="w-10 h-10 flex flex-col items-center justify-center shrink-0">
                        <span className="text-xs font-black text-brand leading-none">{format(new Date(app.dueDate), 'dd')}</span>
                        <span className="text-[8px] font-bold text-brand-muted uppercase tracking-tighter">{format(new Date(app.dueDate), 'MMM', { locale: de })}</span>
                     </div>
@@ -379,8 +379,8 @@ export default function Dashboard() {
                <div className="flex flex-col -mx-6 -mb-6">
                  {transactions.slice(0, 3).map(t => (
                    <div key={t.id} className="flex items-center gap-3 px-6 py-4 refined-list-item">
-                     <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", t.type === 'income' ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500")}>
-                       {t.type === 'income' ? <ArrowUpCircle size={16} /> : <ArrowDownCircle size={16} />}
+                     <div className={cn("w-8 h-8 flex items-center justify-center shrink-0", t.type === 'income' ? "text-green-500" : "text-red-500")}>
+                       {t.type === 'income' ? <ArrowUpCircle size={20} /> : <ArrowDownCircle size={20} />}
                      </div>
                      <div className="flex-1 min-w-0">
                        <div className="text-xs font-bold text-[#1D1D1F] dark:text-[#F5F5F7]"> {t.description}</div>
@@ -433,7 +433,7 @@ export default function Dashboard() {
                   return (
                   <div key={link.id} className="relative group overflow-hidden">
                     <a href={link.url} target="_blank" rel="noopener noreferrer" className="refined-list-item flex items-center gap-3 px-6 py-4 pr-10">
-                      <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/10 shadow-sm flex items-center justify-center shrink-0 overflow-hidden border border-black/5 dark:border-white/10 relative">
+                      <div className="w-10 h-10 flex items-center justify-center shrink-0 overflow-hidden relative">
                         <img src={`https://www.google.com/s2/favicons?sz=64&domain=${domain}`} alt="" className="w-6 h-6 object-contain" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2386868B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>'; }} />
                         {link.isPinned && <div className="absolute top-0 right-0 p-0.5 bg-brand rounded-bl-lg"><Pin size={6} className="text-white fill-white" /></div>}
                       </div>
@@ -458,7 +458,7 @@ export default function Dashboard() {
               <div className="flex flex-col -mx-6 h-[200px] overflow-y-auto custom-scrollbar">
                 {contacts.map(contact => (
                   <div key={contact.id} className="refined-list-item flex items-center gap-3 px-6 py-4">
-                    <div className="w-8 h-8 rounded-xl bg-brand/10 text-brand flex items-center justify-center font-black text-xs shrink-0 lowercase">
+                    <div className="w-8 h-8 text-brand flex items-center justify-center font-black text-base shrink-0 lowercase">
                       {contact.name[0]}
                     </div>
                     <div className="flex-1 min-w-0">

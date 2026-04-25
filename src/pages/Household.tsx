@@ -433,8 +433,8 @@ export default function Household() {
           onClick={() => setDetailModal({ open: true, type: 'income' })}
           className="glass-card p-4 rounded-2xl border border-white/[0.06] flex items-center gap-3 cursor-pointer hover:bg-green-500/5 transition-colors"
         >
-          <div className="p-2 bg-green-500/10 text-green-500 rounded-lg shrink-0">
-            <TrendingUp size={18} />
+          <div className="text-green-500 shrink-0">
+            <TrendingUp size={24} />
           </div>
           <div>
             <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-0.5">Einnahmen</div>
@@ -448,8 +448,8 @@ export default function Household() {
           onClick={() => setDetailModal({ open: true, type: 'expense' })}
           className="glass-card p-4 rounded-2xl border border-white/[0.06] flex items-center gap-3 cursor-pointer hover:bg-red-500/5 transition-colors"
         >
-          <div className="p-2 bg-red-500/10 text-red-500 rounded-lg shrink-0">
-            <TrendingDown size={18} />
+          <div className="text-red-500 shrink-0">
+            <TrendingDown size={24} />
           </div>
           <div>
             <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-0.5">Ausgaben</div>
@@ -461,10 +461,10 @@ export default function Household() {
 
         <div className="glass-card p-4 rounded-2xl border border-white/[0.06] flex items-center gap-3">
           <div className={cn(
-            "p-2 rounded-lg transition-colors shrink-0",
-            balance >= 0 ? "bg-blue-500/10 text-blue-500" : "bg-red-500/10 text-red-500"
+            "transition-colors shrink-0",
+            balance >= 0 ? "text-blue-500" : "text-red-500"
           )}>
-            <PiggyBank size={18} />
+            <PiggyBank size={24} />
           </div>
           <div>
             <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-0.5">Bilanz</div>
@@ -480,8 +480,8 @@ export default function Household() {
         {/* Savings Tile */}
         <div className="glass-card p-4 rounded-2xl border border-white/[0.06] flex flex-col gap-3">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-orange-500/10 text-orange-500 rounded-lg shrink-0">
-              <PiggyBank size={18} />
+            <div className="text-orange-500 shrink-0">
+              <PiggyBank size={24} />
             </div>
             <div className="flex-1">
               <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-0.5">Gespartes Geld</div>
@@ -706,8 +706,8 @@ export default function Household() {
             <div className="flex-1 overflow-y-auto custom-scrollbar">
               {activeAbos.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full py-20 text-brand-muted space-y-4">
-                  <div className="w-16 h-16 bg-blue-500/5 rounded-[2rem] flex items-center justify-center opacity-40">
-                    <PieChartIcon size={40} strokeWidth={1} />
+                  <div className="w-16 h-16 flex items-center justify-center opacity-40">
+                    <PieChartIcon size={48} strokeWidth={1} />
                   </div>
                   <p className="font-bold tracking-tight">Keine Abonnements gefunden.</p>
                 </div>
@@ -715,8 +715,8 @@ export default function Household() {
                 <div className="divide-y divide-slate-200/50 dark:divide-white/5">
                   {activeAbos.map(abo => (
                     <div key={abo.id} className="p-4 sm:p-6 flex items-center gap-4 sm:gap-5 hover:bg-slate-500/5 transition-colors">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 shadow-sm bg-blue-500/10 text-blue-500">
-                        <PieChartIcon size={20} className="sm:w-6 sm:h-6" />
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center shrink-0 text-blue-500">
+                        <PieChartIcon size={24} className="sm:w-8 sm:h-8" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-1">
@@ -752,8 +752,8 @@ export default function Household() {
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             {filteredTransactions.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full py-20 text-brand-muted space-y-4">
-                <div className="w-16 h-16 bg-blue-500/5 rounded-[2rem] flex items-center justify-center opacity-40">
-                  <Wallet size={40} strokeWidth={1} />
+                <div className="w-16 h-16 flex items-center justify-center opacity-40">
+                  <Wallet size={48} strokeWidth={1} />
                 </div>
                 <p className="font-bold tracking-tight">Keine Transaktionen in diesem Monat.</p>
               </div>
@@ -764,10 +764,10 @@ export default function Household() {
                   return (
                     <div key={t.id} className="p-4 sm:p-6 flex items-center gap-4 sm:gap-5 hover:bg-slate-500/5 transition-colors group">
                       <div className={cn(
-                        "w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 shadow-sm",
-                        t.type === 'income' ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
+                        "w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center shrink-0",
+                        t.type === 'income' ? "text-green-500" : "text-red-500"
                       )}>
-                        {t.type === 'income' ? <ArrowUpCircle size={20} className="sm:w-6 sm:h-6" /> : <ArrowDownCircle size={20} className="sm:w-6 sm:h-6" />}
+                        {t.type === 'income' ? <ArrowUpCircle size={24} className="sm:w-8 sm:h-8" /> : <ArrowDownCircle size={24} className="sm:w-8 sm:h-8" />}
                       </div>
                       
                       <div className="flex-1 min-w-0">

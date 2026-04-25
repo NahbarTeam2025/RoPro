@@ -313,9 +313,9 @@ export default function Tasks() {
                   />
                 ))}
                 {activeTodos.length === 0 && (
-                  <div className="p-12 text-center">
-                     <div className="w-12 h-12 bg-brand/10 text-brand rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <Check size={24} />
+                  <div className="text-center">
+                     <div className="w-12 h-12 text-brand flex items-center justify-center mx-auto mb-4">
+                      <Check size={32} />
                     </div>
                     <h3 className="pro-heading !text-brand">Alles geschafft</h3>
                     <p className="mt-1 text-sm font-medium text-brand-muted">Du hast keine anstehenden Aufgaben.</p>

@@ -246,8 +246,8 @@ export default function Prompts() {
           />
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-brand-muted">
-            <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-4 border border-blue-500/20 text-blue-500 dark:text-green-500 dark:bg-green-500/10 dark:border-green-500/20">
-               <MessageSquare size={32} />
+            <div className="w-16 h-16 flex items-center justify-center mb-4 text-blue-500 dark:text-green-500">
+               <MessageSquare size={48} />
             </div>
             <p className="font-medium">Wähle einen Prompt aus oder erstelle einen neuen</p>
           </div>

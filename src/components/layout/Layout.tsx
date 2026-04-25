@@ -9,12 +9,14 @@ import {
   Gauge, Mail, Brain, Cpu, ChevronDown, ChevronUp, Wallet,
   Code, BookOpen, Sparkles, FastForward, Layers, Compass,
   Music, Volume2, Mic, Linkedin, Share2, Users, Dices, LogOut, Shield,
-  Command
+  Command, CloudSun, CloudRain, CloudSnow, CloudFog, CloudDrizzle, CloudLightning
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import GlobalSearch from '../GlobalSearch';
 import DailyBriefing from '../DailyBriefing';
+import WeatherModal from '../WeatherModal';
+import { fetchWeather, WeatherData, getWeatherInfo, fetchCityName } from '../../services/weatherService';
 
 interface ExternalLink {
   name: string;
@@ -36,6 +38,9 @@ export default function Layout() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isBriefingOpen, setIsBriefingOpen] = useState(true);
+  const [isWeatherOpen, setIsWeatherOpen] = useState(false);
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [locationName, setLocationName] = useState('Standort wird ermittelt...');
   const [randomResult, setRandomResult] = useState<string | null>(null);
   const [isRolling, setIsRolling] = useState(false);
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({
@@ -55,6 +60,71 @@ export default function Layout() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  useEffect(() => {
+    const loadWeather = async () => {
+      try {
+        if ('geolocation' in navigator) {
+          navigator.geolocation.getCurrentPosition(
+            async (position) => {
+              const { latitude, longitude } = position.coords;
+              const [data, city] = await Promise.all([
+                fetchWeather(latitude, longitude),
+                fetchCityName(latitude, longitude)
+              ]);
+              setWeatherData(data);
+              setLocationName(city);
+            },
+            async (error) => {
+              console.error('Geolocation error:', error);
+              // Default to Berlin if user denies permission or error occurs
+              const data = await fetchWeather(52.52, 13.40);
+              setWeatherData(data);
+              setLocationName('Berlin');
+            },
+            { timeout: 10000 }
+          );
+        } else {
+          // Fallback if Geolocation is not supported
+          const data = await fetchWeather(52.52, 13.40);
+          setWeatherData(data);
+          setLocationName('Berlin');
+        }
+      } catch (error) {
+        console.error('Failed to fetch weather:', error);
+      }
+    };
+    loadWeather();
+
+    // Refresh weather every 30 minutes
+    const interval = setInterval(loadWeather, 30 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const WeatherSummaryIcon = ({ className = "" }: { className?: string }) => {
+    if (!weatherData) return null;
+    const iconName = getWeatherInfo(weatherData.current.weatherCode).icon;
+    const IconComponent = {
+      Sun, CloudSun, Cloud, CloudFog, CloudDrizzle, CloudRain, CloudSnow, CloudLightning
+    }[iconName] || Cloud;
+
+    return (
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsWeatherOpen(true);
+        }}
+        className={cn(
+          "flex items-center gap-1.5 transition-all group",
+          className
+        )}
+        title="Wetterdetails zeigen"
+      >
+        <IconComponent size={14} className="text-orange-400 group-hover:scale-110 transition-transform" />
+        <span className="text-[10px] font-black">{Math.round(weatherData.current.temp)}°</span>
+      </button>
+    );
+  };
 
   const handleRandomize = () => {
     setIsRolling(true);
@@ -171,7 +241,11 @@ export default function Layout() {
           <div className="w-8 h-8 flex items-center justify-center text-[#007AFF] shrink-0">
             <Zap size={24} fill="currentColor" />
           </div>
-          {!isSidebarCollapsed && <span className="font-bold text-2xl tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7] truncate">RoPro</span>}
+          {!isSidebarCollapsed && (
+            <div className="flex items-center gap-2 overflow-hidden">
+              <span className="font-bold text-2xl tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7] truncate">RoPro</span>
+            </div>
+          )}
           <button 
             className="lg:hidden text-[#86868B] ml-auto hover:text-[#1D1D1F] transition-colors focus-visible:ring-2 rounded" 
             onClick={() => setIsSidebarOpen(false)}
@@ -353,9 +427,10 @@ export default function Layout() {
           >
             <Menu size={24} />
           </button>
-          <div className="flex items-center gap-2 ml-2">
-            <Zap size={18} className="text-[#007AFF]" fill="currentColor" />
-            <span className="font-bold text-xl tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7]">RoPro</span>
+          <div className="flex items-center gap-2 ml-2 overflow-hidden">
+            <Zap size={18} className="text-[#007AFF] shrink-0" fill="currentColor" />
+            <span className="font-bold text-xl tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7] truncate">RoPro</span>
+            <WeatherSummaryIcon className="ml-2" />
           </div>
         </header>
 
@@ -365,7 +440,18 @@ export default function Layout() {
       </div>
 
       <GlobalSearch isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-      <DailyBriefing isOpen={isBriefingOpen} onClose={() => setIsBriefingOpen(false)} />
+      <DailyBriefing 
+        isOpen={isBriefingOpen} 
+        onClose={() => setIsBriefingOpen(false)} 
+        weatherData={weatherData}
+        locationName={locationName}
+      />
+      <WeatherModal 
+        isOpen={isWeatherOpen} 
+        onClose={() => setIsWeatherOpen(false)} 
+        data={weatherData}
+        locationName={locationName}
+      />
     </div>
   );
 }

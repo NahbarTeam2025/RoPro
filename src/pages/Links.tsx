@@ -288,9 +288,9 @@ export default function Links() {
       )}
 
       {filteredLinks.length === 0 && !showAdd ? (
-        <div className="p-12 text-center glass-card rounded-3xl flex-1 flex flex-col items-center justify-center">
-          <div className="w-12 h-12 bg-green-500/20 text-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <LinkIcon size={24} />
+        <div className="p-12 text-center flex-1 flex flex-col items-center justify-center">
+          <div className="w-12 h-12 text-green-500 flex items-center justify-center mx-auto mb-4">
+            <LinkIcon size={32} />
           </div>
           <h3 className="text-sm font-bold text-brand">Keine Links gefunden</h3>
           <p className="mt-1 text-sm font-medium text-brand-muted">Füge dein erstes Lesezeichen hinzu, oder ändere den Filter.</p>
@@ -316,12 +316,12 @@ export default function Links() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <div 
-                        className="w-12 h-12 rounded-2xl bg-white dark:bg-[#2C2C2E] shadow-sm flex items-center justify-center shrink-0 overflow-hidden border border-black/5 dark:border-white/5"
+                        className="w-12 h-12 flex items-center justify-center shrink-0 overflow-hidden"
                       >
                         <img 
                           src={`https://www.google.com/s2/favicons?sz=64&domain=${getDomain(link.url)}`} 
                           alt="" 
-                          className="w-8 h-8 object-contain"
+                          className="w-10 h-10 object-contain"
                           referrerPolicy="no-referrer"
                           onError={(e) => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2386868B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>'; }} 
                         />

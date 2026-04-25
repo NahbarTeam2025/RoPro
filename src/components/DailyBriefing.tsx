@@ -1,18 +1,21 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Calendar, CheckSquare, Wallet, ArrowRight, Zap, AlertCircle } from 'lucide-react';
+import { Calendar, CheckSquare, Wallet, ArrowRight, Zap, AlertCircle, Sun, Cloud, CloudSun, CloudRain, CloudSnow, CloudFog, CloudDrizzle, CloudLightning } from 'lucide-react';
 import { useDailyBriefingData } from '../hooks/useDailyBriefingData';
 import { useAuth } from '../hooks/useAuth';
 import { format, isBefore, isToday } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { cn } from '../lib/utils';
+import { WeatherData, getWeatherInfo } from '../services/weatherService';
 
 interface DailyBriefingProps {
   isOpen: boolean;
   onClose: () => void;
+  weatherData?: WeatherData | null;
+  locationName?: string;
 }
 
-export default function DailyBriefing({ isOpen, onClose }: DailyBriefingProps) {
+export default function DailyBriefing({ isOpen, onClose, weatherData, locationName }: DailyBriefingProps) {
   const { user } = useAuth();
   const data = useDailyBriefingData();
   const now = new Date();
@@ -41,14 +44,32 @@ export default function DailyBriefing({ isOpen, onClose }: DailyBriefingProps) {
           className="w-full max-w-[480px] max-h-[90vh] bg-white/10 dark:bg-black/40 backdrop-blur-[20px] rounded-[2rem] sm:rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden flex flex-col"
         >
           {/* Header */}
-          <div className="p-6 sm:p-8 pb-4 shrink-0">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-brand/20 rounded-2xl flex items-center justify-center mb-4 sm:mb-6 text-brand">
-              <Zap fill="currentColor" size={24} />
-            </div>
+          <div className="p-6 sm:p-8 pb-4 shrink-0 flex items-center justify-between">
             <h2 className="text-2xl sm:text-3xl font-black text-[#e5e5e5] tracking-tight">
-              {greeting}, {user?.displayName?.split(' ')[0] || 'Robert'}.
+              Tagesüberblick
             </h2>
-            <p className="text-brand-muted font-medium mt-1">Hier ist dein Überblick für heute.</p>
+            
+            {weatherData && (
+              <div className="flex flex-col items-end gap-1">
+                <div className="flex items-center gap-2">
+                  <div className="text-right">
+                    <div className="text-xl font-black text-white">{Math.round(weatherData.current.temp)}°</div>
+                    <div className="text-[9px] font-black uppercase text-brand-muted tracking-wider truncate max-w-[100px]">
+                      {locationName}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-center p-1">
+                    {(() => {
+                      const iconName = getWeatherInfo(weatherData.current.weatherCode).icon;
+                      const IconComponent = {
+                        Sun, CloudSun, Cloud, CloudFog, CloudDrizzle, CloudRain, CloudSnow, CloudLightning
+                      }[iconName] || Cloud;
+                      return <IconComponent size={28} className="text-orange-400" />;
+                    })()}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex-1 overflow-y-auto custom-scrollbar px-6 sm:px-8 py-4 space-y-6 sm:space-y-8">

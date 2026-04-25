@@ -450,8 +450,8 @@ export default function Passwords() {
         >
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand to-transparent opacity-20" />
           
-          <div className="w-20 h-20 bg-brand/5 rounded-3xl flex items-center justify-center text-brand shadow-inner">
-            <Lock size={40} strokeWidth={1.5} />
+          <div className="w-20 h-20 flex items-center justify-center text-brand">
+            <Lock size={48} strokeWidth={1.5} />
           </div>
 
           <div className="text-center space-y-2">
@@ -508,8 +508,8 @@ export default function Passwords() {
     <div className="max-w-6xl mx-auto pb-20">
       <header className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-8 bg-white/5 p-8 rounded-[3rem] border border-white/5 backdrop-blur-xl">
         <div className="flex items-center gap-6">
-          <div className="w-16 h-16 bg-brand/10 border border-brand/20 rounded-3xl flex items-center justify-center text-brand shadow-xl">
-            <Shield size={32} />
+          <div className="w-16 h-16 flex items-center justify-center text-brand">
+            <Shield size={48} />
           </div>
           <div>
             <h1 className="text-4xl font-black text-brand tracking-tighter mb-1 select-none">Password Safe</h1>
@@ -567,16 +567,16 @@ export default function Passwords() {
             >
               <div className="flex justify-between items-start mb-6">
                 <div className="flex items-center gap-4 min-w-0">
-                  <div className="w-12 h-12 bg-white dark:bg-white/5 rounded-2xl p-2 shrink-0 flex items-center justify-center shadow-sm border border-slate-200/50 dark:border-white/5">
+                  <div className="w-12 h-12 shrink-0 flex items-center justify-center">
                     {entry.url ? (
                       <img 
                         src={`https://www.google.com/s2/favicons?sz=128&domain=${entry.url.replace(/^https?:\/\//, '')}`} 
                         alt="" 
-                        className="w-8 h-8 object-contain rounded-md"
+                        className="w-10 h-10 object-contain rounded-md"
                         onError={(e) => (e.currentTarget.src = 'https://www.google.com/s2/favicons?sz=128&domain=lock.com')}
                       />
                     ) : (
-                      <Globe size={24} className="text-brand-muted" />
+                      <Globe size={32} className="text-brand-muted" />
                     )}
                   </div>
                   <div className="min-w-0">
