@@ -18,6 +18,8 @@ interface Todo {
   priority: 'high' | 'medium' | 'low';
   completed: boolean;
   userId: string;
+  isRecurring?: boolean;
+  recurrenceInterval?: 'daily' | 'weekly' | 'monthly' | null;
   createdAt?: any;
   updatedAt?: any;
 }
@@ -28,6 +30,8 @@ export default function Tasks() {
   const [newTask, setNewTask] = useState('');
   const [priority, setPriority] = useState<'high' | 'medium' | 'low'>('medium');
   const [dueDate, setDueDate] = useState('');
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurrenceInterval, setRecurrenceInterval] = useState<'daily' | 'weekly' | 'monthly'>('weekly');
   const [categoryId, setCategoryId] = useState('');
   const { categories } = useCategories('task');
 
@@ -69,6 +73,8 @@ export default function Tasks() {
         categoryId,
         dueDate: dueDate ? new Date(dueDate).toISOString() : null,
         completed: false,
+        isRecurring: isRecurring,
+        recurrenceInterval: isRecurring ? recurrenceInterval : null,
         userId: user.uid,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
@@ -77,6 +83,7 @@ export default function Tasks() {
       setDueDate('');
       setPriority('medium');
       setCategoryId('');
+      setIsRecurring(false);
     } catch (error) {
       console.error("Error adding task:", error);
     }
@@ -84,10 +91,36 @@ export default function Tasks() {
 
   const toggleTodo = async (todo: Todo) => {
     try {
-      await updateDoc(doc(db, 'todos', todo.id), {
-        completed: !todo.completed,
-        updatedAt: serverTimestamp()
-      });
+      if (!todo.completed && todo.isRecurring && todo.dueDate) {
+        // If completing a recurring task, schedule the next one
+        const currentDueDate = new Date(todo.dueDate);
+        const nextDueDate = new Date(currentDueDate);
+        
+        if (todo.recurrenceInterval === 'daily') nextDueDate.setDate(nextDueDate.getDate() + 1);
+        else if (todo.recurrenceInterval === 'weekly') nextDueDate.setDate(nextDueDate.getDate() + 7);
+        else if (todo.recurrenceInterval === 'monthly') nextDueDate.setMonth(nextDueDate.getMonth() + 1);
+
+        // Update current to completed
+        await updateDoc(doc(db, 'todos', todo.id), {
+          completed: true,
+          updatedAt: serverTimestamp()
+        });
+
+        // Add next task
+        await addDoc(collection(db, 'todos'), {
+          ...todo,
+          id: undefined,
+          dueDate: nextDueDate.toISOString(),
+          completed: false,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+      } else {
+        await updateDoc(doc(db, 'todos', todo.id), {
+          completed: !todo.completed,
+          updatedAt: serverTimestamp()
+        });
+      }
     } catch (error) {
       console.error("Error toggling task:", error);
     }
@@ -171,54 +204,89 @@ export default function Tasks() {
         </div>
       </header>
 
-      <div className="flex-1 flex flex-col gap-6">
-        <form onSubmit={addTask} className="glass-card p-6 rounded-3xl flex flex-col sm:flex-row gap-4 items-end">
-          <div className="flex-1 w-full space-y-1.5 flex flex-col">
-            <label className="pro-heading">Neue Aufgabe</label>
-            <input
-              type="text"
-              value={newTask}
-              onChange={(e) => setNewTask(e.target.value)}
-              placeholder="Was muss erledigt werden?"
-              className="glass-input h-10"
-              required
-            />
+      <div className="flex-1 flex flex-col gap-6 px-4 sm:px-0">
+        <form onSubmit={addTask} className="glass-card p-6 sm:p-8 rounded-[2.5rem] flex flex-col gap-8">
+          <div className="space-y-2.5 flex flex-col">
+            <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Was steht an?</label>
+            <div className="relative group">
+              <input
+                type="text"
+                value={newTask}
+                onChange={(e) => setNewTask(e.target.value)}
+                placeholder="Neue Aufgabe tippen..."
+                className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-brand/[0.03] focus:bg-brand/[0.06] transition-all"
+                required
+              />
+              <div className="absolute left-0 bottom-0 w-0 h-1 bg-brand transition-all duration-300 group-focus-within:w-full" />
+            </div>
           </div>
-          <div className="w-full sm:w-40 space-y-1.5 flex flex-col">
-            <label className="pro-heading">Fälligkeit</label>
-            <input
-              type="datetime-local"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              className="glass-input h-10"
-            />
-          </div>
-          <div className="w-full sm:w-32 space-y-1.5 flex flex-col">
-            <label className="pro-heading">Priorität</label>
-            <select
-              value={priority}
-              onChange={(e) => setPriority(e.target.value as any)}
-              className="glass-input h-10 appearance-none bg-white dark:bg-[#1C1C1E]"
+          
+          <div className="flex flex-wrap items-center gap-x-8 gap-y-6">
+            <div className="min-w-[140px] flex-1 space-y-2 flex flex-col border-l border-white/5 pl-4">
+              <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Fälligkeit</label>
+              <input
+                type="datetime-local"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="glass-input h-9 text-[10px] bg-transparent border-none p-0 focus:ring-0"
+              />
+            </div>
+            <div className="w-full sm:w-32 space-y-2 flex flex-col border-l border-white/5 pl-4">
+              <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Priorität</label>
+              <select
+                value={priority}
+                onChange={(e) => setPriority(e.target.value as any)}
+                className="glass-input h-9 text-[10px] font-black uppercase appearance-none bg-transparent border-none p-0 focus:ring-0"
+              >
+                <option value="high" className="bg-[#1C1C1E]">🔴 Hoch</option>
+                <option value="medium" className="bg-[#1C1C1E]">🟡 Mittel</option>
+                <option value="low" className="bg-[#1C1C1E]">🟢 Niedrig</option>
+              </select>
+            </div>
+            <div className="w-full sm:w-40 space-y-2 flex flex-col border-l border-white/5 pl-4">
+              <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Kategorie</label>
+              <CategorySelect 
+                type="task" 
+                value={categoryId} 
+                onChange={setCategoryId}
+                className="h-9 border-none bg-transparent p-0"
+              />
+            </div>
+            <div className="w-full sm:w-auto space-y-2 flex flex-col border-l border-white/5 pl-4">
+               <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Wiederholen</label>
+               <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsRecurring(!isRecurring)}
+                    className={cn(
+                      "h-9 px-3 rounded-xl border flex items-center justify-center gap-2 transition-all font-black text-[9px] uppercase tracking-wider",
+                      isRecurring ? "bg-blue-500/20 border-blue-500/50 text-blue-400" : "bg-white/5 border-white/5 text-brand-muted hover:text-brand"
+                    )}
+                  >
+                    {isRecurring ? <Check size={12} strokeWidth={3} /> : null}
+                    <span>{isRecurring ? 'An' : 'Aus'}</span>
+                  </button>
+                  {isRecurring && (
+                    <select
+                      value={recurrenceInterval}
+                      onChange={(e) => setRecurrenceInterval(e.target.value as any)}
+                      className="h-9 bg-white/5 border-none rounded-xl px-2 text-[9px] font-black uppercase tracking-wider text-blue-400"
+                    >
+                      <option value="daily" className="bg-[#1C1C1E]">Täglich</option>
+                      <option value="weekly" className="bg-[#1C1C1E]">Wöchentlich</option>
+                      <option value="monthly" className="bg-[#1C1C1E]">Monatlich</option>
+                    </select>
+                  )}
+               </div>
+            </div>
+            <button
+              type="submit"
+              className="glass-button-primary h-12 px-10 ml-auto rounded-2xl shadow-lg shadow-brand/10 hover:shadow-brand/20 active:scale-95 transition-all flex items-center justify-center gap-2"
             >
-              <option value="high">Hoch</option>
-              <option value="medium">Mittel</option>
-              <option value="low">Niedrig</option>
-            </select>
+              <Plus size={20} />
+              <span className="font-black uppercase tracking-widest text-xs">Hinzufügen</span>
+            </button>
           </div>
-          <div className="w-full sm:w-40 space-y-1.5 flex flex-col">
-            <label className="pro-heading mb-2">Kategorie</label>
-            <CategorySelect 
-              type="task" 
-              value={categoryId} 
-              onChange={setCategoryId}
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full sm:w-auto glass-button-primary h-10"
-          >
-            Hinzufügen
-          </button>
         </form>
 
         <div className="flex-1 space-y-8">
@@ -327,6 +395,8 @@ function EditTaskModal({ todo, categories, onClose, onSave }: { todo: Todo, cate
   const [priority, setPriority] = useState(todo.priority);
   const [dueDate, setDueDate] = useState(todo.dueDate ? todo.dueDate.substring(0, 16) : '');
   const [categoryId, setCategoryId] = useState(todo.categoryId);
+  const [isRecurring, setIsRecurring] = useState(!!todo.isRecurring);
+  const [recurrenceInterval, setRecurrenceInterval] = useState<'daily' | 'weekly' | 'monthly'>(todo.recurrenceInterval || 'weekly');
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/10 backdrop-blur-md">
@@ -367,21 +437,58 @@ function EditTaskModal({ todo, categories, onClose, onSave }: { todo: Todo, cate
               />
             </div>
           </div>
-          <div className="space-y-1.5 flex flex-col">
-            <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Fälligkeitsdatum</label>
-            <input
-              type="datetime-local"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              className="glass-input h-10"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5 flex flex-col">
+              <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Fälligkeitsdatum</label>
+              <input
+                type="datetime-local"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="glass-input h-10"
+              />
+            </div>
+            <div className="space-y-1.5 flex flex-col">
+              <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Wiederholen</label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsRecurring(!isRecurring)}
+                  className={cn(
+                    "flex-1 h-10 rounded-xl border flex items-center justify-center gap-2 transition-all font-bold text-[10px] uppercase",
+                    isRecurring ? "bg-blue-500/10 border-blue-500 text-blue-500" : "bg-slate-500/10 border-transparent text-brand-muted"
+                  )}
+                >
+                  {isRecurring ? <Check size={12} /> : null}
+                  <span>An</span>
+                </button>
+                {isRecurring && (
+                  <select
+                    value={recurrenceInterval}
+                    onChange={(e) => setRecurrenceInterval(e.target.value as any)}
+                    className="flex-1 h-10 glass-input px-2 text-[10px] font-bold uppercase"
+                  >
+                    <option value="daily">Täglich</option>
+                    <option value="weekly">Wöchentlich</option>
+                    <option value="monthly">Monatlich</option>
+                  </select>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
         <div className="flex flex-col gap-3">
           <button 
             type="button"
-            onClick={() => onSave({ ...todo, task, priority, dueDate: dueDate ? new Date(dueDate).toISOString() : null, categoryId })}
+            onClick={() => onSave({ 
+              ...todo, 
+              task, 
+              priority, 
+              dueDate: dueDate ? new Date(dueDate).toISOString() : null, 
+              categoryId,
+              isRecurring,
+              recurrenceInterval: isRecurring ? recurrenceInterval : null
+            })}
             className="w-full h-12 bg-[#007AFF] text-white font-bold rounded-2xl hover:bg-[#0071E3] transition-all"
           >
             Speichern
@@ -441,6 +548,11 @@ function TaskItem({ todo, onToggle, onDelete, onEdit, categories }: { todo: Todo
             {catName && (
               <span className="pro-heading !text-[9px] !text-brand-muted/70">
                 {catName}
+              </span>
+            )}
+            {todo.isRecurring && (
+              <span className="pro-heading !text-[9px] !text-blue-500 flex items-center gap-0.5">
+                <Clock size={8} /> Wiederkehrend ({todo.recurrenceInterval === 'daily' ? 'Täglich' : todo.recurrenceInterval === 'weekly' ? 'Wöchentlich' : 'Monatlich'})
               </span>
             )}
             {todo.dueDate && (

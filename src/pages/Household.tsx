@@ -5,14 +5,19 @@ import { useAuth } from '../hooks/useAuth';
 import { 
   Plus, Trash2, ArrowUpCircle, ArrowDownCircle, Wallet, 
   Search, Filter, TrendingUp, TrendingDown, PiggyBank,
-  Check, X, Edit2, ChevronRight, PieChart as PieChartIcon
+  Check, X, Edit2, ChevronRight, PieChart as PieChartIcon,
+  BarChart3
 } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, isSameMonth } from 'date-fns';
+import { format, startOfMonth, endOfMonth, isSameMonth, eachDayOfInterval, subMonths } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { cn } from '../lib/utils';
 import { CategorySelect } from '../components/CategorySelect';
 import { CategoryManager } from '../components/CategoryManager';
 import { useCategories } from '../lib/categories';
+import { 
+  PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip,
+  LineChart, Line, XAxis, YAxis, CartesianGrid, AreaChart, Area
+} from 'recharts';
 
 interface Transaction {
   id: string;
@@ -246,6 +251,48 @@ export default function Household() {
     
   const totalPerYearSum = (monthlyRecurringSum * 12) + yearlyRecurringSum;
 
+  // Chart Data: Expense Category Distribution
+  const expenseByCategory = filteredTransactions
+    .filter(t => t.type === 'expense')
+    .reduce((acc: any[], t) => {
+      const catName = categories.find(c => c.id === t.category)?.name || 'Sonstiges';
+      const existing = acc.find(item => item.name === catName);
+      if (existing) {
+        existing.Betrag += t.amount;
+      } else {
+        acc.push({ name: catName, Betrag: t.amount });
+      }
+      return acc;
+    }, [])
+    .sort((a, b) => b.Betrag - a.Betrag);
+
+  const COLORS = ['#60A5FA', '#3B82F6', '#2563EB', '#1D4ED8', '#1E40AF', '#1E3A8A', '#111827'];
+
+  // Chart Data: Trend (Daily for current month)
+  const currentMonthDate = new Date(`${filterMonth}-01`);
+  const daysInMonth = eachDayOfInterval({
+    start: startOfMonth(currentMonthDate),
+    end: endOfMonth(currentMonthDate)
+  });
+
+  const trendData = daysInMonth.map(day => {
+    const dayStr = format(day, 'yyyy-MM-dd');
+    const dayTransactions = filteredTransactions.filter(t => {
+      const d = t.date?.toDate ? t.date.toDate() : new Date();
+      return format(d, 'yyyy-MM-dd') === dayStr;
+    });
+
+    const dIncome = dayTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+    const dExpenses = dayTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+
+    return {
+      name: format(day, 'd.'),
+      Einnahmen: dIncome,
+      Ausgaben: dExpenses,
+      Bilanz: dIncome - dExpenses
+    };
+  });
+
   return (
     <div className="max-w-5xl mx-auto flex flex-col relative z-10 w-full pb-10">
       <header className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
@@ -280,16 +327,16 @@ export default function Household() {
       </header>
 
       {showAdd && (
-        <form onSubmit={handleSave} className="glass-card p-8 rounded-[2.5rem] mb-10 animate-in fade-in slide-in-from-top-4 duration-300">
+        <form onSubmit={handleSave} className="glass-card p-6 sm:p-8 rounded-[2.5rem] mb-10 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
             <div className="space-y-1.5 lg:col-span-1">
-              <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Typ</label>
-              <div className="flex gap-2 p-1 bg-slate-500/10 rounded-2xl h-12">
+              <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Typ</label>
+              <div className="flex gap-2 p-1.5 bg-brand/[0.03] dark:bg-white/[0.03] rounded-2xl h-12">
                 <button 
                   type="button"
                   onClick={() => setType('expense')}
                   className={cn(
-                    "flex-1 rounded-xl font-bold text-xs transition-all",
+                    "flex-1 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all",
                     type === 'expense' ? "bg-red-500 text-white shadow-lg shadow-red-500/20" : "text-brand-muted hover:text-brand"
                   )}
                 >
@@ -299,7 +346,7 @@ export default function Household() {
                   type="button"
                   onClick={() => setType('income')}
                   className={cn(
-                    "flex-1 rounded-xl font-bold text-xs transition-all",
+                    "flex-1 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all",
                     type === 'income' ? "bg-green-500 text-white shadow-lg shadow-green-500/20" : "text-brand-muted hover:text-brand"
                   )}
                 >
@@ -309,69 +356,71 @@ export default function Household() {
             </div>
 
             <div className="space-y-1.5 lg:col-span-1">
-              <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Betrag (€)</label>
+              <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Betrag (€)</label>
               <input 
                 type="number" step="0.01" 
                 value={amount} onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="glass-input h-12" required
+                className="glass-input h-12 font-black text-lg bg-brand/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-brand" required
               />
             </div>
 
             <div className="space-y-1.5 lg:col-span-1">
-              <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Beschreibung</label>
+              <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Beschreibung</label>
               <input 
                 type="text" value={description} onChange={(e) => setDescription(e.target.value)}
                 placeholder="z.B. Miete"
-                className="glass-input h-12" required
+                className="glass-input h-12 bg-brand/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-brand font-bold" required
               />
             </div>
 
             <div className="space-y-1.5 lg:col-span-1">
-              <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Kategorie</label>
-              <CategorySelect type="household" value={categoryId} onChange={setCategoryId} className="h-12 border-none" />
+              <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Kategorie</label>
+              <div className="h-12 flex items-center bg-brand/[0.03] dark:bg-white/[0.03] rounded-2xl px-4">
+                <CategorySelect type="household" value={categoryId} onChange={setCategoryId} className="w-full border-none bg-transparent" />
+              </div>
             </div>
 
             <div className="space-y-1.5 lg:col-span-1">
-              <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Datum</label>
+              <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Datum</label>
               <input 
                 type="date" value={date} onChange={(e) => setDate(e.target.value)}
-                className="glass-input h-12" required
+                className="glass-input h-12 bg-brand/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-brand font-bold" required
               />
             </div>
 
-            <div className="space-y-1.5 lg:col-span-1 flex flex-col justify-center">
-              <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1 mb-2">Wiederholen</label>
-              <div className="flex gap-1">
+            <div className="space-y-1.5 lg:col-span-1">
+              <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1 mb-1">Wiederholen</label>
+              <div className="flex gap-2 h-12">
                 <button
                   type="button"
                   onClick={() => setIsRecurring(!isRecurring)}
                   className={cn(
-                    "flex-1 h-12 rounded-2xl border flex items-center justify-center gap-2 transition-all font-bold text-[10px] uppercase",
-                    isRecurring ? "bg-blue-500/10 border-blue-500 text-blue-500" : "bg-slate-500/10 border-transparent text-brand-muted"
+                    "flex-1 h-12 rounded-2xl border flex items-center justify-center gap-2 transition-all font-black text-[9px] uppercase tracking-widest",
+                    isRecurring ? "bg-blue-500/20 border-blue-500/50 text-blue-400" : "bg-brand/[0.03] dark:bg-white/[0.03] border-transparent text-brand-muted"
                   )}
                 >
-                  {isRecurring ? <Check size={14} /> : null}
+                  {isRecurring ? <Check size={14} strokeWidth={3} /> : null}
                   <span>Ja</span>
                 </button>
                 {isRecurring && (
                   <select
                     value={interval}
                     onChange={(e) => setInterval(e.target.value as any)}
-                    className="flex-1 h-12 glass-input px-2 text-[10px] font-bold uppercase"
+                    className="flex-1 h-12 bg-blue-500/10 border-none rounded-2xl px-2 text-[9px] font-black uppercase tracking-widest text-blue-400"
                   >
-                    <option value="monthly">Monatlich</option>
-                    <option value="yearly">Jährlich</option>
+                    <option value="monthly" className="bg-[#1C1C1E]">Monatlich</option>
+                    <option value="yearly" className="bg-[#1C1C1E]">Jährlich</option>
                   </select>
                 )}
               </div>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row justify-end gap-3 mt-8 pt-6 border-t border-slate-200/50 dark:border-white/10">
-            <button type="submit" className="px-10 h-12 glass-button-primary font-bold order-first sm:order-none">
-              {editingId ? 'Aktualisieren' : 'Speichern'}
+            <button type="submit" className="px-10 h-14 bg-brand text-white rounded-[1.25rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-brand/20 active:scale-95 transition-all group">
+              {editingId ? 'Aktualisieren' : 'Eintrag speichern'}
             </button>
-            <button type="button" onClick={() => { setShowAdd(false); resetForm(); }} className="px-6 h-12 glass-button-secondary font-bold">
+            <button type="button" onClick={() => { setShowAdd(false); resetForm(); }} className="px-8 h-14 glass-button-secondary font-black uppercase tracking-[0.2em] text-xs active:scale-95 transition-all">
               Abbrechen
             </button>
           </div>
@@ -466,6 +515,132 @@ export default function Household() {
             >
               +
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Visualizations Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        {/* Trend Chart */}
+        <div className="glass-card p-6 rounded-[2rem] lg:col-span-2 border border-white/[0.06] overflow-hidden">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-[10px] font-black text-brand uppercase tracking-widest flex items-center gap-2">
+              <BarChart3 size={14} /> Trend {format(currentMonthDate, 'MMMM', { locale: de })}
+            </h3>
+            <div className="flex items-center gap-3">
+               <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-blue-500" />
+                  <span className="text-[8px] font-bold text-brand-muted uppercase">Bilanz</span>
+               </div>
+               <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-red-500/40" />
+                  <span className="text-[8px] font-bold text-brand-muted uppercase">Ausgaben</span>
+               </div>
+            </div>
+          </div>
+          <div className="h-[200px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={trendData}>
+                <defs>
+                  <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                <XAxis 
+                  dataKey="name" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.3)' }} 
+                  interval="preserveStartEnd"
+                />
+                <YAxis hide />
+                <RechartsTooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'rgba(5,5,5,0.9)', 
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '12px',
+                    fontSize: '10px'
+                  }}
+                  itemStyle={{ fontWeight: 'bold' }}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="Bilanz" 
+                  stroke="#3B82F6" 
+                  strokeWidth={2}
+                  fillOpacity={1} 
+                  fill="url(#colorBalance)" 
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="Ausgaben" 
+                  stroke="#EF4444" 
+                  strokeWidth={1}
+                  strokeDasharray="4 4"
+                  fill="transparent"
+                  fillOpacity={0} 
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Category Distribution Chart */}
+        <div className="glass-card p-6 rounded-[2rem] border border-white/[0.06] flex flex-col">
+          <h3 className="text-[10px] font-black text-brand uppercase tracking-widest flex items-center gap-2 mb-4">
+            <PieChartIcon size={14} /> Kategorien
+          </h3>
+          <div className="flex-1 flex flex-col sm:flex-row lg:flex-col items-center gap-6">
+            <div className="h-[140px] w-full max-w-[140px] relative">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={expenseByCategory}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={45}
+                    outerRadius={65}
+                    paddingAngle={5}
+                    dataKey="Betrag"
+                  >
+                    {expenseByCategory.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <RechartsTooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'rgba(5,5,5,0.9)', 
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '12px',
+                      fontSize: '10px'
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                 <span className="text-[8px] font-bold text-brand-muted uppercase">Total</span>
+                 <span className="text-xs font-black text-brand tracking-tighter">
+                   {expenses.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+                 </span>
+              </div>
+            </div>
+            
+            <div className="flex-1 w-full space-y-2 max-h-[160px] overflow-y-auto custom-scrollbar pr-2">
+              {expenseByCategory.map((cat, index) => (
+                <div key={cat.name} className="flex items-center justify-between group">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                    <span className="text-[10px] font-bold text-brand-muted truncate max-w-[80px]">{cat.name}</span>
+                  </div>
+                  <span className="text-[10px] font-black text-brand">{Math.round((cat.Betrag / expenses) * 100)}%</span>
+                </div>
+              ))}
+              {expenseByCategory.length === 0 && (
+                <p className="text-[10px] text-center text-brand-muted font-bold py-6">Keine Ausgaben vorhanden.</p>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -614,26 +789,28 @@ export default function Household() {
                         </div>
                       </div>
 
-                      <div className="text-right flex items-center gap-3 sm:gap-4">
+                      <div className="flex flex-col items-end gap-1 min-w-[100px] shrink-0">
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                          <button 
+                            onClick={() => handleEdit(t)}
+                            className="p-1 text-brand-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all"
+                            title="Bearbeiten"
+                          >
+                            <Edit2 size={14} />
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(t.id)}
+                            className="p-1 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                            title="Löschen"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                         <div className={cn(
                           "text-base sm:text-lg font-black tracking-tighter whitespace-nowrap",
                           t.type === 'income' ? "text-green-500" : "text-brand"
                         )}>
                           {t.type === 'income' ? '+' : '-'} {t.amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-                        </div>
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all shrink-0">
-                          <button 
-                            onClick={() => handleEdit(t)}
-                            className="p-2 text-brand-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-xl"
-                          >
-                            <Edit2 size={16} className="sm:w-[18px] sm:h-[18px]" />
-                          </button>
-                          <button 
-                            onClick={() => handleDelete(t.id)}
-                            className="p-2 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-xl"
-                          >
-                            <Trash2 size={16} className="sm:w-[18px] sm:h-[18px]" />
-                          </button>
                         </div>
                       </div>
                     </div>
@@ -711,30 +888,30 @@ export default function Household() {
                             </div>
                           </div>
                         </div>
-                        <div className="text-right flex items-center gap-4">
-                          <span className={cn(
-                            "font-black text-sm",
-                            t.type === 'income' ? "text-green-500" : "text-brand"
-                          )}>
-                            {t.type === 'income' ? '+' : '-'} {t.amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-                          </span>
-                          <div className="flex items-center gap-1">
+                        <div className="flex flex-col items-end gap-1 min-w-[80px] shrink-0">
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
                             <button 
                               onClick={() => handleEdit(t)}
-                              className="p-2 text-brand-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-xl transition-all"
+                              className="p-1 text-brand-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all"
                             >
-                              <Edit2 size={16} />
+                              <Edit2 size={14} />
                             </button>
                             <button 
                               onClick={(e) => {
                                 showAdd && setShowAdd(false);
                                 handleDelete(t.id);
                               }}
-                              className="p-2 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+                              className="p-1 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
                             >
-                              <Trash2 size={16} />
+                              <Trash2 size={14} />
                             </button>
                           </div>
+                          <span className={cn(
+                            "font-black text-sm whitespace-nowrap",
+                            t.type === 'income' ? "text-green-500" : "text-brand"
+                          )}>
+                            {t.type === 'income' ? '+' : '-'} {t.amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                          </span>
                         </div>
                       </div>
                     );

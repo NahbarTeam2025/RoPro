@@ -15,7 +15,11 @@ export function CategorySelect({ type, value, onChange, className }: CategorySel
   const [isAdding, setIsAdding] = useState(false);
   const [newCatName, setNewCatName] = useState('');
 
-  const handleAdd = async () => {
+  const handleAdd = async (e?: React.MouseEvent | React.KeyboardEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (newCatName.trim()) {
       const id = await addCategory(newCatName.trim());
       if (id) {
@@ -27,7 +31,7 @@ export function CategorySelect({ type, value, onChange, className }: CategorySel
   };
 
   return (
-    <div className={cn("relative flex items-center gap-2", className)}>
+    <div className={cn("relative flex items-center gap-2 font-sans", className)} onClick={e => e.stopPropagation()}>
       <Tag size={16} className="text-brand-muted shrink-0" />
       
       {isAdding ? (
@@ -37,18 +41,32 @@ export function CategorySelect({ type, value, onChange, className }: CategorySel
             value={newCatName}
             onChange={(e) => setNewCatName(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') handleAdd();
-              if (e.key === 'Escape') setIsAdding(false);
+              if (e.key === 'Enter') handleAdd(e);
+              if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsAdding(false);
+              }
             }}
-            placeholder="Kategorie Name..."
+            placeholder="Kategorie..."
             aria-label="Name der neuen Kategorie"
             className="flex-1 min-w-0 bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded px-2 py-1 text-xs text-brand focus:outline-none focus:border-green-500"
             autoFocus
           />
-          <button onClick={handleAdd} className="p-1 text-green-500 hover:bg-green-500/10 rounded shrink-0 cursor-pointer font-bold text-xs px-2" aria-label="Hinzufügen">
+          <button 
+            type="button" 
+            onClick={handleAdd} 
+            className="p-1 text-green-500 hover:bg-green-500/10 rounded shrink-0 cursor-pointer font-bold text-[10px] px-2 uppercase" 
+            aria-label="Hinzufügen"
+          >
             Hinzufügen
           </button>
-          <button onClick={() => setIsAdding(false)} className="p-1 text-red-500 hover:bg-red-500/10 rounded shrink-0 cursor-pointer font-bold text-xs px-2" aria-label="Abbrechen">
+          <button 
+            type="button" 
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsAdding(false); }} 
+            className="p-1 text-red-500 hover:bg-red-500/10 rounded shrink-0 cursor-pointer font-bold text-[10px] px-2 uppercase" 
+            aria-label="Abbrechen"
+          >
             Abbrechen
           </button>
         </div>
@@ -58,10 +76,10 @@ export function CategorySelect({ type, value, onChange, className }: CategorySel
             value={value}
             onChange={(e) => onChange(e.target.value)}
             aria-label="Kategorie auswählen"
-            className="flex-1 min-w-0 bg-transparent text-xs font-bold text-brand-muted hover:text-brand cursor-pointer outline-none uppercase tracking-wider appearance-none max-h-[150px]"
+            className="flex-1 min-w-0 bg-transparent text-xs font-bold text-brand-muted hover:text-brand cursor-pointer outline-none uppercase tracking-wider appearance-none"
             title={value ? categories.find(c => c.id === value)?.name : "Kategorie wählen..."}
           >
-            <option value="">Kategorie wählen...</option>
+            <option value="">Wähle Kategorie</option>
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
@@ -69,7 +87,8 @@ export function CategorySelect({ type, value, onChange, className }: CategorySel
             ))}
           </select>
           <button 
-            onClick={() => setIsAdding(true)} 
+            type="button"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsAdding(true); }} 
             className="p-1 rounded-md text-brand-muted hover:text-green-500 hover:bg-green-500/10 transition-colors shrink-0 cursor-pointer"
             title="Neue Kategorie anlegen"
             aria-label="Neue Kategorie anlegen"
