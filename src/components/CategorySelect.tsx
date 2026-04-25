@@ -50,7 +50,7 @@ export function CategorySelect({ type, value, onChange, className }: CategorySel
             }}
             placeholder="Kategorie..."
             aria-label="Name der neuen Kategorie"
-            className="flex-1 min-w-0 bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded px-2 py-1 text-xs text-brand focus:outline-none focus:border-green-500"
+            className="flex-1 min-w-0 border border-slate-200 dark:border-white/10 rounded px-2 py-1 text-xs text-brand focus:outline-none focus:border-green-500"
             autoFocus
           />
           <button 

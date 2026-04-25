@@ -104,7 +104,7 @@ export function PromptEditor({ prompt, onBack, onSave }: { prompt: Prompt, onBac
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-slate-50/50 dark:bg-transparent">
+    <div className="flex-1 flex flex-col h-full dark:bg-transparent">
       <div className="p-4 sm:p-6 border-b border-slate-200/50 dark:border-white/10 flex flex-col gap-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-2 flex-1 min-w-[200px]">
@@ -181,7 +181,7 @@ export function PromptEditor({ prompt, onBack, onSave }: { prompt: Prompt, onBac
         </div>
       </div>
       
-      <div className="p-4 sm:p-6 border-b border-slate-200/50 dark:border-white/10 bg-slate-100/50 dark:bg-black/20 flex justify-end shrink-0">
+      <div className="p-4 sm:p-6 border-b border-slate-200/50 dark:border-white/10 flex justify-end shrink-0">
           <button onClick={copyContent} className="glass-button-secondary text-xs h-8">
               <Copy size={14} /> Text kopieren
           </button>
@@ -198,7 +198,7 @@ export function PromptEditor({ prompt, onBack, onSave }: { prompt: Prompt, onBac
 
       {deleteModal && deleteModal.open && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/40 backdrop-blur-md">
-          <div className="glass-card w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl">
+          <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] p-10 shadow-2xl">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
             <p className="text-sm text-[#86868B] mb-8">Dieser Prompt wird unwiderruflich entfernt.</p>
             <div className="flex flex-col gap-3">

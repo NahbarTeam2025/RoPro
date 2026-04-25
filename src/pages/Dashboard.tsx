@@ -189,24 +189,26 @@ export default function Dashboard() {
 
   const balance = stats.income - stats.expenses;
 
-  const DashboardCard = ({ title, icon: Icon, to, children }: any) => (
-    <div className="glass-card flex flex-col rounded-[2.5rem] overflow-hidden h-full border border-black/5 dark:border-white/[0.06] shadow-sm hover:shadow-md transition-shadow">
-      <div className="px-6 py-5 flex justify-between items-center">
-        <Link to={to} className="flex items-center gap-3">
-           <div className="text-brand">
-             <Icon size={20} />
-           </div>
-           <h2 className="pro-heading">{title}</h2>
-        </Link>
-      </div>
-      <div className="px-6 pb-6 pt-0 flex-1 flex flex-col gap-3">
-        {children}
+  const DashboardCard = ({ title, icon: Icon, hColor, to, children, color = '#007AFF' }: any) => (
+    <div className="w-full max-w-[480px] mx-auto md:max-w-none">
+      <div className="glass-card flex flex-col rounded-[2.5rem] overflow-hidden h-full border border-black/5 dark:border-white/[0.06] shadow-sm hover:shadow-md transition-shadow">
+        <div className="px-6 py-5 flex justify-between items-center">
+          <Link to={to} className="flex items-center gap-3">
+             <div style={{ color: color }} className="shrink-0">
+               <Icon size={20} />
+             </div>
+             <h2 className="pro-heading">{title}</h2>
+          </Link>
+        </div>
+        <div className="px-6 pb-6 pt-0 flex-1 flex flex-col gap-3">
+          {children}
+        </div>
       </div>
     </div>
   );
 
   return (
-    <div className="max-w-[1500px] mx-auto flex flex-col relative z-10 w-full px-6 sm:px-8 pb-10">
+    <div className="max-w-[1500px] mx-auto flex flex-col relative z-10 w-full px-0 sm:px-8 pb-10">
       <header className="mb-12 mt-4 flex flex-row items-start justify-between relative w-full">
         <Clock />
         <div className="flex flex-col gap-3">
@@ -222,7 +224,7 @@ export default function Dashboard() {
                 if (parent) {
                   const icon = document.createElement('div');
                   icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
-                  icon.className = "text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-white";
+                  icon.className = "text-[#1D1D1F] dark:text-[#F5F5F7]";
                   parent.appendChild(icon);
                 }
               }}
@@ -240,7 +242,7 @@ export default function Dashboard() {
                  if (parent) {
                    const icon = document.createElement('div');
                    icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>';
-                   icon.className = "text-[#1D1D1F] dark:text-[#F5F5F7] group-hover:text-white";
+                   icon.className = "text-[#1D1D1F] dark:text-[#F5F5F7]";
                    parent.appendChild(icon);
                  }
                }}
@@ -255,14 +257,14 @@ export default function Dashboard() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8 mt-4 md:mt-0 flex-1">
-          <DashboardCard title="Termine" icon={CalendarIcon} to="/calendar">
+          <DashboardCard title="Termine" icon={CalendarIcon} to="/calendar" color="#007AFF">
             {appointments.length > 0 ? (
                <div className="flex flex-col -mx-6">
                 {appointments.map(app => (
-                  <div key={app.id} className="refined-list-item flex items-center gap-4 px-6 py-4 relative group">
-                    <div className="w-10 h-10 flex flex-col items-center justify-center shrink-0">
-                       <span className="text-xs font-black text-brand leading-none">{format(new Date(app.dueDate), 'dd')}</span>
-                       <span className="text-[8px] font-bold text-brand-muted uppercase tracking-tighter">{format(new Date(app.dueDate), 'MMM', { locale: de })}</span>
+                  <div key={app.id} className="refined-list-item flex items-center gap-4 px-6 py-4 relative group border-l-[3px] rounded-none" style={{ borderLeftColor: app.color || '#007AFF' }}>
+                    <div className="w-10 h-10 flex flex-col items-center justify-center shrink-0 ml-1">
+                       <span className="text-xs font-black text-brand leading-none" style={{ color: app.color || '#007AFF' }}>{format(new Date(app.dueDate), 'dd')}</span>
+                       <span className="text-[8px] font-bold text-brand-muted uppercase tracking-tighter" style={{ color: app.color || '#007AFF', opacity: 0.7 }}>{format(new Date(app.dueDate), 'MMM', { locale: de })}</span>
                     </div>
                     <div className="flex-1 min-w-0 pr-10">
                       <span className="text-xs font-bold text-brand block truncate tracking-tight">{app.task}</span>
@@ -282,7 +284,7 @@ export default function Dashboard() {
                </div>
             )}
             {nextHoliday && (
-              <div className="mt-auto pt-6 border-t border-black/5 dark:border-white/5 flex justify-between items-center bg-blue-500/5 -mx-6 -mb-6 p-6">
+              <div className="mt-auto pt-6 border-t border-black/5 dark:border-white/5 flex justify-between items-center -mx-6 -mb-6 p-6">
                  <span className="text-[11px] font-bold text-[#86868B] uppercase tracking-wider">Feiertag</span>
                  <div className="text-right">
                     <div className="text-sm font-bold text-[#007AFF]">{nextHoliday.name}</div>
@@ -292,7 +294,7 @@ export default function Dashboard() {
             )}
           </DashboardCard>
 
-          <DashboardCard title="Aufgaben" icon={CheckSquare} to="/tasks">
+          <DashboardCard title="Aufgaben" icon={CheckSquare} to="/tasks" color="#007AFF">
             {todos.length > 0 ? (
                <div className="flex flex-col -mx-6 min-h-[180px]">
                 <AnimatePresence initial={false}>
@@ -304,9 +306,10 @@ export default function Dashboard() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="refined-list-item flex items-center gap-4 px-6 py-4 relative group"
+                      className="refined-list-item flex items-center gap-4 px-6 py-4 relative group border-l-[3px] rounded-none"
+                      style={{ borderLeftColor: todo.color || 'rgba(37, 99, 235, 0.6)' }}
                     >
-                      <button type="button" onClick={(e) => handleToggleTodo(e, todo)} className={cn("w-5 h-5 rounded-lg border transition-all flex items-center justify-center shrink-0 shadow-sm", todo.completed ? "bg-brand border-brand text-white" : "bg-white dark:bg-white/10 border-slate-200 dark:border-white/10")}>
+                      <button type="button" onClick={(e) => handleToggleTodo(e, todo)} className={cn("w-5 h-5 rounded-lg border transition-all flex items-center justify-center shrink-0 shadow-sm ml-1", todo.completed ? "bg-brand border-brand text-white" : "bg-white dark:bg-white/10 border-slate-200 dark:border-white/10")}>
                         {todo.completed && <Check size={12} strokeWidth={3} />}
                       </button>
                       <div className="flex-1 min-w-0 pr-10">
@@ -333,13 +336,13 @@ export default function Dashboard() {
             )}
           </DashboardCard>
 
-          <DashboardCard title="Notizen" icon={FileText} to="/notes">
+          <DashboardCard title="Notizen" icon={FileText} to="/notes" color="#AF52DE">
             {notes.length > 0 ? (
                <div className="flex flex-col -mx-6">
                 {notes.map(note => (
-                  <div key={note.id} className="refined-list-item flex items-center justify-between gap-3 px-6 py-4 relative group border-l-2 rounded-none" style={{ borderLeftColor: note.color ? `${note.color}99` : 'rgba(37, 99, 235, 0.6)' }}>
+                  <div key={note.id} className="refined-list-item flex items-center justify-between gap-3 px-6 py-4 relative group border-l-[3px] rounded-none" style={{ borderLeftColor: note.color || '#AF52DE' }}>
                     <div className="flex items-center gap-3 overflow-hidden ml-1">
-                      {note.isPinned && <Pin size={10} className="text-brand fill-brand shrink-0" />}
+                      {note.isPinned && <Pin size={10} className="shrink-0" style={{ color: note.color || '#AF52DE', fill: note.color || '#AF52DE' }} />}
                       <div className="min-w-0">
                         <h4 className="text-xs font-bold text-brand truncate tracking-tight">{note.title || 'Ohne Titel'}</h4>
                         <span className="text-[9px] font-bold text-brand-muted/70 block mt-0.5 uppercase tracking-tighter">{format(note.updatedAt?.toDate() || new Date(), 'dd. MMM', { locale: de })}</span>
@@ -360,26 +363,26 @@ export default function Dashboard() {
             )}
           </DashboardCard>
 
-          <DashboardCard title="Haushaltsbuch" icon={Wallet} to="/household">
-            <div className="grid grid-cols-3 gap-2 mb-2 bg-white/30 dark:bg-white/[0.04] p-3 rounded-2xl border border-black/5 dark:border-white/5">
+          <DashboardCard title="Haushaltsbuch" icon={Wallet} to="/household" color="#34C759">
+            <div className="grid grid-cols-3 gap-2 mb-2 p-3">
               <div className="text-center">
                 <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Plus</div>
-                <div className="text-[11px] font-black text-green-500">+{stats.income.toLocaleString('de-DE')}€</div>
+                <div className="text-[11px] font-black text-green-500">+{stats.income?.toLocaleString('de-DE') || '0'}€</div>
               </div>
               <div className="text-center border-x border-black/5 dark:border-white/5">
                 <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Minus</div>
-                <div className="text-[11px] font-black text-red-500">-{stats.expenses.toLocaleString('de-DE')}€</div>
+                <div className="text-[11px] font-black text-red-500">-{stats.expenses?.toLocaleString('de-DE') || '0'}€</div>
               </div>
               <div className="text-center">
                 <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Bilanz</div>
-                <div className={cn("text-[11px] font-black", balance >= 0 ? "text-[#1D1D1F] dark:text-[#F5F5F7]" : "text-red-500")}>{balance.toLocaleString('de-DE')}€</div>
+                <div className={cn("text-[11px] font-black", balance >= 0 ? "text-[#1D1D1F] dark:text-[#F5F5F7]" : "text-red-500")}>{balance?.toLocaleString('de-DE') || '0'}€</div>
               </div>
             </div>
             {transactions.slice(0, 3).length > 0 ? (
                <div className="flex flex-col -mx-6 -mb-6">
                  {transactions.slice(0, 3).map(t => (
-                   <div key={t.id} className="flex items-center gap-3 px-6 py-4 refined-list-item">
-                     <div className={cn("w-8 h-8 flex items-center justify-center shrink-0", t.type === 'income' ? "text-green-500" : "text-red-500")}>
+                   <div key={t.id} className={cn("flex items-center gap-3 px-6 py-4 refined-list-item border-l-[3px] rounded-none", t.type === 'income' ? "border-l-green-500" : "border-l-red-500")}>
+                     <div className={cn("w-8 h-8 flex items-center justify-center shrink-0 ml-1", t.type === 'income' ? "text-green-500" : "text-red-500")}>
                        {t.type === 'income' ? <ArrowUpCircle size={20} /> : <ArrowDownCircle size={20} />}
                      </div>
                      <div className="flex-1 min-w-0">
@@ -398,13 +401,13 @@ export default function Dashboard() {
             )}
           </DashboardCard>
 
-          <DashboardCard title="Prompts" icon={MessageSquare} to="/prompts">
+          <DashboardCard title="Prompts" icon={MessageSquare} to="/prompts" color="#FF9500">
             {prompts.length > 0 ? (
                <div className="flex flex-col -mx-6">
                 {prompts.map(prompt => (
-                  <div key={prompt.id} className="refined-list-item flex items-center justify-between gap-3 px-6 py-4 relative group border-l-2 rounded-none" style={{ borderLeftColor: prompt.color ? `${prompt.color}99` : 'rgba(37, 99, 235, 0.6)' }}>
+                  <div key={prompt.id} className="refined-list-item flex items-center justify-between gap-3 px-6 py-4 relative group border-l-[3px] rounded-none" style={{ borderLeftColor: prompt.color || '#FF9500' }}>
                     <div className="flex items-center gap-3 overflow-hidden ml-1">
-                      {prompt.isPinned && <Pin size={10} className="text-brand fill-brand shrink-0" />}
+                      {prompt.isPinned && <Pin size={10} className="shrink-0" style={{ color: prompt.color || '#FF9500', fill: prompt.color || '#FF9500' }} />}
                       <div className="min-w-0">
                         <h4 className="text-xs font-bold text-brand truncate tracking-tight">{prompt.title || 'Ohne Titel'}</h4>
                         <p className="text-[10px] font-medium text-brand-muted line-clamp-1 mt-0.5">{prompt.content}</p>
@@ -425,14 +428,14 @@ export default function Dashboard() {
             )}
           </DashboardCard>
 
-          <DashboardCard title="Links" icon={LinkIcon} to="/links">
+          <DashboardCard title="Links" icon={LinkIcon} to="/links" color="#5856D6">
             {links.length > 0 ? (
                <div className="flex flex-col -mx-6">
                 {links.map(link => {
                   const domain = link.url.replace(/^https?:\/\//i, '').replace(/^www\./i, '').split('/')[0];
                   return (
-                  <div key={link.id} className="relative group overflow-hidden">
-                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="refined-list-item flex items-center gap-3 px-6 py-4 pr-10">
+                  <div key={link.id} className="relative group overflow-hidden border-l-[3px] rounded-none" style={{ borderLeftColor: link.color || '#5856D6' }}>
+                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="refined-list-item flex items-center gap-3 px-6 py-4 pr-10 ml-1">
                       <div className="w-10 h-10 flex items-center justify-center shrink-0 overflow-hidden relative">
                         <img src={`https://www.google.com/s2/favicons?sz=64&domain=${domain}`} alt="" className="w-6 h-6 object-contain" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2386868B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>'; }} />
                         {link.isPinned && <div className="absolute top-0 right-0 p-0.5 bg-brand rounded-bl-lg"><Pin size={6} className="text-white fill-white" /></div>}
@@ -453,19 +456,24 @@ export default function Dashboard() {
             )}
           </DashboardCard>
 
-          <DashboardCard title="Kontakte" icon={Users} to="/contacts">
+          <DashboardCard title="Kontakte" icon={Users} to="/contacts" color="#FF2D55">
             {contacts.length > 0 ? (
               <div className="flex flex-col -mx-6 h-[200px] overflow-y-auto custom-scrollbar">
                 {contacts.map(contact => (
-                  <div key={contact.id} className="refined-list-item flex items-center gap-3 px-6 py-4">
-                    <div className="w-8 h-8 text-brand flex items-center justify-center font-black text-base shrink-0 lowercase">
-                      {contact.name[0]}
+                  <Link 
+                    key={contact.id} 
+                    to={`/contacts?id=${contact.id}`} 
+                    className="refined-list-item flex items-center gap-3 px-6 py-4 cursor-pointer border-l-[3px] rounded-none"
+                    style={{ borderLeftColor: contact.color || '#FF2D55' }}
+                  >
+                    <div className="w-8 h-8 flex items-center justify-center font-black text-base shrink-0 ml-1 lowercase" style={{ color: contact.color || '#FF2D55' }}>
+                      {contact.name?.[0] || '?'}
                     </div>
                     <div className="flex-1 min-w-0">
                       <span className="text-xs font-bold text-brand block truncate tracking-tight">{contact.name}</span>
                       {contact.phone && <span className="text-[10px] text-brand-muted block truncate font-medium uppercase tracking-tighter opacity-70">{contact.phone}</span>}
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ) : (
@@ -476,19 +484,12 @@ export default function Dashboard() {
             )}
           </DashboardCard>
 
-          <DashboardCard title="Safe" icon={Shield} to="/passwords">
-            <div className="text-center py-10 opacity-50 flex flex-col items-center">
-              <Shield size={40} className="text-brand" strokeWidth={1.5} />
-              <span className="text-[10px] font-bold uppercase mt-4 tracking-widest text-brand">Passwörter & Dokumente</span>
-              <p className="text-[10px] text-[#86868B] mt-2 px-6">Sicher verschlüsselt aufbewahrt.</p>
-            </div>
-          </DashboardCard>
         </div>
       )}
 
       {editItem && createPortal(
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-xl animate-in fade-in duration-300">
-           <div className="glass-card w-full max-w-4xl h-full max-h-[85vh] rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl relative">
+           <div className="glass-card w-full max-w-[480px] md:max-w-4xl h-full max-h-[85vh] rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl relative">
               <div className="flex-1 overflow-hidden">
                 {editItem.type === 'notes' && <NoteEditor note={editItem.data} onBack={() => setEditItem(null)} />}
                 {editItem.type === 'prompts' && <PromptEditor prompt={editItem.data} onBack={() => setEditItem(null)} />}
@@ -502,8 +503,8 @@ export default function Dashboard() {
       )}
 
       {deleteModal && deleteModal.open && createPortal(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/10 backdrop-blur-md">
-          <div className="glass-card w-full max-w-sm rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/10 backdrop-blur-md">
+          <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
             <p className="text-sm text-[#86868B] mb-8">Dieser Eintrag wird unwiderruflich entfernt.</p>
             <div className="flex flex-col gap-3">

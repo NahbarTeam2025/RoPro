@@ -18,6 +18,7 @@ interface Appointment {
   task: string;
   dueDate: string | null;
   priority: 'high' | 'medium' | 'low';
+  color?: string;
   completed: boolean;
   userId: string;
 }
@@ -165,6 +166,7 @@ export default function Calendar() {
       await addDoc(collection(db, 'appointments'), {
         task: newTaskText.trim(),
         priority: 'medium',
+        color: '#007AFF', // Default blue
         completed: false,
         dueDate: finalDate.toISOString(),
         userId: user.uid,
@@ -198,7 +200,7 @@ export default function Calendar() {
   const weekDayNames = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 relative z-10 w-full pb-10 lg:pb-6">
+    <div className="max-w-5xl mx-auto space-y-6 relative z-10 w-full px-0 sm:px-0 pb-10 lg:pb-6">
       <div className="flex flex-col sm:flex-row items-center justify-center p-6 glass-card rounded-3xl gap-6">
         <div className="flex items-center gap-6">
           <button onClick={prevMonth} className="p-3 border border-slate-200/50 dark:border-white/10 rounded-2xl hover:bg-slate-500/10 transition-colors cursor-pointer text-brand shadow-sm">
@@ -279,7 +281,7 @@ export default function Calendar() {
                     {format(day, 'd')}
                   </span>
                   {isHoliday && (
-                    <div className="w-1.5 h-1.5 rounded-full bg-brand shadow-[0_0_8px_rgba(37,99,235,0.4)]" title={holidayName || 'Feiertag'} />
+                    <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.4)]" title={holidayName || 'Feiertag'} />
                   )}
                 </div>
                 
@@ -319,7 +321,7 @@ export default function Calendar() {
       {/* Modal / Dialog for day actions */}
       {selectedDay && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="glass-card shadow-2xl w-full max-w-sm rounded-[2rem] overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col relative">
+          <div className="glass-card shadow-2xl w-full max-w-[480px] rounded-[2rem] overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col relative">
             {/* Google Search Quick Access in Calendar Modal too? No, just keep the close button. */}
             <div className="p-6 border-b border-slate-200/50 dark:border-white/10 flex justify-between items-center shrink-0">
               <div>
@@ -337,7 +339,7 @@ export default function Calendar() {
             </div>
             
             {/* List of existing tasks for the day */}
-            <div className="p-4 overflow-y-auto flex-1 bg-slate-50/50 dark:bg-black/10">
+            <div className="p-4 overflow-y-auto flex-1 bg-transparent">
               {(() => {
                 const dayAppointments = appointments.filter(a => a.dueDate && isSameDay(new Date(a.dueDate), selectedDay.date));
                 const dayBirthdays = contacts.filter(c => {
@@ -353,8 +355,8 @@ export default function Calendar() {
                 return (
                   <ul className="space-y-2">
                     {dayBirthdays.map(c => (
-                      <li key={`modal-bday-${c.id}`} className="flex items-center gap-3 p-3 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 rounded-xl">
-                        <div className="w-5 h-5 rounded bg-amber-500 text-white flex items-center justify-center shrink-0">
+                      <li key={`modal-bday-${c.id}`} className="flex items-center gap-3 p-3 border border-amber-500/20 rounded-xl">
+                        <div className="w-5 h-5 flex items-center justify-center shrink-0 text-amber-500">
                           <Cake size={12} />
                         </div>
                         <div className="flex-1 text-sm font-bold text-amber-600 dark:text-amber-400">
@@ -365,7 +367,7 @@ export default function Calendar() {
                     {dayAppointments
                       .sort((a,b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime())
                       .map(app => (
-                        <li key={app.id} className="flex flex-col gap-1 p-3 bg-white/50 dark:bg-white/5 border border-slate-200/50 dark:border-white/10 rounded-xl">
+                        <li key={app.id} className="flex flex-col gap-1 p-3 border border-slate-200/50 dark:border-white/10 rounded-xl">
                           <div className="flex items-center gap-3">
                             <button 
                               onClick={(e) => handleToggleTask(app, e)} 
@@ -407,7 +409,7 @@ export default function Calendar() {
               })()}
             </div>
 
-            <div className="p-6 border-t border-slate-200/50 dark:border-white/10 bg-slate-100/50 dark:bg-black/20 shrink-0">
+            <div className="p-6 border-t border-slate-200/50 dark:border-white/10 shrink-0">
               <form onSubmit={editingAppointment ? handleUpdateTask : handleAddTask} className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-bold text-brand-muted uppercase tracking-widest">
@@ -468,8 +470,8 @@ export default function Calendar() {
       )}
       {/* Custom Delete Modal */}
       {deleteModal && deleteModal.open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/10 backdrop-blur-md">
-          <div className="glass-card w-full max-w-sm rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/10 backdrop-blur-md">
+          <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
             <p className="text-sm text-[#86868B] mb-8">Dieser Termin wird unwiderruflich entfernt.</p>
             <div className="flex flex-col gap-3">

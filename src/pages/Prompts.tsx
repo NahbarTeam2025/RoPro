@@ -85,6 +85,7 @@ export default function Prompts() {
       category: '',
       userId: user.uid,
       isDraft: true,
+      color: '#FF9500',
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -114,7 +115,7 @@ export default function Prompts() {
   });
 
   return (
-    <div className="h-full flex flex-col md:flex-row gap-6 relative z-10 w-full p-2 sm:p-0">
+    <div className="h-full flex flex-col md:flex-row gap-6 relative z-10 w-full px-0 sm:px-0 pb-6">
       {/* Sidebar List */}
       <div className={cn(
         "w-full md:w-80 flex-col glass-card rounded-3xl overflow-hidden flex-shrink-0 transition-all",
@@ -131,7 +132,7 @@ export default function Prompts() {
               >
                 <Settings2 size={18} />
               </button>
-              <button onClick={createPrompt} className="p-2 bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white rounded-xl transition-all cursor-pointer font-bold flex items-center justify-center">
+              <button onClick={createPrompt} className="p-2 text-green-500 hover:bg-green-500 hover:text-white rounded-xl transition-all cursor-pointer font-bold flex items-center justify-center">
                  <Plus size={18} />
               </button>
             </div>
@@ -157,7 +158,7 @@ export default function Prompts() {
             />
           </div>
         </div>
-        <div className="flex-1 bg-white/30 dark:bg-white/[0.04] border border-slate-200/50 dark:border-white/5 rounded-[2rem] m-4 mt-0 shadow-inner overflow-hidden">
+        <div className="flex-1 border border-slate-200/50 dark:border-white/5 rounded-[2rem] m-4 mt-0 overflow-hidden">
           <div className="h-full overflow-y-auto custom-scrollbar">
             {filteredPrompts.length === 0 ? (
               <div className="p-4 text-center text-sm font-medium text-brand-muted">Keine Prompts gefunden.</div>
@@ -166,13 +167,13 @@ export default function Prompts() {
                 {filteredPrompts.map(prompt => {
                   const catName = categories.find(c => c.id === prompt.category)?.name || prompt.category || 'Allgemein';
                   return (
-                    <div
-                      key={prompt.id}
-                      onClick={() => setActivePrompt(prompt)}
-                      className={cn(
-                        "w-full text-left p-5 refined-list-item transition-all focus:outline-none cursor-pointer group relative border-l-2 rounded-none",
-                        activePrompt?.id === prompt.id ? "bg-white/50 dark:bg-white/10" : "bg-transparent border-transparent"
-                      )}
+                      <div
+                        key={prompt.id}
+                        onClick={() => setActivePrompt(prompt)}
+                        className={cn(
+                          "w-full text-left p-5 refined-list-item transition-all focus:outline-none cursor-pointer group relative border-l-2 rounded-none",
+                          activePrompt?.id === prompt.id ? "bg-black/[0.03] dark:bg-white/[0.05]" : "bg-transparent border-transparent"
+                        )}
                       style={{ borderLeftColor: prompt.color ? `${prompt.color}99` : 'rgba(37, 99, 235, 0.6)' }}
                     >
                       <div className="flex justify-between items-start gap-2">

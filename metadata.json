@@ -1,6 +1,6 @@
 {
   "name": "RoPro",
-  "description": "Eine All-in-One-Produktivitäts-App für Aufgaben, Notizen, Kalender und Links im modernen Glassmorphism-Design.",
+  "description": "Eine All-in-One-Produktivitäts-App für Aufgaben, Notizen, Kalender und Links mit minimalistischem, 'freistehendem' User-Interface.",
   "requestFramePermissions": ["geolocation"],
   "majorCapabilities": []
 }

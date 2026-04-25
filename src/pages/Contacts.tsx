@@ -23,6 +23,7 @@ interface Contact {
   birthday?: string;
   address?: string;
   notes?: string;
+  color?: string;
   userId: string;
   createdAt: any;
   updatedAt: any;
@@ -45,7 +46,8 @@ export default function Contacts() {
     phone: '',
     birthday: '',
     address: '',
-    notes: ''
+    notes: '',
+    color: '#007AFF'
   });
 
   useEffect(() => {
@@ -122,7 +124,8 @@ export default function Contacts() {
       phone: contact.phone || '',
       birthday: contact.birthday || '',
       address: contact.address || '',
-      notes: contact.notes || ''
+      notes: contact.notes || '',
+      color: contact.color || '#007AFF'
     });
     setIsAddModalOpen(true);
   };
@@ -136,7 +139,8 @@ export default function Contacts() {
       phone: '',
       birthday: '',
       address: '',
-      notes: ''
+      notes: '',
+      color: '#007AFF'
     });
   };
 
@@ -147,7 +151,7 @@ export default function Contacts() {
   );
 
   return (
-    <div className="max-w-6xl mx-auto flex flex-col h-full">
+    <div className="max-w-6xl mx-auto flex flex-col h-full px-0 sm:px-0 pb-6">
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 sm:mb-12">
         <div>
           <h1 className="text-4xl font-black text-brand tracking-tight mb-1 uppercase">Kontakte</h1>
@@ -175,7 +179,7 @@ export default function Contacts() {
             />
           </div>
 
-          <div className="bg-white/30 dark:bg-white/[0.04] border border-slate-200/50 dark:border-white/5 rounded-[2.5rem] shadow-inner overflow-hidden h-[200px]">
+          <div className="border border-slate-200/50 dark:border-white/5 rounded-[2.5rem] shadow-inner overflow-hidden h-[200px]">
             <div className="h-full overflow-y-auto custom-scrollbar">
               {loading ? (
                 <div className="text-center py-10 text-brand-muted font-medium">Laden...</div>
@@ -239,12 +243,12 @@ export default function Contacts() {
                       <h2 className="text-2xl sm:text-3xl font-black text-brand tracking-tight mb-2 uppercase break-words">{selectedContact.name}</h2>
                       <div className="flex flex-wrap gap-2 text-xs font-bold text-brand-muted uppercase tracking-widest">
                          {selectedContact.birthday && (
-                           <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-white/5 rounded-full border border-slate-200/30 dark:border-white/5">
+                           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200/30 dark:border-white/5">
                              <Cake size={14} className="text-brand" />
                              {format(parseISO(selectedContact.birthday), 'd. MMMM', { locale: de })}
                            </div>
                          )}
-                         <div className="px-3 py-1.5 bg-slate-100 dark:bg-white/5 rounded-full border border-slate-200/30 dark:border-white/5">
+                         <div className="px-3 py-1.5 rounded-full border border-slate-200/30 dark:border-white/5">
                            Seit {format(selectedContact.createdAt?.toDate?.() || new Date(), 'dd.MM.yyyy')}
                          </div>
                       </div>
@@ -254,13 +258,13 @@ export default function Contacts() {
                   <div className="flex items-center gap-2 sm:self-start">
                     <button 
                       onClick={(e) => openEditModal(selectedContact, e)}
-                      className="p-2.5 rounded-xl bg-slate-100 dark:bg-white/5 text-brand-muted hover:text-brand hover:bg-slate-200 transition-all shadow-sm border border-slate-200/50 dark:border-white/5"
+                      className="p-2.5 rounded-xl text-brand-muted hover:text-brand hover:bg-slate-200 transition-all shadow-sm border border-slate-200/50 dark:border-white/5"
                     >
                       <Edit2 size={18} />
                     </button>
                     <button 
                       onClick={(e) => handleDelete(selectedContact.id, e)}
-                      className="p-2.5 rounded-xl bg-slate-100 dark:bg-white/5 text-brand-muted hover:text-red-500 hover:bg-red-500/10 transition-all shadow-sm border border-slate-200/50 dark:border-white/5"
+                      className="p-2.5 rounded-xl text-brand-muted hover:text-red-500 hover:bg-red-500/10 transition-all shadow-sm border border-slate-200/50 dark:border-white/5"
                     >
                       <Trash2 size={18} />
                     </button>
@@ -276,13 +280,13 @@ export default function Contacts() {
                       <div className="space-y-4">
                         <div className="group">
                           <label className="block text-[10px] font-bold text-brand-muted uppercase tracking-wider mb-1 px-4 opacity-50 group-hover:opacity-100 transition-opacity">Telefon</label>
-                          <div className="px-4 py-3 rounded-2xl bg-white/30 dark:bg-black/20 border border-slate-200/30 dark:border-white/5 text-brand font-medium">
+                          <div className="px-4 py-3 rounded-2xl border border-slate-200/30 dark:border-white/5 text-brand font-medium">
                             {selectedContact.phone || '--'}
                           </div>
                         </div>
                         <div className="group">
                           <label className="block text-[10px] font-bold text-brand-muted uppercase tracking-wider mb-1 px-4 opacity-50 group-hover:opacity-100 transition-opacity">E-Mail</label>
-                          <div className="px-4 py-3 rounded-2xl bg-white/30 dark:bg-black/20 border border-slate-200/30 dark:border-white/5 text-brand font-medium">
+                          <div className="px-4 py-3 rounded-2xl border border-slate-200/30 dark:border-white/5 text-brand font-medium">
                             {selectedContact.email || '--'}
                           </div>
                         </div>
@@ -295,7 +299,7 @@ export default function Contacts() {
                       <h4 className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                         <MapPin size={12} className="text-brand" /> Adresse
                       </h4>
-                      <div className="px-4 py-3 rounded-2xl bg-white/30 dark:bg-black/20 border border-slate-200/30 dark:border-white/5 text-brand font-medium min-h-[100px] whitespace-pre-wrap">
+                      <div className="px-4 py-3 rounded-2xl border border-slate-200/30 dark:border-white/5 text-brand font-medium min-h-[100px] whitespace-pre-wrap">
                         {selectedContact.address || '--'}
                       </div>
                     </section>
@@ -306,14 +310,14 @@ export default function Contacts() {
                   <h4 className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] mb-4 flex items-center gap-2 shrink-0">
                     <FileText size={12} className="text-brand" /> Notizen
                   </h4>
-                  <div className="flex-1 px-4 py-3 rounded-2xl bg-white/30 dark:bg-black/20 border border-slate-200/30 dark:border-white/5 text-brand font-medium overflow-y-auto custom-scrollbar whitespace-pre-wrap">
+                  <div className="flex-1 px-4 py-3 rounded-2xl border border-slate-200/30 dark:border-white/5 text-brand font-medium overflow-y-auto custom-scrollbar whitespace-pre-wrap">
                     {selectedContact.notes || '--'}
                   </div>
                 </section>
               </motion.div>
             ) : (
               <div className="glass-card rounded-[2.5rem] p-8 h-full flex flex-col items-center justify-center text-brand-muted text-center animate-in fade-in zoom-in duration-500">
-                <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center mb-6">
+                <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6">
                   <User size={40} className="opacity-20" />
                 </div>
                 <h3 className="text-xl font-bold text-brand mb-2 tracking-tight uppercase">Kein Kontakt ausgewählt</h3>
@@ -332,7 +336,7 @@ export default function Contacts() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="glass-card w-full max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl"
+              className="glass-card w-full max-w-[480px] rounded-[2.5rem] overflow-hidden shadow-2xl"
             >
               <div className="p-8 border-b border-slate-200/50 dark:border-white/10 flex justify-between items-center bg-[#FBFBFD]/50 dark:bg-[#1C1C1E]/50">
                 <h2 className="text-2xl font-black text-brand tracking-tight uppercase">
@@ -405,6 +409,24 @@ export default function Contacts() {
                     placeholder="Besondere Merkmale, Vorlieben..."
                     className="glass-input w-full p-4 min-h-[120px]"
                   />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Farbe</label>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {['#007AFF', '#34C759', '#FF9500', '#FF3B30', '#AF52DE', '#5856D6', '#FF2D55'].map(c => (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => setFormData({...formData, color: c})}
+                        className={cn(
+                          "w-8 h-8 rounded-full border-2 transition-all shadow-sm",
+                          formData.color === c ? "border-brand scale-110" : "border-transparent"
+                        )}
+                        style={{ backgroundColor: c }}
+                      />
+                    ))}
+                  </div>
                 </div>
 
                 <div className="flex justify-end gap-3 pt-4">

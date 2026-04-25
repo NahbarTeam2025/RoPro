@@ -245,7 +245,7 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="w-full max-w-[600px] bg-white/70 dark:bg-[#1C1C1E]/70 backdrop-blur-[20px] rounded-[2rem] border border-white/20 dark:border-white/10 shadow-[0_32px_64px_rgba(0,0,0,0.2)] overflow-hidden flex flex-col"
+            className="w-full max-w-[480px] bg-white/70 dark:bg-[#1C1C1E]/70 backdrop-blur-[20px] rounded-[2rem] border border-white/20 dark:border-white/10 shadow-[0_32px_64px_rgba(0,0,0,0.2)] overflow-hidden flex flex-col"
           >
             <div className="relative border-b border-black/5 dark:border-white/5">
               <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-muted" size={20} />

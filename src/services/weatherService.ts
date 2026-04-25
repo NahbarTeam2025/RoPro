@@ -60,42 +60,56 @@ export function getWeatherInfo(code: number) {
 export async function fetchWeather(lat: number, lon: number): Promise<WeatherData> {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=14`;
   
-  const response = await fetch(url);
-  if (!response.ok) throw new Error('Wetterdaten konnten nicht geladen werden');
-  
-  const data = await response.json();
-  
-  return {
-    current: {
-      temp: data.current.temperature_2m,
-      weatherCode: data.current.weather_code,
-      windSpeed: data.current.wind_speed_10m,
-      humidity: data.current.relative_humidity_2m,
-      apparentTemp: data.current.apparent_temperature,
-      time: data.current.time,
-    },
-    daily: {
-      time: data.daily.time.slice(0, 7),
-      weatherCode: data.daily.weather_code.slice(0, 7),
-      tempMax: data.daily.temperature_2m_max.slice(0, 7),
-      tempMin: data.daily.temperature_2m_min.slice(0, 7),
-      precipitationSum: data.daily.precipitation_sum.slice(0, 7),
-    },
-    trend: {
-      time: data.daily.time,
-      tempMax: data.daily.temperature_2m_max,
-      tempMin: data.daily.temperature_2m_min,
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      console.warn('Wetter API Error:', response.status);
+      throw new Error('Wetterdaten konnten nicht geladen werden');
     }
-  };
+    
+    const data = await response.json();
+    
+    return {
+      current: {
+        temp: data.current.temperature_2m,
+        weatherCode: data.current.weather_code,
+        windSpeed: data.current.wind_speed_10m,
+        humidity: data.current.relative_humidity_2m,
+        apparentTemp: data.current.apparent_temperature,
+        time: data.current.time,
+      },
+      daily: {
+        time: data.daily.time.slice(0, 8),
+        weatherCode: data.daily.weather_code.slice(0, 8),
+        tempMax: data.daily.temperature_2m_max.slice(0, 8),
+        tempMin: data.daily.temperature_2m_min.slice(0, 8),
+        precipitationSum: data.daily.precipitation_sum.slice(0, 8),
+      },
+      trend: {
+        time: data.daily.time,
+        tempMax: data.daily.temperature_2m_max,
+        tempMin: data.daily.temperature_2m_min,
+      }
+    };
+  } catch (error) {
+    console.error('Failed to fetch weather data:', error);
+    throw error;
+  }
 }
 
 export async function fetchCityName(lat: number, lon: number): Promise<string> {
   try {
-    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`, {
+      headers: {
+        'Accept-Language': 'de',
+        'User-Agent': 'RoPro-OS/1.0'
+      }
+    });
+    if (!response.ok) return 'Dein Standort';
     const data = await response.json();
-    return data.address.city || data.address.town || data.address.village || data.address.suburb || 'Unbekannter Ort';
+    return data.address?.city || data.address?.town || data.address?.village || data.address?.suburb || 'Dein Standort';
   } catch (error) {
-    console.error('City name fetch failed:', error);
+    console.warn('City name fetch failed:', error);
     return 'Dein Standort';
   }
 }

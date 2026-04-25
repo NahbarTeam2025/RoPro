@@ -35,7 +35,7 @@ export default function Links() {
   const [title, setTitle] = useState('');
   const [url, setUrl] = useState('');
   const [categoryId, setCategoryId] = useState('');
-  const [color, setColor] = useState('');
+  const [color, setColor] = useState('#5856D6');
   const { categories } = useCategories('link');
 
   const colors = [
@@ -296,7 +296,7 @@ export default function Links() {
           <p className="mt-1 text-sm font-medium text-brand-muted">Füge dein erstes Lesezeichen hinzu, oder ändere den Filter.</p>
         </div>
       ) : (
-        <div className="bg-white/30 dark:bg-black/20 border border-slate-200/50 dark:border-white/5 rounded-[2.5rem] p-6 shadow-inner">
+        <div className="border border-slate-200/50 dark:border-white/5 rounded-[2.5rem] p-6 shadow-inner">
           <div className="max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-1">
               {filteredLinks.map(link => {
@@ -304,15 +304,10 @@ export default function Links() {
                 return (
                 <div
                   key={link.id}
-                  className="group glass-card rounded-3xl p-6 transition-all flex flex-col hover:shadow-xl relative overflow-hidden cursor-pointer h-full border border-black/5 dark:border-white/[0.06]"
+                  className="group glass-card rounded-3xl p-6 transition-all flex flex-col hover:shadow-xl relative overflow-hidden cursor-pointer h-full border border-black/5 dark:border-white/[0.06] border-l-4"
+                  style={{ borderLeftColor: link.color || '#2563EB' }}
                   onClick={() => window.open(link.url, '_blank', 'noopener,noreferrer')}
                 >
-                  {/* Category Indicator Dot */}
-                  <div 
-                    className="absolute top-6 right-6 w-2 h-2 rounded-full shadow-sm"
-                    style={{ backgroundColor: link.color || '#2563EB' }}
-                  />
-
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <div 

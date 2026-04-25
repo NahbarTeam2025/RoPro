@@ -65,7 +65,7 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            className="relative w-full max-w-2xl bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-2xl rounded-[2.5rem] border border-white/20 dark:border-white/10 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+            className="relative w-full max-w-[480px] md:max-w-2xl bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-2xl rounded-[2.5rem] border border-white/20 dark:border-white/10 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
           >
             {/* Header */}
             <div className="p-8 pb-4 flex items-center justify-between shrink-0">
@@ -126,12 +126,12 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
                 </div>
               </div>
 
-              {/* 7-Day Forecast */}
+              {/* 8-Day Forecast */}
               <div className="mb-8">
                 <h3 className="text-[11px] font-black text-brand uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                  <Calendar size={14} /> 7-Tage Vorhersage
+                  <Calendar size={14} /> 8-Tage Vorhersage
                 </h3>
-                <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
+                <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
                   {data.daily.time.map((time, i) => (
                     <div key={time} className="glass-card p-3 rounded-2xl flex flex-col items-center gap-1.5 text-center transition-all bg-white/5 hover:bg-white/10 border-white/5">
                       <span className="text-[9px] font-black uppercase text-brand-muted truncate w-full">

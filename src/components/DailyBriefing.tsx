@@ -128,12 +128,12 @@ export default function DailyBriefing({ isOpen, onClose, weatherData, locationNa
                 <ArrowRight size={12} /> Nächstes Abo
               </h3>
               {data.nextSubscription ? (
-                <div className="bg-white/5 rounded-2xl p-4 flex items-center justify-between">
+                <div className="flex items-center justify-between">
                   <div>
                     <div className="text-sm font-bold text-[#e5e5e5]">{data.nextSubscription.description}</div>
                     <div className="text-[10px] font-bold text-white/40 uppercase mt-1 tracking-wider">Fällig am {format(data.nextSubscription.nextDueDate, 'dd.MM.')}</div>
                   </div>
-                  <div className="text-blue-400 font-black text-lg">-{data.nextSubscription.amount}€</div>
+                  <div className="text-blue-400 font-black text-lg">-{data.nextSubscription.amount?.toLocaleString('de-DE') || '0'}€</div>
                 </div>
               ) : (
                 <p className="text-white/30 text-xs font-medium">Keine Abonnements gefunden.</p>
@@ -148,18 +148,18 @@ export default function DailyBriefing({ isOpen, onClose, weatherData, locationNa
                 <Wallet size={12} /> Monats-Bilanz ({format(now, 'MMMM', { locale: de })})
               </h3>
               <div className="grid grid-cols-3 gap-4">
-                <div className="bg-white/5 rounded-2xl p-3 text-center">
+                <div className="text-center">
                   <div className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-1">Einnahmen</div>
-                  <div className="text-blue-400 font-black text-sm">+{data.monthlyStats.income}€</div>
+                  <div className="text-blue-400 font-black text-sm">+{data.monthlyStats.income?.toLocaleString('de-DE') || '0'}€</div>
                 </div>
-                <div className="bg-white/5 rounded-2xl p-3 text-center">
+                <div className="text-center">
                   <div className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-1">Ausgaben</div>
-                  <div className="text-red-500 font-black text-sm">-{data.monthlyStats.expenses}€</div>
+                  <div className="text-red-500 font-black text-sm">-{data.monthlyStats.expenses?.toLocaleString('de-DE') || '0'}€</div>
                 </div>
-                <div className="bg-white/5 rounded-2xl p-3 text-center">
+                <div className="text-center">
                   <div className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-1">Bilanz</div>
                   <div className={cn("font-black text-sm", data.monthlyStats.balance >= 0 ? "text-blue-400" : "text-red-500")}>
-                    {data.monthlyStats.balance}€
+                    {data.monthlyStats.balance?.toLocaleString('de-DE') || '0'}€
                   </div>
                 </div>
               </div>

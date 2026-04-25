@@ -20,6 +20,7 @@ interface Note {
   tags: string[];
   userId: string;
   isPinned?: boolean;
+  isDraft?: boolean;
   color?: string;
   updatedAt: any;
   createdAt?: any;
@@ -63,7 +64,7 @@ export default function Notes() {
         if (found) setActiveNote(found);
       }
 
-      if (activeNote) {
+      if (activeNote && !activeNote.isDraft) {
         // Update active note if it changed remotely
         const updated = docs.find(d => d.id === activeNote.id);
         if (updated) setActiveNote(updated);
@@ -72,30 +73,19 @@ export default function Notes() {
     return () => unsubscribe();
   }, [user]);
 
-  const createNote = async () => {
+  const createNote = () => {
     if (!user) return;
-    try {
-      const docRef = await addDoc(collection(db, 'notes'), {
-        title: 'Unbenannte Notiz',
-        content: '',
-        categoryId: '',
-        tags: [],
-        userId: user.uid,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
-      setActiveNote({
-        id: docRef.id,
-        title: 'Unbenannte Notiz',
-        content: '',
-        categoryId: '',
-        tags: [],
-        userId: user.uid,
-        updatedAt: new Date()
-      });
-    } catch (error) {
-      console.error("Error creating note:", error);
-    }
+    const newNote: Note = {
+      id: 'draft-' + Date.now(),
+      title: '',
+      content: '',
+      categoryId: '',
+      tags: [],
+      userId: user.uid,
+      isDraft: true,
+      updatedAt: new Date()
+    };
+    setActiveNote(newNote);
   };
 
   const togglePin = async (e: React.MouseEvent, note: Note) => {
@@ -130,7 +120,10 @@ export default function Notes() {
     return null;
   }).filter(Boolean) as string[])).sort().reverse();
 
-  const filteredNotes = notes.filter(note => {
+  const filteredNotes = [
+    ...(activeNote?.isDraft ? [activeNote] : []),
+    ...notes
+  ].filter(note => {
     if (filterCategory !== 'all' && note.categoryId !== filterCategory) return false;
     if (filterMonth !== 'all') {
        const monthStr = note.updatedAt?.toDate ? format(note.updatedAt.toDate(), 'yyyy-MM') : 
@@ -211,9 +204,9 @@ export default function Notes() {
                       key={note.id}
                       className={cn(
                         "w-full text-left p-5 refined-list-item transition-all focus:outline-none cursor-pointer group relative border-l-2 rounded-none",
-                        activeNote?.id === note.id ? "bg-white/50 dark:bg-white/10" : "bg-transparent border-transparent"
+                        activeNote?.id === note.id ? "bg-black/[0.03] dark:bg-white/[0.05]" : "bg-transparent border-transparent"
                       )}
-                      style={{ borderLeftColor: activeNote?.id === note.id ? (note.color ? `${note.color}99` : 'rgba(37, 99, 235, 0.6)') : 'transparent' }}
+                      style={{ borderLeftColor: note.color ? `${note.color}99` : 'rgba(37, 99, 235, 0.6)' }}
                       onClick={() => setActiveNote(note)}
                     >
                       <div className="flex items-start justify-between gap-2">
@@ -255,6 +248,9 @@ export default function Notes() {
                         <span className="pro-heading">
                           {catName}
                         </span>
+                        {note.isDraft && (
+                          <span className="text-[8px] font-black text-brand uppercase tracking-tighter ml-auto">Neu</span>
+                        )}
                         <span className="text-[9px] font-bold text-brand-muted/50 truncate ml-auto uppercase tracking-tighter">
                           {note.updatedAt?.toDate ? format(note.updatedAt.toDate(), 'd. MMM yyyy') : 'Gerade eben'}
                         </span>
@@ -274,7 +270,12 @@ export default function Notes() {
         !activeNote ? "hidden md:flex" : "flex"
       )}>
         {activeNote ? (
-          <NoteEditor key={activeNote.id} note={activeNote} onBack={() => setActiveNote(null)} />
+          <NoteEditor 
+            key={activeNote.id} 
+            note={activeNote} 
+            onBack={() => setActiveNote(null)}
+            onSave={(newNote) => setActiveNote(newNote)}
+          />
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-brand-muted">
             <div className="w-16 h-16 flex items-center justify-center mb-4 text-blue-500 dark:text-green-500">
@@ -287,8 +288,8 @@ export default function Notes() {
 
       {/* Delete Confirmation Modal */}
       {deleteModal && deleteModal.open && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/10 backdrop-blur-md">
-          <div className="glass-card w-full max-w-sm rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/10 backdrop-blur-md">
+          <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
             <p className="text-sm text-[#86868B] mb-8">Diese Notiz wird unwiderruflich entfernt.</p>
             <div className="flex flex-col gap-3">

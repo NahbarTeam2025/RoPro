@@ -16,6 +16,7 @@ interface Todo {
   dueDate: string | null;
   categoryId: string;
   priority: 'high' | 'medium' | 'low';
+  color?: string;
   completed: boolean;
   userId: string;
   isRecurring?: boolean;
@@ -71,6 +72,7 @@ export default function Tasks() {
         task: newTask.trim(),
         priority,
         categoryId,
+        color: '#007AFF', // Default blue
         dueDate: dueDate ? new Date(dueDate).toISOString() : null,
         completed: false,
         isRecurring: isRecurring,
@@ -171,7 +173,7 @@ export default function Tasks() {
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col relative z-10 pb-6">
-      <header className="mb-6 sm:mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 px-4 sm:px-0">
+      <header className="mb-6 sm:mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 px-0 sm:px-0">
         <div>
           <h1 className="text-3xl font-black tracking-tight text-brand uppercase">Aufgaben</h1>
         </div>
@@ -204,7 +206,7 @@ export default function Tasks() {
         </div>
       </header>
 
-      <div className="flex-1 flex flex-col gap-6 px-4 sm:px-0">
+      <div className="flex-1 flex flex-col gap-6 px-0 sm:px-0">
         <form onSubmit={addTask} className="glass-card p-6 sm:p-8 rounded-[2.5rem] flex flex-col gap-8">
           <div className="space-y-2.5 flex flex-col">
             <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Was steht an?</label>
@@ -297,11 +299,11 @@ export default function Tasks() {
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-2">
               <h2 className="pro-heading !text-brand">Aktive Aufgaben</h2>
-              <span className="text-[10px] font-black text-brand-muted bg-brand/10 px-2.5 py-1 rounded-full uppercase tracking-widest">{activeTodos.length}</span>
+              <span className="text-[10px] font-black text-brand-muted px-2.5 py-1 rounded-full uppercase tracking-widest">{activeTodos.length}</span>
             </div>
             
-            <div className="flex-1 bg-white/30 dark:bg-white/[0.04] border border-slate-200/50 dark:border-white/5 rounded-[2.5rem] overflow-hidden shadow-inner">
-              <div className="max-h-[500px] overflow-y-auto custom-scrollbar">
+            <div className="flex-1 border border-slate-200/50 dark:border-white/5 rounded-[2.5rem] overflow-hidden shadow-inner">
+              <div className="max-h-[420px] overflow-y-auto custom-scrollbar p-1">
                 {activeTodos.map(todo => (
                   <TaskItem 
                     key={todo.id} 
@@ -332,8 +334,8 @@ export default function Tasks() {
                 <h3 className="pro-heading">Abgeschlossen</h3>
                 <span className="text-[10px] font-black text-brand-muted">{completedTodos.length}</span>
               </div>
-              <div className="bg-white/30 dark:bg-white/[0.04] border border-slate-200/50 dark:border-white/5 rounded-[2.5rem] overflow-hidden shadow-inner">
-                <div className="max-h-[250px] overflow-y-auto custom-scrollbar opacity-60 hover:opacity-100 transition-opacity duration-300">
+              <div className="border border-slate-200/50 dark:border-white/5 rounded-[2.5rem] overflow-hidden shadow-inner">
+                <div className="max-h-[420px] overflow-y-auto custom-scrollbar opacity-60 hover:opacity-100 transition-opacity duration-300 p-1">
                   {completedTodos.map(todo => (
                     <TaskItem 
                       key={todo.id} 
@@ -353,8 +355,8 @@ export default function Tasks() {
 
       {/* Custom Delete Modal */}
       {deleteModal && deleteModal.open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/10 backdrop-blur-md">
-          <div className="glass-card w-full max-w-sm rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/10 backdrop-blur-md">
+          <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
             <p className="text-sm text-[#86868B] mb-8">Diese Aufgabe wird unwiderruflich entfernt.</p>
             <div className="flex flex-col gap-3">
@@ -402,8 +404,8 @@ function EditTaskModal({ todo, categories, onClose, onSave }: { todo: Todo, cate
   const [recurrenceInterval, setRecurrenceInterval] = useState<'daily' | 'weekly' | 'monthly'>(todo.recurrenceInterval || 'weekly');
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/10 backdrop-blur-md">
-      <div className="glass-card w-full max-w-md rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/10 backdrop-blur-md">
+      <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
         <h3 className="text-2xl font-black text-brand mb-2 tracking-tight">Bearbeiten</h3>
         <p className="text-sm text-brand-muted mb-8">Aufgabe anpassen</p>
         

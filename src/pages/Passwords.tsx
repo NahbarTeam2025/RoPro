@@ -505,7 +505,7 @@ export default function Passwords() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto pb-20">
+    <div className="max-w-6xl mx-auto px-0 sm:px-0 pb-20">
       <header className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-8 bg-white/5 p-8 rounded-[3rem] border border-white/5 backdrop-blur-xl">
         <div className="flex items-center gap-6">
           <div className="w-16 h-16 flex items-center justify-center text-brand">
@@ -681,7 +681,7 @@ export default function Passwords() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="glass-card w-full max-w-lg rounded-[3rem] overflow-hidden relative z-10 flex flex-col h-[90vh]"
+              className="glass-card w-full max-w-[480px] rounded-[3rem] overflow-hidden relative z-10 flex flex-col h-[90vh]"
             >
               <div className="flex justify-between items-center p-8 pb-4 shrink-0">
                 <h2 className="text-3xl font-black text-brand tracking-tighter">{editingEntry ? 'Passwort bearbeiten' : 'Neues Passwort'}</h2>
@@ -798,7 +798,7 @@ export default function Passwords() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="glass-card w-full max-w-sm rounded-[2.5rem] overflow-hidden relative z-10 p-8 text-center"
+              className="glass-card w-full max-w-[480px] rounded-[2.5rem] overflow-hidden relative z-10 p-8 text-center"
             >
               <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <Trash2 size={32} />

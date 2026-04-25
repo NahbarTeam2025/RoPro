@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -14,12 +14,13 @@ interface Note {
   categoryId: string;
   tags: string[];
   userId: string;
+  isDraft?: boolean;
   color?: string;
   updatedAt: any;
   createdAt?: any;
 }
 
-export function NoteEditor({ note, onBack }: { note: Note, onBack: () => void }) {
+export function NoteEditor({ note, onBack, onSave }: { note: Note, onBack: () => void, onSave?: (note: Note) => void }) {
   const [title, setTitle] = useState(note.title);
   const [category, setCategory] = useState(note.categoryId || '');
   const [color, setColor] = useState(note.color || '');
@@ -40,13 +41,35 @@ export function NoteEditor({ note, onBack }: { note: Note, onBack: () => void })
     if (!editor) return;
     setIsSaving(true);
     try {
-      await updateDoc(doc(db, 'notes', note.id), {
+      const data = {
         title: title.trim() || 'Unbenannte Notiz',
         categoryId: category.trim(),
         content: editor.getHTML(),
         color,
-        updatedAt: serverTimestamp()
-      });
+        updatedAt: serverTimestamp(),
+        userId: note.userId
+      };
+
+      if (note.isDraft) {
+        const docRef = await addDoc(collection(db, 'notes'), {
+          ...data,
+          createdAt: serverTimestamp()
+        });
+        if (onSave) {
+          onSave({
+            ...note,
+            id: docRef.id,
+            isDraft: false,
+            title: data.title,
+            content: data.content,
+            categoryId: data.categoryId,
+            color: data.color,
+            updatedAt: new Date()
+          });
+        }
+      } else {
+        await updateDoc(doc(db, 'notes', note.id), data);
+      }
       setHasChanges(false);
     } catch (error) {
       console.error("Error saving note:", error);
@@ -86,7 +109,7 @@ export function NoteEditor({ note, onBack }: { note: Note, onBack: () => void })
   });
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-slate-50/50 dark:bg-transparent min-h-0">
+    <div className="flex-1 flex flex-col h-full dark:bg-transparent min-h-0">
       <div className="p-4 sm:p-6 border-b border-slate-200/50 dark:border-white/10 flex flex-col gap-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-2 flex-1 min-w-[200px]">
@@ -164,7 +187,7 @@ export function NoteEditor({ note, onBack }: { note: Note, onBack: () => void })
       </div>
 
       {editor && (
-        <div className="flex items-center gap-1 px-4 sm:px-6 py-2 sm:py-3 border-b border-slate-200/50 dark:border-white/10 bg-white/30 dark:bg-black/20 flex-wrap shrink-0">
+        <div className="flex items-center gap-1 px-4 sm:px-6 py-2 sm:py-3 border-b border-slate-200/50 dark:border-white/10 flex-wrap shrink-0">
           <button
             onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
             className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('heading', { level: 2 }) ? 'bg-brand/10 text-brand' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
@@ -203,7 +226,7 @@ export function NoteEditor({ note, onBack }: { note: Note, onBack: () => void })
 
       {deleteModal && deleteModal.open && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/40 backdrop-blur-md">
-          <div className="glass-card w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl">
+          <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] p-10 shadow-2xl">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
             <p className="text-sm text-[#86868B] mb-8">Diese Notiz wird unwiderruflich entfernt.</p>
             <div className="flex flex-col gap-3">

@@ -40,8 +40,8 @@ export function CategoryManager({ type, onClose }: CategoryManagerProps) {
 
   return (
     <div className="fixed inset-0 z-[250] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="glass-card w-full max-w-md rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-        <div className="p-8 border-b border-slate-200/50 dark:border-white/10 flex justify-between items-center bg-[#FBFBFD]/50 dark:bg-[#1C1C1E]/50">
+      <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+        <div className="p-8 border-b border-slate-200/50 dark:border-white/10 flex justify-between items-center">
           <div>
             <h3 className="text-2xl font-black text-brand tracking-tight">Kategorien verwalten</h3>
             <p className="text-sm text-brand-muted font-medium mt-1">Für {typeLabels[type]}</p>
@@ -67,7 +67,7 @@ export function CategoryManager({ type, onClose }: CategoryManagerProps) {
 
           <div className="space-y-2 max-h-[40vh] overflow-y-auto custom-scrollbar pr-2">
             {categories.map(cat => (
-              <div key={cat.id} className="flex items-center gap-2 p-3 bg-[#F5F5F7] dark:bg-[#2C2C2E] rounded-2xl group border border-transparent hover:border-blue-500/20 transition-all">
+              <div key={cat.id} className="flex items-center gap-2 p-3 rounded-2xl group border border-transparent hover:border-blue-500/20 transition-all">
                 <Tag size={16} className="text-brand-muted" />
                 
                 {editingId === cat.id ? (
@@ -119,7 +119,7 @@ export function CategoryManager({ type, onClose }: CategoryManagerProps) {
           </div>
         </div>
 
-        <div className="p-8 pt-0 border-t border-slate-200/50 dark:border-white/10 bg-[#FBFBFD]/50 dark:bg-[#1C1C1E]/50">
+        <div className="p-8 pt-0 border-t border-slate-200/50 dark:border-white/10">
           <button onClick={onClose} className="w-full mt-6 h-12 bg-[#F5F5F7] dark:bg-[#3A3A3C] text-brand font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#4A4A4C] transition-all">
             Schließen
           </button>

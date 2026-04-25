@@ -294,7 +294,7 @@ export default function Household() {
   });
 
   return (
-    <div className="max-w-5xl mx-auto flex flex-col relative z-10 w-full pb-10">
+    <div className="max-w-5xl mx-auto flex flex-col relative z-10 w-full px-0 sm:px-0 pb-10">
       <header className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
         <div>
           <h1 className="text-3xl font-black tracking-tight text-brand uppercase">Haushaltsbuch</h1>
@@ -431,7 +431,7 @@ export default function Household() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
         <div 
           onClick={() => setDetailModal({ open: true, type: 'income' })}
-          className="glass-card p-4 rounded-2xl border border-white/[0.06] flex items-center gap-3 cursor-pointer hover:bg-green-500/5 transition-colors"
+          className="flex items-center gap-3 cursor-pointer hover:bg-green-500/5 transition-colors p-2"
         >
           <div className="text-green-500 shrink-0">
             <TrendingUp size={24} />
@@ -446,7 +446,7 @@ export default function Household() {
 
         <div 
           onClick={() => setDetailModal({ open: true, type: 'expense' })}
-          className="glass-card p-4 rounded-2xl border border-white/[0.06] flex items-center gap-3 cursor-pointer hover:bg-red-500/5 transition-colors"
+          className="flex items-center gap-3 cursor-pointer hover:bg-red-500/5 transition-colors p-2"
         >
           <div className="text-red-500 shrink-0">
             <TrendingDown size={24} />
@@ -459,7 +459,7 @@ export default function Household() {
           </div>
         </div>
 
-        <div className="glass-card p-4 rounded-2xl border border-white/[0.06] flex items-center gap-3">
+        <div className="flex items-center gap-3 p-2">
           <div className={cn(
             "transition-colors shrink-0",
             balance >= 0 ? "text-blue-500" : "text-red-500"
@@ -478,7 +478,7 @@ export default function Household() {
         </div>
 
         {/* Savings Tile */}
-        <div className="glass-card p-4 rounded-2xl border border-white/[0.06] flex flex-col gap-3">
+        <div className="flex flex-col gap-3 p-2">
           <div className="flex items-center gap-3">
             <div className="text-orange-500 shrink-0">
               <PiggyBank size={24} />
@@ -647,7 +647,7 @@ export default function Household() {
 
       {/* Transaction List / Abos View */}
       <div className="glass-card rounded-[2.5rem] overflow-hidden flex flex-col flex-1 min-h-[500px]">
-        <div className="p-8 border-b border-slate-200/50 dark:border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-[#FBFBFD]/50 dark:bg-[#1C1C1E]/50 gap-4">
+        <div className="p-8 border-b border-slate-200/50 dark:border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex bg-slate-500/10 p-1 rounded-2xl w-full sm:w-auto">
             <button
               onClick={() => setActiveView('transactions')}
@@ -682,28 +682,28 @@ export default function Household() {
         {activeView === 'abos' ? (
           <div className="flex-1 flex flex-col">
             {/* Abo Summary Cards */}
-            <div className="p-6 grid grid-cols-1 sm:grid-cols-3 gap-4 border-b border-slate-200/50 dark:border-white/10 bg-slate-500/5">
-              <div className="p-4 rounded-2xl bg-white/50 dark:bg-white/5 border border-slate-200/30 dark:border-white/5">
+            <div className="p-6 grid grid-cols-1 sm:grid-cols-3 gap-6 border-b border-slate-200/50 dark:border-white/10 shrink-0">
+              <div className="p-2">
                 <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-1">Monatlich gesamt</div>
                 <div className="text-xl font-black text-brand tracking-tight">
-                  {monthlyRecurringSum.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                  {monthlyRecurringSum?.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }) || '0,00 €'}
                 </div>
               </div>
-              <div className="p-4 rounded-2xl bg-white/50 dark:bg-white/5 border border-slate-200/30 dark:border-white/5">
+              <div className="p-2">
                 <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-1">Jährl. Abos</div>
                 <div className="text-xl font-black text-brand tracking-tight">
-                  {yearlyRecurringSum.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                  {yearlyRecurringSum?.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }) || '0,00 €'}
                 </div>
               </div>
-              <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20">
+              <div className="p-2">
                 <div className="text-[9px] font-bold text-blue-500 uppercase tracking-widest mb-1">Pro Jahr total</div>
                 <div className="text-xl font-black text-blue-600 dark:text-blue-400 tracking-tight">
-                  {totalPerYearSum.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                  {totalPerYearSum?.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }) || '0,00 €'}
                 </div>
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto custom-scrollbar">
+            <div className="flex-1 overflow-y-auto custom-scrollbar max-h-[420px]">
               {activeAbos.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full py-20 text-brand-muted space-y-4">
                   <div className="w-16 h-16 flex items-center justify-center opacity-40">
@@ -721,7 +721,7 @@ export default function Household() {
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-1">
                           <h4 className="font-bold text-brand">{abo.description}</h4>
-                          <span className="text-[9px] font-black bg-blue-600/15 text-brand px-1.5 py-0.5 rounded-lg uppercase tracking-tighter shrink-0 border border-blue-500/10">
+                          <span className="text-[9px] font-black text-brand px-1.5 py-0.5 rounded-lg uppercase tracking-tighter shrink-0 border border-blue-500/10">
                             {abo.interval === 'yearly' ? 'Jährlich' : 'Monatlich'}
                           </span>
                         </div>
@@ -749,7 +749,7 @@ export default function Household() {
             </div>
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <div className="flex-1 overflow-y-auto custom-scrollbar max-h-[420px]">
             {filteredTransactions.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full py-20 text-brand-muted space-y-4">
                 <div className="w-16 h-16 flex items-center justify-center opacity-40">
@@ -774,12 +774,12 @@ export default function Household() {
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-1">
                           <h4 className="font-bold text-brand">{t.description}</h4>
                           {t.isRecurring && (
-                            <span className="text-[9px] font-black bg-blue-600/15 text-brand px-1.5 py-0.5 rounded-lg uppercase tracking-tighter shrink-0 border border-blue-500/10">
+                            <span className="text-[9px] font-black text-brand px-1.5 py-0.5 rounded-lg uppercase tracking-tighter shrink-0 border border-blue-500/10">
                               {t.interval === 'yearly' ? 'Jährlich' : 'Monatlich'}
                             </span>
                           )}
                           {categories.find(c => c.id === t.category)?.name && (
-                            <span className="text-[9px] sm:text-[10px] font-black text-brand-muted uppercase tracking-widest bg-slate-200/50 dark:bg-black/20 px-2 py-0.5 rounded-lg border border-slate-200/30 dark:border-white/5 shrink-0">
+                            <span className="text-[9px] sm:text-[10px] font-black text-brand-muted uppercase tracking-widest px-2 py-0.5 rounded-lg border border-slate-200/30 dark:border-white/5 shrink-0">
                               {categories.find(c => c.id === t.category)?.name}
                             </span>
                           )}
@@ -826,9 +826,9 @@ export default function Household() {
 
       {/* Detail Modal */}
       {detailModal && detailModal.open && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-md">
-          <div className="glass-card w-full max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-            <div className="p-8 border-b border-slate-200/50 dark:border-white/10 flex justify-between items-center bg-[#FBFBFD]/50 dark:bg-[#1C1C1E]/50">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
+          <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="p-8 border-b border-slate-200/50 dark:border-white/10 flex justify-between items-center">
               <div>
                 <h3 className="text-2xl font-black text-brand tracking-tight">
                   {detailModal.type === 'income' ? 'Einnahmen Details' : 'Ausgaben Details'}
@@ -865,19 +865,19 @@ export default function Household() {
                   return items.map(t => {
                     const catName = categories.find(c => c.id === t.category)?.name || t.category || '--';
                     return (
-                      <div key={t.id} className="p-4 rounded-2xl bg-white/50 dark:bg-white/5 border border-slate-200/30 dark:border-white/5 flex items-center justify-between group">
+                      <div key={t.id} className="p-2 flex items-center justify-between group">
                         <div className="flex items-center gap-3">
                           <div className={cn(
-                            "w-10 h-10 rounded-xl flex items-center justify-center shadow-sm",
-                            t.type === 'income' ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
+                            "w-10 h-10 flex items-center justify-center",
+                            t.type === 'income' ? "text-green-500" : "text-red-500"
                           )}>
-                            {t.type === 'income' ? <TrendingUp size={18} /> : <TrendingDown size={18} />}
+                            {t.type === 'income' ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
                               <span className="font-bold text-brand text-sm">{t.description}</span>
                               {t.isRecurring && (
-                                <span className="text-[8px] font-black bg-blue-600/15 text-brand px-1.5 py-0.5 rounded uppercase tracking-tighter border border-blue-500/10">
+                                <span className="text-[8px] font-black text-brand px-1.5 py-0.5 rounded uppercase tracking-tighter border border-blue-500/10">
                                   {t.interval === 'yearly' ? 'Jährlich' : 'Monatlich'}
                                 </span>
                               )}
@@ -910,7 +910,7 @@ export default function Household() {
                             "font-black text-sm whitespace-nowrap",
                             t.type === 'income' ? "text-green-500" : "text-brand"
                           )}>
-                            {t.type === 'income' ? '+' : '-'} {t.amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                            {t.type === 'income' ? '+' : '-'} {t.amount?.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }) || '0,00 €'}
                           </span>
                         </div>
                       </div>
@@ -920,7 +920,7 @@ export default function Household() {
               </div>
             </div>
             
-            <div className="p-8 border-t border-slate-200/50 dark:border-white/10 bg-[#FBFBFD]/50 dark:bg-[#1C1C1E]/50">
+            <div className="p-8 border-t border-slate-200/50 dark:border-white/10">
                <div className="flex justify-between items-center font-black text-brand">
                  <span>Gesamt {detailModal.type === 'income' ? 'Einnahmen' : 'Ausgaben'}</span>
                  <span className={detailModal.type === 'income' ? "text-green-500" : ""}>
@@ -937,8 +937,8 @@ export default function Household() {
 
       {/* Delete Confirmation Modal */}
       {deleteModal && deleteModal.open && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/10 backdrop-blur-md">
-          <div className="glass-card w-full max-w-sm rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/10 backdrop-blur-md">
+          <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
             <p className="text-sm text-[#86868B] mb-8">Dieser Eintrag wird unwiderruflich entfernt.</p>
             <div className="flex flex-col gap-3">

@@ -237,14 +237,17 @@ export default function Layout() {
           isSidebarCollapsed ? "lg:w-20" : "lg:w-64 w-64"
         )}
       >
-        <div className={cn("p-8 flex items-center shrink-0", isSidebarCollapsed ? "justify-center px-0" : "gap-3")}>
+        <div className={cn("p-8 flex items-center shrink-0", isSidebarCollapsed ? "flex-col gap-4 px-0" : "gap-3")}>
           <div className="w-8 h-8 flex items-center justify-center text-[#007AFF] shrink-0">
             <Zap size={24} fill="currentColor" />
           </div>
-          {!isSidebarCollapsed && (
-            <div className="flex items-center gap-2 overflow-hidden">
+          {!isSidebarCollapsed ? (
+            <div className="flex-1 flex items-center justify-between overflow-hidden">
               <span className="font-bold text-2xl tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7] truncate">RoPro</span>
+              <WeatherSummaryIcon className="ml-2" />
             </div>
+          ) : (
+            <WeatherSummaryIcon />
           )}
           <button 
             className="lg:hidden text-[#86868B] ml-auto hover:text-[#1D1D1F] transition-colors focus-visible:ring-2 rounded" 
@@ -420,21 +423,25 @@ export default function Layout() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 h-screen relative z-10 transition-colors duration-500 overflow-hidden">
-        <header className="h-16 border-b border-[#D2D2D7]/30 dark:border-[#424245]/30 flex items-center px-6 lg:hidden shrink-0 bg-[#FBFBFD]/80 dark:bg-black/80 backdrop-blur-md z-30">
-          <button 
-            className="p-2 -ml-2 text-[#86868B] hover:text-[#1D1D1F] rounded-lg transition-colors"
-            onClick={() => setIsSidebarOpen(true)}
-          >
-            <Menu size={24} />
-          </button>
-          <div className="flex items-center gap-2 ml-2 overflow-hidden">
-            <Zap size={18} className="text-[#007AFF] shrink-0" fill="currentColor" />
-            <span className="font-bold text-xl tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7] truncate">RoPro</span>
-            <WeatherSummaryIcon className="ml-2" />
+        <header className="h-16 border-b border-[#D2D2D7]/30 dark:border-[#424245]/30 flex items-center justify-between px-6 lg:hidden shrink-0 bg-[#FBFBFD]/80 dark:bg-black/80 backdrop-blur-md z-30">
+          <div className="flex items-center gap-3">
+            <button 
+              className="p-2 -ml-2 text-[#86868B] hover:text-[#1D1D1F] rounded-lg transition-colors"
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <Menu size={24} />
+            </button>
+            <div className="flex items-center gap-2 overflow-hidden">
+              <Zap size={18} className="text-[#007AFF] shrink-0" fill="currentColor" />
+              <span className="font-bold text-xl tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7] truncate">RoPro</span>
+            </div>
+          </div>
+          <div className="flex items-center">
+            <WeatherSummaryIcon />
           </div>
         </header>
 
-        <main ref={mainRef} className="flex-1 overflow-y-auto p-8 sm:p-10 lg:p-12 outline-none">
+        <main ref={mainRef} className="flex-1 overflow-y-auto p-4 sm:p-10 lg:p-12 outline-none">
           <Outlet />
         </main>
       </div>
