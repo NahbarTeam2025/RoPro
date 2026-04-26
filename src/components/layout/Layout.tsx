@@ -159,6 +159,7 @@ export default function Layout() {
         { name: 'Google Fotos', icon: ImageIcon, url: 'https://photos.google.com' },
         { name: 'Google Analytics', icon: BarChart2, url: 'https://analytics.google.com' },
         { name: 'Search Console', icon: Search, url: 'https://search.google.com/search-console' },
+        { name: 'Google Ads', icon: BarChart2, url: 'https://ads.google.com' },
       ]
     },
     {
@@ -168,6 +169,7 @@ export default function Layout() {
       links: [
         { name: 'Yellow Labs', icon: Activity, url: 'https://yellowlab.tools' },
         { name: 'PageSpeed Insights', icon: Gauge, url: 'https://pagespeed.web.dev' },
+        { name: 'Seobility', icon: Shield, url: 'https://www.seobility.net' },
       ]
     },
     {
@@ -393,22 +395,32 @@ export default function Layout() {
            </button>
 
            <div className={cn("px-2 py-1", isSidebarCollapsed && "flex justify-center")}>
-             {!isSidebarCollapsed ? (
-               <button 
-                 className="w-full text-left px-3 py-2 text-[9px] font-black text-red-500 uppercase tracking-wider hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all" 
-                 onClick={logout}
-               >
-                 Abmelden
-               </button>
-             ) : (
-               <button 
-                 onClick={logout} 
-                 className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-all" 
-                 title="Abmelden"
-               >
-                 <LogOut size={16} />
-               </button>
-             )}
+             <div className={cn("flex items-center gap-2", !isSidebarCollapsed && "px-3")}>
+               {user?.photoURL && (
+                 <img 
+                   src={user.photoURL} 
+                   alt={user.displayName || 'Avatar'} 
+                   className="w-5 h-5 rounded-full border border-black/5 dark:border-white/10 shrink-0"
+                   referrerPolicy="no-referrer"
+                 />
+               )}
+               {!isSidebarCollapsed ? (
+                 <button 
+                   className="flex-1 text-left py-2 text-[9px] font-black text-red-500 uppercase tracking-wider hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all" 
+                   onClick={logout}
+                 >
+                   Abmelden
+                 </button>
+               ) : (
+                 <button 
+                   onClick={logout} 
+                   className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-all" 
+                   title="Abmelden"
+                 >
+                   <LogOut size={16} />
+                 </button>
+               )}
+             </div>
            </div>
 
            <button 
