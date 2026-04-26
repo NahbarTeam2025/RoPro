@@ -165,6 +165,7 @@ export default function Dashboard() {
   };
 
   const handleToggleTodo = async (e: React.MouseEvent, todo: any) => {
+    e.preventDefault();
     e.stopPropagation();
     try {
       const todoRef = doc(db, 'todos', todo.id);
@@ -319,6 +320,13 @@ export default function Dashboard() {
                             <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", todo.priority === 'high' ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" : todo.priority === 'medium' ? "bg-orange-500" : "bg-brand")} title={todo.priority} />
                           )}
                         </div>
+                        {todo.dueDate && (
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <span className="text-[9px] font-bold text-brand-muted uppercase tracking-tighter">
+                              {format(new Date(todo.dueDate), 'dd. MMM', { locale: de })} • {format(new Date(todo.dueDate), 'HH:mm')} Uhr
+                            </span>
+                          </div>
+                        )}
                       </div>
                       <div className="absolute right-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button type="button" onClick={(e) => { e.stopPropagation(); setEditItem({ type: 'todos', data: todo }); }} className="p-1.5 text-brand-muted hover:text-brand transition-colors"><Edit2 size={12} /></button>

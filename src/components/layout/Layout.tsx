@@ -9,6 +9,7 @@ import {
   Gauge, Mail, Brain, Cpu, ChevronDown, ChevronUp, Wallet,
   Code, BookOpen, Sparkles, FastForward, Layers, Compass,
   Music, Volume2, Mic, Linkedin, Share2, Users, Dices, LogOut, Shield,
+  Facebook, Instagram,
   Command, CloudSun, CloudRain, CloudSnow, CloudFog, CloudDrizzle, CloudLightning
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -202,6 +203,8 @@ export default function Layout() {
       icon: Share2,
       links: [
         { name: 'LinkedIn', icon: Linkedin, url: 'https://www.linkedin.com/in/robert-erbach-a173b2371/' },
+        { name: 'Facebook', icon: Facebook, url: 'https://www.facebook.com' },
+        { name: 'Instagram', icon: Instagram, url: 'https://www.instagram.com' },
       ]
     }
   ];
@@ -355,12 +358,12 @@ export default function Layout() {
              onClick={handleRandomize}
              disabled={isRolling}
              className={cn(
-               "w-full flex items-center gap-3 px-3 py-1.5 rounded-xl text-sm font-medium text-[#424245] dark:text-[#A1A1A6] hover:bg-brand/10 hover:text-brand transition-all relative group",
+               "w-full flex items-center gap-3 px-4 py-1.5 rounded-xl text-sm font-medium text-[#424245] dark:text-[#A1A1A6] hover:bg-brand/10 hover:text-brand transition-all relative group",
                isSidebarCollapsed && "justify-center px-0"
              )}
              title={isSidebarCollapsed ? "Zufall" : undefined}
            >
-             <Dices size={16} className={cn("shrink-0", isRolling && "animate-spin")} />
+             <div className="w-[18px] h-[18px] flex items-center justify-center shrink-0"><Dices size={16} className={cn("shrink-0", isRolling && "animate-spin")} /></div>
              {!isSidebarCollapsed && (
                <div className="flex items-center justify-between w-full">
                  <span>Zufallsgenerator</span>
@@ -385,40 +388,42 @@ export default function Layout() {
            <button 
              onClick={toggleTheme}
              className={cn(
-               "w-full flex items-center gap-3 px-3 py-1.5 rounded-xl text-sm font-medium text-[#424245] dark:text-[#A1A1A6] hover:bg-[#FBFBFD] dark:hover:bg-[#1C1C1E] transition-all",
+               "w-full flex items-center gap-3 px-4 py-1.5 rounded-xl text-sm font-medium text-[#424245] dark:text-[#A1A1A6] hover:bg-[#FBFBFD] dark:hover:bg-[#1C1C1E] transition-all",
                isSidebarCollapsed && "justify-center px-0"
              )}
              title={isSidebarCollapsed ? (theme === 'dark' ? 'Heller Modus' : 'Dunkler Modus') : undefined}
            >
-             {theme === 'dark' ? <Sun size={16} className="shrink-0" /> : <Moon size={16} className="shrink-0" />}
+             <div className="w-[18px] h-[18px] flex items-center justify-center shrink-0">
+               {theme === 'dark' ? <Sun size={16} className="shrink-0" /> : <Moon size={16} className="shrink-0" />}
+             </div>
              {!isSidebarCollapsed && <span>{theme === 'dark' ? 'Heller Modus' : 'Dunkler Modus'}</span>}
            </button>
 
-           <div className={cn("px-2 py-1", isSidebarCollapsed && "flex justify-center")}>
-             <div className={cn("flex items-center gap-2", !isSidebarCollapsed && "px-3")}>
-               {user?.photoURL && (
+           <div className="w-full mt-1">
+             <div 
+               className={cn(
+                 "flex items-center gap-3 px-4 py-1.5 rounded-xl transition-all hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer group",
+                 isSidebarCollapsed && "justify-center px-0"
+               )}
+               onClick={logout}
+               title={isSidebarCollapsed ? "Abmelden" : undefined}
+             >
+               {user?.photoURL ? (
                  <img 
                    src={user.photoURL} 
                    alt={user.displayName || 'Avatar'} 
-                   className="w-5 h-5 rounded-full border border-black/5 dark:border-white/10 shrink-0"
+                   className="w-[18px] h-[18px] rounded-full border border-black/5 dark:border-white/10 shrink-0"
                    referrerPolicy="no-referrer"
                  />
-               )}
-               {!isSidebarCollapsed ? (
-                 <button 
-                   className="flex-1 text-left py-2 text-[9px] font-black text-red-500 uppercase tracking-wider hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all" 
-                   onClick={logout}
-                 >
-                   Abmelden
-                 </button>
                ) : (
-                 <button 
-                   onClick={logout} 
-                   className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-all" 
-                   title="Abmelden"
-                 >
-                   <LogOut size={16} />
-                 </button>
+                 <div className="w-[18px] h-[18px] flex items-center justify-center shrink-0">
+                   <LogOut size={16} className="text-red-500" />
+                 </div>
+               )}
+               {!isSidebarCollapsed && (
+                 <span className="text-[9px] font-black text-red-500 uppercase tracking-wider">
+                   Abmelden
+                 </span>
                )}
              </div>
            </div>
