@@ -65,7 +65,8 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            className="relative w-full max-w-[480px] md:max-w-2xl bg-[#1c1c1e]/40 backdrop-blur-[30px] rounded-[2.5rem] border border-white/5 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+            className="relative w-full max-w-[480px] md:max-w-2xl bg-[#1c1c1e]/40 backdrop-blur-lg rounded-[2.5rem] border border-white/5 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+            style={{ transform: 'translateZ(0)', willChange: 'transform, backdrop-filter' }}
           >
             {/* Header */}
             <div className="p-8 pb-4 flex items-center justify-between shrink-0">

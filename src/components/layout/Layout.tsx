@@ -313,7 +313,7 @@ export default function Layout() {
   return (
     <div className="flex min-h-screen font-sans relative bg-transparent overflow-hidden">
       {/* Background Video */}
-      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-black">
         <video
           ref={videoRef}
           autoPlay
@@ -322,10 +322,15 @@ export default function Layout() {
           playsInline
           preload="auto"
           className="w-full h-full object-cover opacity-100"
+          style={{ 
+            willChange: 'transform',
+            transform: 'translateZ(0)',
+            backfaceVisibility: 'hidden'
+          }}
           src="https://meine-assets.pages.dev/ropro.mp4"
         />
         {/* Overlay to ensure readability and glass effect works well */}
-        <div className="absolute inset-0 bg-black/20" />
+        <div className="absolute inset-0 bg-black/10" />
       </div>
 
       {/* Mobile sidebar overlay */}
@@ -339,10 +344,11 @@ export default function Layout() {
       {/* Sidebar */}
       <aside 
         className={cn(
-          "fixed inset-y-0 left-0 z-50 bg-white/10 dark:bg-black/40 backdrop-blur-2xl border-r border-white/[0.1] transform transition-all duration-500 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 flex flex-col shadow-2xl lg:shadow-none",
+          "fixed inset-y-0 left-0 z-50 bg-white/10 dark:bg-black/40 backdrop-blur-lg border-r border-white/[0.1] transform transition-all duration-500 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 flex flex-col shadow-2xl lg:shadow-none",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full",
           isSidebarCollapsed ? "lg:w-20" : "lg:w-64 w-64"
         )}
+        style={{ transform: 'translateZ(0)', willChange: 'transform, backdrop-filter' }}
       >
         <div className={cn("p-8 flex items-center shrink-0", isSidebarCollapsed ? "flex-col gap-4 px-0" : "gap-3")}>
           <div className="w-8 h-8 flex items-center justify-center text-blue-500 shrink-0">
@@ -558,8 +564,8 @@ export default function Layout() {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen relative z-10 transition-colors duration-500 overflow-hidden">
-        <header className="h-16 border-b border-[#D2D2D7]/30 dark:border-[#424245]/30 flex items-center justify-between px-6 lg:hidden shrink-0 bg-black/80 backdrop-blur-md z-30">
+      <div className="flex-1 flex flex-col min-w-0 h-screen relative z-10 transition-colors duration-500 overflow-hidden" style={{ transform: 'translateZ(0)', contain: 'layout size style' }}>
+        <header className="h-16 border-b border-[#D2D2D7]/30 dark:border-[#424245]/30 flex items-center justify-between px-6 lg:hidden shrink-0 bg-black/80 backdrop-blur-lg z-30" style={{ transform: 'translateZ(0)', willChange: 'backdrop-filter' }}>
           <div className="flex items-center gap-3">
             <button 
               className="p-2 -ml-2 text-[#86868B] hover:text-[#1D1D1F] rounded-lg transition-colors"

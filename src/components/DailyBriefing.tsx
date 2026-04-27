@@ -41,7 +41,8 @@ export default function DailyBriefing({ isOpen, onClose, weatherData, locationNa
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="w-full max-w-[480px] max-h-[90vh] bg-[#1c1c1e]/40 backdrop-blur-[30px] rounded-[2rem] sm:rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden flex flex-col"
+          className="w-full max-w-[480px] max-h-[90vh] bg-[#1c1c1e]/40 backdrop-blur-xl rounded-[2rem] sm:rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden flex flex-col"
+          style={{ transform: 'translateZ(0)', willChange: 'transform, backdrop-filter' }}
         >
           {/* Header */}
           <div className="p-6 sm:p-8 pb-4 shrink-0 flex items-center justify-between relative">
