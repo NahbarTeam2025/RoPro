@@ -30,7 +30,7 @@ export function NoteEditor({ note, onBack, onSave }: { note: Note, onBack: () =>
 
   const colors = [
     { name: 'Standard', value: '' },
-    { name: 'Blau', value: '#007AFF' },
+    { name: 'Blau', value: '#60A5FA' },
     { name: 'Grün', value: '#34C759' },
     { name: 'Orange', value: '#FF9500' },
     { name: 'Lila', value: '#5856D6' },
@@ -100,7 +100,7 @@ export function NoteEditor({ note, onBack, onSave }: { note: Note, onBack: () =>
     content: note.content,
     editorProps: {
       attributes: {
-        class: 'prose prose-slate dark:prose-invert max-w-none focus:outline-none min-h-[300px] h-full px-4 sm:px-8 py-4 sm:py-6'
+        class: 'prose prose-slate dark:prose-invert max-w-none focus:outline-none min-h-[300px] h-full px-4 sm:px-8 py-2'
       }
     },
     onUpdate: () => {
@@ -115,7 +115,7 @@ export function NoteEditor({ note, onBack, onSave }: { note: Note, onBack: () =>
           <div className="flex items-center gap-2 flex-1 min-w-[200px]">
             <button 
               onClick={onBack}
-              className="p-2 -ml-2 text-brand-muted hover:text-brand hover:bg-slate-500/10 rounded-xl"
+              className="p-2 -ml-2 text-brand-muted hover:text-slate-900 dark:text-white hover:bg-slate-500/10 rounded-xl"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </button>
@@ -124,7 +124,7 @@ export function NoteEditor({ note, onBack, onSave }: { note: Note, onBack: () =>
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Notiz Titel"
-              className="text-2xl sm:text-3xl font-bold text-brand border-none focus:ring-0 p-0 w-full bg-transparent placeholder-brand-muted/50 outline-none"
+              className="text-lg sm:text-xl font-bold text-brand border-none focus:ring-0 p-0 w-full bg-transparent placeholder-brand-muted/50 outline-none"
             />
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
@@ -140,10 +140,8 @@ export function NoteEditor({ note, onBack, onSave }: { note: Note, onBack: () =>
               onClick={handleSave}
               disabled={!hasChanges || isSaving}
               className={cn(
-                "h-10 px-6 rounded-2xl font-bold transition-all flex items-center gap-2",
-                hasChanges 
-                  ? "bg-[#007AFF] text-white hover:bg-[#0071E3] shadow-lg shadow-blue-500/20" 
-                  : "bg-slate-200 dark:bg-white/10 text-brand-muted cursor-not-allowed opacity-50"
+                "px-6 flex items-center gap-2",
+                hasChanges ? "btn-save" : "glass-button-secondary opacity-50"
               )}
             >
               <Save size={18} />
@@ -174,7 +172,7 @@ export function NoteEditor({ note, onBack, onSave }: { note: Note, onBack: () =>
                     onClick={() => setColor(c.value)}
                     className={cn(
                       "w-6 h-6 rounded-full border-2 transition-all shadow-sm",
-                      color === c.value ? "border-brand scale-110" : "border-transparent",
+                      color === c.value ? "border-accent scale-110" : "border-transparent",
                       !c.value ? "bg-slate-200 dark:bg-white/20" : ""
                     )}
                     style={c.value ? { backgroundColor: c.value } : {}}
@@ -186,42 +184,44 @@ export function NoteEditor({ note, onBack, onSave }: { note: Note, onBack: () =>
         </div>
       </div>
 
-      {editor && (
-        <div className="flex items-center gap-1 px-4 sm:px-6 py-2 sm:py-3 border-b border-slate-200/50 dark:border-white/10 flex-wrap shrink-0">
-          <button
-            onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-            className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('heading', { level: 2 }) ? 'bg-brand/10 text-brand' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
-          >
-            <Heading2 size={16} />
-          </button>
-          <button
-            onClick={() => editor.chain().focus().toggleBold().run()}
-            className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('bold') ? 'bg-brand/10 text-brand' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
-          >
-            <Bold size={16} />
-          </button>
-          <button
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-            className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('italic') ? 'bg-brand/10 text-brand' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
-          >
-            <Italic size={16} />
-          </button>
-          <button
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
-            className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('bulletList') ? 'bg-brand/10 text-brand' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
-          >
-            <List size={16} />
-          </button>
-          <button
-            onClick={() => editor.chain().focus().toggleOrderedList().run()}
-            className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('orderedList') ? 'bg-brand/10 text-brand' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
-          >
-            <ListOrdered size={16} />
-          </button>
+      <div className="flex-1 overflow-y-auto w-full prose-container custom-scrollbar tiptap-note-editor relative">
+        {editor && (
+          <div className="sticky top-0 z-[50] bg-[#F2F2F7]/95 dark:bg-[#1C1C1E]/95 backdrop-blur-md flex items-center gap-1 px-4 sm:px-6 py-2 border-b border-slate-200/50 dark:border-white/10 flex-wrap shrink-0 shadow-sm glass-glossy">
+            <button
+              onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+              className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('heading', { level: 2 }) ? 'bg-accent/10 text-accent font-black' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
+            >
+              <Heading2 size={16} />
+            </button>
+            <button
+              onClick={() => editor.chain().focus().toggleBold().run()}
+              className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('bold') ? 'bg-accent/10 text-accent font-black' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
+            >
+              <Bold size={16} />
+            </button>
+            <button
+              onClick={() => editor.chain().focus().toggleItalic().run()}
+              className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('italic') ? 'bg-accent/10 text-accent font-black' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
+            >
+              <Italic size={16} />
+            </button>
+            <button
+              onClick={() => editor.chain().focus().toggleBulletList().run()}
+              className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('bulletList') ? 'bg-accent/10 text-accent font-black' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
+            >
+              <List size={16} />
+            </button>
+            <button
+              onClick={() => editor.chain().focus().toggleOrderedList().run()}
+              className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('orderedList') ? 'bg-accent/10 text-accent font-black' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
+            >
+              <ListOrdered size={16} />
+            </button>
+          </div>
+        )}
+        <div className="pt-4 sm:pt-6">
+          <EditorContent editor={editor} />
         </div>
-      )}
-      <div className="flex-1 overflow-y-auto w-full prose-container custom-scrollbar">
-        <EditorContent editor={editor} />
       </div>
 
       {deleteModal && deleteModal.open && (
@@ -230,8 +230,8 @@ export function NoteEditor({ note, onBack, onSave }: { note: Note, onBack: () =>
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
             <p className="text-sm text-[#86868B] mb-8">Diese Notiz wird unwiderruflich entfernt.</p>
             <div className="flex flex-col gap-3">
-              <button onClick={handleDelete} className="w-full h-12 bg-red-500 text-white font-bold rounded-2xl hover:bg-red-600 transition-all">Löschen</button>
-              <button onClick={() => setDeleteModal(null)} className="w-full h-12 bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-all">Behalten</button>
+              <button onClick={handleDelete} className="btn-cancel w-full">Löschen</button>
+              <button onClick={() => setDeleteModal(null)} className="glass-button-secondary w-full">Behalten</button>
             </div>
           </div>
         </div>

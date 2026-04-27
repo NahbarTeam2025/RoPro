@@ -123,11 +123,11 @@ export default function Prompts() {
       )}>
         <div className="p-4 border-b border-slate-200/50 dark:border-white/10 space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <h2 className="font-bold text-brand text-xl uppercase">Prompts</h2>
+            <h2 className="font-bold text-slate-900 dark:text-white text-xl uppercase">Prompts</h2>
             <div className="flex items-center gap-1">
               <button 
                 onClick={() => setShowCatManager(true)}
-                className="p-2 text-brand-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-xl transition-all cursor-pointer"
+                className="p-2 text-brand-muted hover:text-accent hover:bg-accent/10 rounded-xl transition-all cursor-pointer"
                 title="Kategorien verwalten"
               >
                 <Settings2 size={18} />
@@ -158,7 +158,7 @@ export default function Prompts() {
             />
           </div>
         </div>
-        <div className="flex-1 border border-slate-200/50 dark:border-white/5 rounded-[2rem] m-4 mt-0 overflow-hidden">
+        <div className="flex-1 bg-transparent rounded-[2rem] m-4 mt-0 overflow-hidden">
           <div className="h-full overflow-y-auto custom-scrollbar">
             {filteredPrompts.length === 0 ? (
               <div className="p-4 text-center text-sm font-medium text-brand-muted">Keine Prompts gefunden.</div>
@@ -178,10 +178,9 @@ export default function Prompts() {
                     >
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex items-center gap-2 overflow-hidden">
-                          {prompt.isPinned && <Pin size={12} className="text-brand fill-brand shrink-0" />}
                           <h3 className={cn(
                             "font-bold truncate text-sm tracking-tight",
-                            activePrompt?.id === prompt.id ? "text-brand" : "text-brand/80"
+                            activePrompt?.id === prompt.id ? "text-slate-900 dark:text-white" : "text-slate-900 dark:text-white/80"
                           )}>{prompt.title || 'Unbenannt'}</h3>
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
@@ -190,7 +189,7 @@ export default function Prompts() {
                             disabled={prompt.isDraft}
                             className={cn(
                               "p-1 rounded-md transition-all",
-                              prompt.isPinned ? "text-brand bg-brand/10" : "text-brand-muted hover:bg-slate-500/20",
+                              prompt.isPinned ? "text-brand bg-accent/10" : "text-brand-muted hover:bg-slate-500/20",
                               prompt.isDraft && "opacity-0"
                             )}
                             title={prompt.isPinned ? "Fixierung lösen" : "Anpinnen"}
@@ -247,7 +246,7 @@ export default function Prompts() {
           />
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-brand-muted">
-            <div className="w-16 h-16 flex items-center justify-center mb-4 text-blue-500 dark:text-green-500">
+            <div className="w-16 h-16 flex items-center justify-center mb-4 text-brand dark:text-white">
                <MessageSquare size={48} />
             </div>
             <p className="font-medium">Wähle einen Prompt aus oder erstelle einen neuen</p>

@@ -65,14 +65,14 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            className="relative w-full max-w-[480px] md:max-w-2xl bg-white/90 dark:bg-[#1C1C1E]/90 backdrop-blur-2xl rounded-[2.5rem] border border-white/20 dark:border-white/10 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+            className="relative w-full max-w-[480px] md:max-w-2xl bg-[#1c1c1e]/40 backdrop-blur-[30px] rounded-[2.5rem] border border-white/5 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
           >
             {/* Header */}
             <div className="p-8 pb-4 flex items-center justify-between shrink-0">
               <div>
-                <h2 className="text-2xl font-black text-brand tracking-tight flex items-center gap-2">
-                  <CloudSun className="text-blue-500" />
-                  Wetterbericht
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                  <CloudSun className="text-brand dark:text-white" />
+                  Wetter
                 </h2>
                 <p className="text-sm font-bold text-brand-muted uppercase tracking-widest mt-1">
                   {locationName || 'Dein Standort'}
@@ -80,7 +80,7 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
               </div>
               <button 
                 onClick={onClose}
-                className="p-3 bg-brand/5 hover:bg-brand/10 text-brand-muted hover:text-brand rounded-2xl transition-all"
+                className="p-3 bg-accent/5 hover:bg-accent/10 text-brand-muted hover:text-accent rounded-2xl transition-all"
               >
                 <X size={20} />
               </button>
@@ -109,17 +109,17 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
 
                   <div className="grid grid-cols-2 gap-4 w-full md:w-auto">
                     <div className="flex items-center gap-3 p-3">
-                      <Wind size={24} className="text-blue-400" />
+                      <Wind size={24} className="text-brand dark:text-white" />
                       <div>
                         <div className="text-[10px] font-black uppercase text-brand-muted tracking-wider">Wind</div>
-                        <div className="text-sm font-bold text-brand">{data.current.windSpeed} km/h</div>
+                        <div className="text-sm font-bold text-slate-900 dark:text-white">{data.current.windSpeed} km/h</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3">
-                      <Droplets size={24} className="text-blue-400" />
+                      <Droplets size={24} className="text-brand dark:text-white" />
                       <div>
                         <div className="text-[10px] font-black uppercase text-brand-muted tracking-wider">Feuchte</div>
-                        <div className="text-sm font-bold text-brand">{data.current.humidity}%</div>
+                        <div className="text-sm font-bold text-slate-900 dark:text-white">{data.current.humidity}%</div>
                       </div>
                     </div>
                   </div>

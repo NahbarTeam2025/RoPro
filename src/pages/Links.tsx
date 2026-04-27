@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, query, where, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
-import { Plus, Trash2, ExternalLink, Link as LinkIcon, Tag, Edit2, X, Settings2, Pin } from 'lucide-react';
+import { Plus, Trash2, ExternalLink, Link as LinkIcon, Tag, Edit2, X, Settings2, Pin, Save } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { CategorySelect } from '../components/CategorySelect';
@@ -40,7 +40,7 @@ export default function Links() {
 
   const colors = [
     { name: 'Standard', value: '' },
-    { name: 'Blau', value: '#007AFF' },
+    { name: 'Blau', value: '#60A5FA' },
     { name: 'Grün', value: '#34C759' },
     { name: 'Orange', value: '#FF9500' },
     { name: 'Lila', value: '#5856D6' },
@@ -188,12 +188,12 @@ export default function Links() {
     <div className="max-w-5xl mx-auto flex flex-col relative z-10 w-full pb-10">
       <header className="mb-6 sm:mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-brand uppercase">Links</h1>
+          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white uppercase">Links</h1>
         </div>
         <div className="flex flex-col sm:flex-row w-full sm:w-auto items-center gap-2">
            <button 
              onClick={() => setShowCatManager(true)}
-             className="glass-button-secondary h-10 w-full sm:w-10 p-0 flex items-center justify-center shrink-0 mb-2 sm:mb-0"
+             className="btn-briefing-glow h-10 w-full sm:w-12 p-0 flex items-center justify-center shrink-0 mb-2 sm:mb-0"
              title="Kategorien verwalten"
            >
              <Settings2 size={20} />
@@ -210,7 +210,7 @@ export default function Links() {
            </div>
            <button
              onClick={() => setShowAdd(!showAdd)}
-             className="glass-button-primary flex w-full sm:w-auto justify-center items-center gap-2 h-10 px-4 shrink-0"
+             className="btn-briefing-glow px-6 flex w-full sm:w-auto justify-center items-center gap-2 shrink-0 h-10"
            >
              <Plus size={16} />
              <span>Link hinzufügen</span>
@@ -259,8 +259,8 @@ export default function Links() {
                     type="button"
                     onClick={() => setColor(c.value)}
                     className={cn(
-                      "w-6 h-6 rounded-full border-2 transition-all",
-                      color === c.value ? "border-brand scale-110" : "border-transparent",
+                      "w-8 h-8 rounded-full border-2 transition-all",
+                      color === c.value ? "border-accent scale-110 shadow-[0_0_15px_rgba(37,99,235,0.4)]" : "border-transparent",
                       !c.value ? "bg-slate-200 dark:bg-white/20" : ""
                     )}
                     style={c.value ? { backgroundColor: c.value } : {}}
@@ -269,19 +269,21 @@ export default function Links() {
                ))}
             </div>
           </div>
-          <div className="flex flex-col gap-2 w-full md:w-auto mt-2 md:mt-0">
+          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto mt-2 md:mt-0">
             <button
                type="submit"
-               className="w-full md:w-auto h-10 px-6 glass-button-primary shrink-0 order-first md:order-none"
+               className="btn-green-glow flex-1 md:flex-none px-8"
              >
-               Speichern
+               <Save size={18} />
+               <span>Speichern</span>
              </button>
              <button
                type="button"
                onClick={() => setShowAdd(false)}
-               className="w-full md:w-auto h-10 px-4 glass-button-secondary shrink-0"
+               className="btn-red-glow flex-1 md:flex-none px-6"
              >
-               Abbrechen
+               <X size={18} />
+               <span>Abbrechen</span>
              </button>
           </div>
         </form>
@@ -292,7 +294,7 @@ export default function Links() {
           <div className="w-12 h-12 text-green-500 flex items-center justify-center mx-auto mb-4">
             <LinkIcon size={32} />
           </div>
-          <h3 className="text-sm font-bold text-brand">Keine Links gefunden</h3>
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Keine Links gefunden</h3>
           <p className="mt-1 text-sm font-medium text-brand-muted">Füge dein erstes Lesezeichen hinzu, oder ändere den Filter.</p>
         </div>
       ) : (
@@ -331,7 +333,7 @@ export default function Links() {
                         }}
                         className={cn(
                           "p-1.5 rounded-lg transition-all",
-                          link.isPinned ? "text-brand bg-brand/10" : "text-brand-muted hover:bg-slate-500/10"
+                          link.isPinned ? "text-brand bg-accent/10" : "text-brand-muted hover:bg-slate-500/10"
                         )}
                         title={link.isPinned ? "Fixierung lösen" : "Anpinnen"}
                       >
@@ -339,7 +341,7 @@ export default function Links() {
                       </button>
                       <button
                         onClick={(e) => handleEdit(link, e)}
-                        className="p-1.5 text-brand-muted hover:text-brand hover:bg-brand/10 rounded-lg transition-all cursor-pointer"
+                        className="p-1.5 text-brand-muted hover:text-accent hover:bg-accent/10 rounded-lg transition-all cursor-pointer"
                         aria-label="Link bearbeiten"
                       >
                         <Edit2 size={14} />
@@ -382,14 +384,14 @@ export default function Links() {
               <button 
                 type="button"
                 onClick={confirmDelete}
-                className="w-full h-12 bg-red-500 text-white font-bold rounded-2xl hover:bg-red-600 transition-all"
+                className="btn-cancel w-full"
               >
                 Löschen
               </button>
               <button 
                 type="button"
                 onClick={() => setDeleteModal(null)}
-                className="w-full h-12 bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-all"
+                className="glass-button-secondary w-full"
               >
                 Behalten
               </button>
@@ -400,12 +402,11 @@ export default function Links() {
 
       {/* Edit Modal */}
       {editLink && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 text-left">
-          <div className="glass-card shadow-2xl w-full max-w-md rounded-[2.5rem] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 pt-20 text-left overflow-y-auto">
+          <div className="glass-card shadow-2xl w-full max-w-md my-auto rounded-[2.5rem] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="p-8 pb-0 flex justify-between items-start">
                <div>
                   <h3 className="text-2xl font-black text-brand tracking-tight">Link bearbeiten</h3>
-                  <p className="text-sm text-brand-muted font-medium">Passe Titel, URL oder Kategorie an.</p>
                </div>
                <button onClick={() => setEditLink(null)} className="p-2 hover:bg-slate-500/10 rounded-xl transition-colors text-brand-muted">
                   <X size={24} />
@@ -452,7 +453,7 @@ export default function Links() {
                         onClick={() => setEditColor(c.value)}
                         className={cn(
                           "w-8 h-8 rounded-full border-2 transition-all",
-                          editColor === c.value ? "border-brand scale-110" : "border-transparent",
+                          editColor === c.value ? "border-accent scale-110" : "border-transparent",
                           !c.value ? "bg-slate-200 dark:bg-white/20" : ""
                         )}
                         style={c.value ? { backgroundColor: c.value } : {}}
@@ -463,19 +464,19 @@ export default function Links() {
               </div>
               <div className="pt-4 flex flex-col gap-3">
                 <button
-                  type="submit"
-                  disabled={isUpdating}
-                  className="w-full h-14 bg-[#007AFF] text-white font-bold rounded-2xl hover:bg-[#0071E3] transition-all shadow-lg shadow-blue-500/20"
-                >
-                  {isUpdating ? 'Speichert...' : 'Speichern'}
-                </button>
+                   type="submit"
+                   disabled={isUpdating}
+                   className="btn-green-glow w-full h-12"
+                 >
+                   {isUpdating ? 'Speichert...' : 'Speichern'}
+                 </button>
                 <button
-                  type="button"
-                  onClick={() => setEditLink(null)}
-                  className="w-full h-14 bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-all"
-                >
-                  Abbrechen
-                </button>
+                   type="button"
+                   onClick={() => setEditLink(null)}
+                   className="btn-red-glow w-full h-12"
+                 >
+                   Abbrechen
+                 </button>
               </div>
             </form>
           </div>

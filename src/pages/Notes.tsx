@@ -146,11 +146,11 @@ export default function Notes() {
       )}>
         <div className="p-4 border-b border-slate-200/50 dark:border-white/10 space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <h2 className="font-bold text-brand text-xl uppercase">Notizen</h2>
+            <h2 className="font-bold text-slate-900 dark:text-white text-sm uppercase">Notizen</h2>
             <div className="flex items-center gap-1">
               <button 
                 onClick={() => setShowCatManager(true)} 
-                className="p-2 text-brand-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-xl transition-all cursor-pointer"
+                className="p-2 text-brand-muted hover:text-accent hover:bg-accent/10 rounded-xl transition-all cursor-pointer"
                 title="Kategorien verwalten"
               >
                 <Settings2 size={18} />
@@ -191,7 +191,7 @@ export default function Notes() {
             />
           </div>
         </div>
-        <div className="flex-1 bg-white/30 dark:bg-white/[0.04] border border-slate-200/50 dark:border-white/5 rounded-[2rem] m-4 mt-0 shadow-inner overflow-hidden">
+        <div className="flex-1 bg-transparent rounded-[2rem] m-4 mt-0 overflow-hidden">
           <div className="h-full overflow-y-auto custom-scrollbar">
             {filteredNotes.length === 0 ? (
               <div className="p-6 text-center text-sm font-medium text-brand-muted">Keine Notizen gefunden.</div>
@@ -212,10 +212,9 @@ export default function Notes() {
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            {note.isPinned && <Pin size={12} className="text-brand fill-brand shrink-0" />}
                             <h3 className={cn(
                               "font-bold truncate text-sm tracking-tight",
-                              activeNote?.id === note.id ? "text-brand" : "text-brand/80"
+                              activeNote?.id === note.id ? "text-slate-900 dark:text-white" : "text-slate-900 dark:text-white/80"
                             )}>{note.title || 'Unbenannte Notiz'}</h3>
                           </div>
                         </div>
@@ -225,7 +224,7 @@ export default function Notes() {
                             onClick={(e) => togglePin(e, note)}
                             className={cn(
                               "p-1.5 rounded-lg transition-all md:opacity-0 md:group-hover:opacity-100",
-                              note.isPinned ? "text-brand bg-brand/10" : "text-brand-muted hover:bg-slate-500/10"
+                              note.isPinned ? "text-brand bg-accent/10" : "text-brand-muted hover:bg-slate-500/10"
                             )}
                             title={note.isPinned ? "Fixierung lösen" : "Anpinnen"}
                           >
@@ -278,7 +277,7 @@ export default function Notes() {
           />
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-brand-muted">
-            <div className="w-16 h-16 flex items-center justify-center mb-4 text-blue-500 dark:text-green-500">
+            <div className="w-16 h-16 flex items-center justify-center mb-4 text-brand dark:text-white">
                <FileText size={48} />
             </div>
             <p className="font-medium">Wähle eine Notiz aus oder erstelle eine neue</p>
@@ -296,14 +295,14 @@ export default function Notes() {
               <button 
                 type="button"
                 onClick={handleConfirmDelete}
-                className="w-full h-12 bg-red-500 text-white font-bold rounded-2xl hover:bg-red-600 transition-all"
+                className="btn-cancel w-full"
               >
                 Löschen
               </button>
               <button 
                 type="button"
                 onClick={() => setDeleteModal(null)}
-                className="w-full h-12 bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-all"
+                className="glass-button-secondary w-full"
               >
                 Behalten
               </button>

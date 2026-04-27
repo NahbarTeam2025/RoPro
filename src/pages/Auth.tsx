@@ -26,10 +26,10 @@ export default function Auth() {
       </div>
       
       <div className="w-full max-w-sm glass-card p-10 rounded-[2.5rem] text-center relative z-10">
-        <div className="w-20 h-20 flex items-center justify-center mx-auto mb-6 text-[#007AFF]">
+        <div className="w-20 h-20 flex items-center justify-center mx-auto mb-6 text-slate-900 dark:text-white dark:text-white">
           <Zap size={56} fill="currentColor" />
         </div>
-        <h1 className="text-5xl font-black mb-3 tracking-tighter text-brand">RoPro</h1>
+        <h1 className="text-5xl font-black mb-3 tracking-tighter text-slate-900 dark:text-white">RoPro</h1>
         <p className="text-sm font-bold text-brand-muted mb-10 leading-relaxed uppercase tracking-widest px-4">The High-End Productivity OS</p>
         
         {error && (
@@ -57,7 +57,7 @@ export default function Auth() {
         <div className="pt-6 border-t border-slate-200/50 dark:border-white/10">
           <p className="text-[11px] text-brand-muted font-bold uppercase tracking-widest leading-loose">
             Probleme beim Login?<br />
-            <a href="/" target="_blank" className="text-[#007AFF] hover:underline decoration-2 underline-offset-4">App in neuem Tab öffnen</a>
+            <a href="/" target="_blank" className="text-brand dark:text-white hover:underline decoration-2 underline-offset-4">App in neuem Tab öffnen</a>
           </p>
         </div>
       </div>

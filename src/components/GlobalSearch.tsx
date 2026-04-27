@@ -245,7 +245,7 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="w-full max-w-[480px] bg-white/70 dark:bg-[#1C1C1E]/70 backdrop-blur-[20px] rounded-[2rem] border border-white/20 dark:border-white/10 shadow-[0_32px_64px_rgba(0,0,0,0.2)] overflow-hidden flex flex-col"
+            className="w-full max-w-[480px] bg-[#1c1c1e]/40 backdrop-blur-[30px] rounded-[2rem] border border-white/5 shadow-2xl overflow-hidden flex flex-col"
           >
             <div className="relative border-b border-black/5 dark:border-white/5">
               <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-muted" size={20} />
@@ -256,11 +256,11 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Suche"
-                className="w-full pl-16 pr-6 h-14 sm:h-16 bg-transparent text-lg font-medium text-brand placeholder:text-brand-muted outline-none"
+                className="w-full pl-16 pr-6 h-14 sm:h-16 bg-transparent text-lg font-medium text-slate-900 dark:text-white placeholder:text-brand-muted outline-none"
               />
               <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                <span className="text-[10px] font-bold text-brand-muted bg-brand/5 px-2 py-1 rounded-lg uppercase tracking-widest hidden sm:block">ESC zum Schließen</span>
-                <button onClick={onClose} className="p-1 hover:bg-brand/10 rounded-lg text-brand-muted transition-colors">
+                <span className="text-[10px] font-bold text-brand-muted bg-accent/5 px-2 py-1 rounded-lg uppercase tracking-widest hidden sm:block">ESC zum Schließen</span>
+                <button onClick={onClose} className="p-1 hover:bg-accent/10 rounded-lg text-brand-muted transition-colors">
                   <X size={18} />
                 </button>
               </div>
@@ -284,19 +284,19 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                           onMouseEnter={() => setSelectedIndex(index)}
                           className={cn(
                             "w-full text-left p-4 rounded-2xl flex items-center gap-4 transition-all group relative",
-                            selectedIndex === index ? "bg-brand/10 shadow-sm" : "hover:bg-brand/5"
+                            selectedIndex === index ? "bg-accent/10 shadow-sm" : "hover:bg-brand/5"
                           )}
                         >
                           <div className={cn(
                             "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors",
-                            selectedIndex === index ? "bg-brand text-white" : "bg-brand/10 text-brand"
+                            selectedIndex === index ? "bg-brand text-white" : "bg-brand/10 text-slate-900 dark:text-white"
                           )}>
                             {getModuleIcon(result.module)}
                           </div>
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <h4 className={cn("font-bold text-sm truncate tracking-tight transition-colors", selectedIndex === index ? "text-brand" : "text-brand/80")}>
+                              <h4 className={cn("font-bold text-sm truncate tracking-tight transition-colors", selectedIndex === index ? "text-slate-900 dark:text-white" : "text-slate-900 dark:text-white/80")}>
                                 {result.title}
                               </h4>
                               {result.metadata?.priority === 'high' && <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]" />}

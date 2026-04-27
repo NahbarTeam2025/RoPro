@@ -13,6 +13,7 @@ export function CategoryManager({ type, onClose }: CategoryManagerProps) {
   const [newName, setNewName] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,19 +40,18 @@ export function CategoryManager({ type, onClose }: CategoryManagerProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-[250] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-        <div className="p-8 border-b border-slate-200/50 dark:border-white/10 flex justify-between items-center">
+    <div className="fixed inset-0 z-[250] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 pt-20 overflow-y-auto">
+      <div className="glass-card w-full max-w-[480px] my-auto rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-200 max-h-[80vh]">
+        <div className="p-8 border-b border-slate-200/50 dark:border-white/10 flex justify-between items-center shrink-0">
           <div>
-            <h3 className="text-2xl font-black text-brand tracking-tight">Kategorien verwalten</h3>
-            <p className="text-sm text-brand-muted font-medium mt-1">Für {typeLabels[type]}</p>
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Kategorien verwalten</h3>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-500/10 rounded-xl transition-colors text-brand-muted cursor-pointer">
             <X size={24} />
           </button>
         </div>
 
-        <div className="p-8 space-y-6">
+        <div className="p-8 pb-4 space-y-6">
           <form onSubmit={handleAdd} className="flex gap-2">
             <input 
               type="text" 
@@ -60,14 +60,14 @@ export function CategoryManager({ type, onClose }: CategoryManagerProps) {
               placeholder="Neue Kategorie..."
               className="glass-input h-12 flex-1"
             />
-            <button type="submit" className="glass-button-primary h-12 w-12 px-0 flex items-center justify-center shrink-0">
+            <button type="submit" className="h-12 w-12 bg-brand text-white rounded-[1.25rem] flex items-center justify-center shrink-0 shadow-lg shadow-accent/20 active:scale-95 transition-all">
               <Plus size={24} />
             </button>
           </form>
 
-          <div className="space-y-2 max-h-[40vh] overflow-y-auto custom-scrollbar pr-2">
+          <div className="space-y-2 max-h-[175px] overflow-y-auto custom-scrollbar pr-2">
             {categories.map(cat => (
-              <div key={cat.id} className="flex items-center gap-2 p-3 rounded-2xl group border border-transparent hover:border-blue-500/20 transition-all">
+              <div key={cat.id} className="flex items-center gap-2 p-3 rounded-2xl group border border-transparent hover:border-accent/20 transition-all">
                 <Tag size={16} className="text-brand-muted" />
                 
                 {editingId === cat.id ? (
@@ -86,22 +86,40 @@ export function CategoryManager({ type, onClose }: CategoryManagerProps) {
                     <button onClick={() => handleUpdate(cat.id)} className="p-1.5 text-green-500 hover:bg-green-500/10 rounded-lg shrink-0">
                       <Check size={16} />
                     </button>
-                    <button onClick={() => setEditingId(null)} className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg shrink-0">
+                    <button onClick={() => setConfirmDeleteId(null)} className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg shrink-0">
                       <X size={16} />
                     </button>
                   </div>
+                ) : confirmDeleteId === cat.id ? (
+                  <div className="flex-1 flex items-center justify-between animate-in fade-in slide-in-from-right-2 duration-200">
+                    <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Löschen bestätigen?</span>
+                    <div className="flex items-center gap-1">
+                      <button 
+                        onClick={() => { deleteCategory(cat.id); setConfirmDeleteId(null); }}
+                        className="px-4 h-8 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-600 transition-all active:scale-95 shadow-lg shadow-red-500/20"
+                      >
+                        Ja
+                      </button>
+                      <button 
+                        onClick={() => setConfirmDeleteId(null)}
+                        className="px-4 h-8 bg-slate-200 dark:bg-white/10 text-brand-muted text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-300 dark:hover:bg-white/20 transition-all active:scale-95"
+                      >
+                        Nein
+                      </button>
+                    </div>
+                  </div>
                 ) : (
                   <>
-                    <span className="flex-1 text-sm font-bold text-brand truncate">{cat.name}</span>
+                    <span className="flex-1 text-sm font-bold text-slate-900 dark:text-white truncate">{cat.name}</span>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
-                        onClick={() => { setEditingId(cat.id); setEditName(cat.name); }}
-                        className="p-1.5 text-brand-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-lg cursor-pointer transition-colors"
+                        onClick={() => { setEditingId(cat.id); setEditName(cat.name); setConfirmDeleteId(null); }}
+                        className="p-1.5 text-brand-muted hover:text-accent hover:bg-accent/10 rounded-lg cursor-pointer transition-colors"
                       >
                         <Edit2 size={14} />
                       </button>
                       <button 
-                        onClick={() => deleteCategory(cat.id)}
+                        onClick={() => { setConfirmDeleteId(cat.id); setEditingId(null); }}
                         className="p-1.5 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg cursor-pointer transition-colors"
                       >
                         <Trash2 size={14} />
@@ -119,8 +137,8 @@ export function CategoryManager({ type, onClose }: CategoryManagerProps) {
           </div>
         </div>
 
-        <div className="p-8 pt-0 border-t border-slate-200/50 dark:border-white/10">
-          <button onClick={onClose} className="w-full mt-6 h-12 bg-[#F5F5F7] dark:bg-[#3A3A3C] text-brand font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#4A4A4C] transition-all">
+        <div className="p-8 pt-4 border-t border-slate-200/50 dark:border-white/10 shrink-0">
+          <button onClick={onClose} className="w-full h-12 glass-button-secondary rounded-[1.25rem] font-black uppercase tracking-[0.2em] text-[10px] active:scale-95 transition-all">
             Schließen
           </button>
         </div>

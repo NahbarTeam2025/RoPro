@@ -166,7 +166,7 @@ export default function Calendar() {
       await addDoc(collection(db, 'appointments'), {
         task: newTaskText.trim(),
         priority: 'medium',
-        color: '#007AFF', // Default blue
+        color: '#0055D4', // Default accent color
         completed: false,
         dueDate: finalDate.toISOString(),
         userId: user.uid,
@@ -201,16 +201,35 @@ export default function Calendar() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 relative z-10 w-full px-0 sm:px-0 pb-10 lg:pb-6">
-      <div className="flex flex-col sm:flex-row items-center justify-center p-6 glass-card rounded-3xl gap-6">
-        <div className="flex items-center gap-6">
-          <button onClick={prevMonth} className="p-3 border border-slate-200/50 dark:border-white/10 rounded-2xl hover:bg-slate-500/10 transition-colors cursor-pointer text-brand shadow-sm">
-            <ChevronLeft size={24} />
-          </button>
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tighter text-brand capitalize">
-            {format(currentDate, "MMMM yyyy", { locale: de })}
-          </h1>
-          <button onClick={nextMonth} className="p-3 border border-slate-200/50 dark:border-white/10 rounded-2xl hover:bg-slate-500/10 transition-colors cursor-pointer text-brand shadow-sm">
-            <ChevronRight size={24} />
+      <div className="glass-card rounded-[2.5rem] p-6 mb-6">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={prevMonth}
+              className="w-12 h-12 flex items-center justify-center rounded-[1.25rem] bg-white dark:bg-white/[0.03] border border-slate-200/50 dark:border-white/5 text-brand shadow-sm hover:bg-slate-50 dark:hover:bg-white/[0.08] transition-all active:scale-90"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <button 
+              onClick={nextMonth}
+              className="w-12 h-12 flex items-center justify-center rounded-[1.25rem] bg-white dark:bg-white/[0.03] border border-slate-200/50 dark:border-white/5 text-brand shadow-sm hover:bg-slate-50 dark:hover:bg-white/[0.08] transition-all active:scale-90"
+            >
+              <ChevronRight size={24} />
+            </button>
+          </div>
+
+          <div className="flex-1 px-1 sm:px-4 flex justify-center">
+            <h1 className="text-xl sm:text-3xl font-black tracking-tighter text-brand capitalize leading-none text-center flex flex-col items-center">
+              <span className="block">{format(currentDate, "MMMM", { locale: de })}</span>
+              <span className="text-[10px] sm:text-lg opacity-40 mt-1 tracking-widest block">{format(currentDate, "yyyy")}</span>
+            </h1>
+          </div>
+
+          <button 
+            onClick={() => setCurrentDate(new Date())}
+            className="btn-briefing-glow h-12 px-6 hidden sm:flex shrink-0"
+          >
+            Heute
           </button>
         </div>
       </div>
@@ -263,71 +282,55 @@ export default function Calendar() {
             const holidayName = isHoliday ? holidayArr[0].name : null;
             const sunday = isSunday(day);
             
-            return (
-              <div 
-                key={day.toString()} 
-                onClick={() => handleDayClick(day, holidayName)}
-                className={cn(
-                  "min-h-[100px] sm:min-h-[140px] bg-white dark:bg-[#1a1a1a] p-2 sm:p-3 transition-colors cursor-pointer hover:bg-slate-50 dark:hover:bg-white/[0.05] group relative",
-                  !isSameMonth(day, monthStart) && "opacity-20 pointer-events-none"
-                )}
-              >
-                <div className="flex justify-between items-start mb-2 sm:mb-3">
-                  <span className={cn(
-                    "w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-sm font-black transition-all",
-                    isToday(day) ? "bg-brand text-white rounded-full shadow-lg shadow-blue-500/20" : 
-                    sunday ? "text-red-500" : "text-brand"
-                  )}>
-                    {format(day, 'd')}
-                  </span>
+              return (
+                <div 
+                  key={day.toString()} 
+                  onClick={() => handleDayClick(day, holidayName)}
+                  className={cn(
+                    "min-h-[64px] sm:min-h-[80px] bg-transparent p-1 sm:p-2 transition-colors cursor-pointer hover:bg-slate-50 dark:hover:bg-white/[0.05] group relative flex flex-col items-center justify-center",
+                    !isSameMonth(day, monthStart) && "opacity-20 pointer-events-none"
+                  )}
+                >
+                  <div className="relative flex items-center justify-center">
+                    <span className={cn(
+                      "w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-sm font-black transition-all relative z-10",
+                      isToday(day) ? "bg-accent text-white rounded-full shadow-lg shadow-accent/20" : 
+                      sunday ? "text-red-500" : "text-slate-900 dark:text-white"
+                    )}>
+                      {format(day, 'd')}
+                    </span>
+                    
+                    {/* Ring indicator for events */}
+                    {dayEvents.length > 0 && !isToday(day) && (
+                      <div className="absolute inset-[-4px] rounded-full border-2 border-green-500/30 dark:border-green-400/20" />
+                    )}
+                  </div>
+
                   {isHoliday && (
-                    <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.4)]" title={holidayName || 'Feiertag'} />
+                    <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.4)]" title={holidayName || 'Feiertag'} />
+                  )}
+                  
+                  {!isToday(day) && !isHoliday && (
+                    <div className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-brand-muted">
+                      <Plus size={12} />
+                    </div>
                   )}
                 </div>
-                
-                <div className="space-y-1 overflow-y-auto max-h-[50px] sm:max-h-[90px] scrollbar-hide px-0.5">
-                  {dayEvents.map(event => (
-                    <div
-                      key={event.id}
-                      className={cn(
-                        "block px-2 py-1.5 text-[8px] sm:text-[9px] font-black tracking-tight leading-tight rounded-lg truncate transition-all",
-                        event.type === 'birthday'
-                          ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                          : event.completed 
-                            ? "bg-slate-200/30 dark:bg-white/5 text-brand-muted/50 line-through"
-                            : "bg-brand/10 text-brand hover:shadow-sm"
-                      )}
-                      title={event.title}
-                    >
-                      {event.type === 'appointment' && event.completed && <Check size={8} className="inline mr-1" />}
-                      {event.type === 'appointment' && (
-                        <span className="font-mono text-[8px] opacity-60 mr-1">{format(event.date, 'HH:mm')}</span>
-                      )}
-                      <span className="uppercase tracking-tighter">{event.title}</span>
-                    </div>
-                  ))}
-                </div>
-                {!isToday(day) && !isHoliday && (
-                  <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-brand-muted">
-                    <Plus size={14} />
-                  </div>
-                )}
-              </div>
-            );
+              );
           })}
         </div>
       </div>
 
       {/* Modal / Dialog for day actions */}
       {selectedDay && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="glass-card shadow-2xl w-full max-w-[480px] rounded-[2rem] overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col relative">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 sm:p-8 pt-32 sm:pt-40 pb-10 overflow-hidden">
+          <div className="glass-card shadow-2xl w-full max-w-[480px] rounded-[2.5rem] overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col relative max-h-full">
             {/* Google Search Quick Access in Calendar Modal too? No, just keep the close button. */}
             <div className="p-6 border-b border-slate-200/50 dark:border-white/10 flex justify-between items-center shrink-0">
               <div>
-                <h3 className="text-xl font-bold text-brand">{format(selectedDay.date, 'EEEE, d. MMMM', { locale: de })}</h3>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">{format(selectedDay.date, 'EEEE, d. MMMM', { locale: de })}</h3>
                 {selectedDay.holiday && (
-                  <p className="text-sm font-bold text-blue-500 mt-1 uppercase tracking-widest">{selectedDay.holiday}</p>
+                  <p className="text-sm font-bold text-brand dark:text-white mt-1 uppercase tracking-widest">{selectedDay.holiday}</p>
                 )}
               </div>
               <button 
@@ -338,8 +341,9 @@ export default function Calendar() {
               </button>
             </div>
             
-            {/* List of existing tasks for the day */}
-            <div className="p-4 overflow-y-auto flex-1 bg-transparent">
+            <div className="flex-1 overflow-y-auto custom-scrollbar overflow-x-hidden flex flex-col">
+              {/* List area */}
+              <div className="p-4 bg-transparent min-h-[100px] shrink-0">
               {(() => {
                 const dayAppointments = appointments.filter(a => a.dueDate && isSameDay(new Date(a.dueDate), selectedDay.date));
                 const dayBirthdays = contacts.filter(c => {
@@ -349,11 +353,11 @@ export default function Calendar() {
                 });
 
                 if (dayAppointments.length === 0 && dayBirthdays.length === 0) {
-                  return <div className="text-center py-6 text-sm text-brand-muted font-medium">Keine Termine an diesem Tag.</div>;
+                  return <div className="text-center py-10 text-sm text-brand-muted font-medium opacity-40">Keine Termine an diesem Tag.</div>;
                 }
 
                 return (
-                  <ul className="space-y-2">
+                  <ul className="space-y-3 pb-4">
                     {dayBirthdays.map(c => (
                       <li key={`modal-bday-${c.id}`} className="flex items-center gap-3 p-3 border border-amber-500/20 rounded-xl">
                         <div className="w-5 h-5 flex items-center justify-center shrink-0 text-amber-500">
@@ -390,7 +394,7 @@ export default function Calendar() {
                                    setNewTaskText(app.task);
                                    setNewTaskTime(format(new Date(app.dueDate!), 'HH:mm'));
                                  }}
-                                 className="p-1.5 text-slate-400 hover:text-blue-500 hover:bg-blue-500/10 rounded-lg cursor-pointer transition-colors"
+                                 className="p-1.5 text-slate-400 hover:text-accent hover:bg-accent/10 rounded-lg cursor-pointer transition-colors"
                                >
                                  <Edit2 size={14} />
                                </button>
@@ -409,7 +413,7 @@ export default function Calendar() {
               })()}
             </div>
 
-            <div className="p-6 border-t border-slate-200/50 dark:border-white/10 shrink-0">
+            <div className="p-6 border-t border-slate-200/50 dark:border-white/10 bg-white/50 dark:bg-black/40 backdrop-blur-md mt-auto">
               <form onSubmit={editingAppointment ? handleUpdateTask : handleAddTask} className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-bold text-brand-muted uppercase tracking-widest">
@@ -431,7 +435,7 @@ export default function Calendar() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-brand-muted uppercase tracking-wider mb-2">
-                    Neuer Termin
+                    Titel
                   </label>
                   <input
                     type="text"
@@ -440,25 +444,44 @@ export default function Calendar() {
                     placeholder="Titel eingeben..."
                     className="glass-input text-base sm:text-lg mb-3"
                   />
-                  <input
-                    type="time"
-                    value={newTaskTime}
-                    onChange={(e) => setNewTaskTime(e.target.value)}
-                    className="glass-input !h-10 text-sm"
-                  />
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex-1 space-y-1">
+                      <label className="block text-[10px] font-bold text-brand-muted uppercase tracking-wider">Datum</label>
+                      <input
+                        type="date"
+                        value={format(selectedDay.date, 'yyyy-MM-dd')}
+                        onChange={(e) => {
+                          const newDate = new Date(e.target.value);
+                          if (!isNaN(newDate.getTime())) {
+                            setSelectedDay({ ...selectedDay, date: newDate });
+                          }
+                        }}
+                        className="glass-input !h-10 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block text-[10px] font-bold text-brand-muted uppercase tracking-wider">Uhrzeit</label>
+                      <input
+                        type="time"
+                        value={newTaskTime}
+                        onChange={(e) => setNewTaskTime(e.target.value)}
+                        className="glass-input !h-10 text-sm"
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div className="pt-2 flex justify-end gap-2">
                   <button 
                     type="button" 
                     onClick={() => setSelectedDay(null)}
-                    className="glass-button-secondary py-2 h-auto text-xs sm:text-sm"
+                    className="btn-red-glow px-6"
                   >
                     Schließen
                   </button>
                   <button 
                     type="submit" 
                     disabled={!newTaskText.trim() || isAddingTask}
-                    className="glass-button-primary disabled:opacity-50 py-2 h-auto text-xs sm:text-sm"
+                    className="btn-green-glow px-8 disabled:opacity-50"
                   >
                     {isAddingTask ? 'Speichert...' : (editingAppointment ? 'Speichern' : 'Hinzufügen')}
                   </button>
@@ -467,7 +490,8 @@ export default function Calendar() {
             </div>
           </div>
         </div>
-      )}
+      </div>
+    )}
       {/* Custom Delete Modal */}
       {deleteModal && deleteModal.open && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/10 backdrop-blur-md">
@@ -478,14 +502,14 @@ export default function Calendar() {
               <button 
                 type="button"
                 onClick={confirmDelete}
-                className="w-full h-12 bg-red-500 text-white font-bold rounded-2xl hover:bg-red-600 transition-all"
+                className="btn-cancel w-full"
               >
                 Löschen
               </button>
               <button 
                 type="button"
                 onClick={() => setDeleteModal(null)}
-                className="w-full h-12 bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-all"
+                className="glass-button-secondary w-full"
               >
                 Behalten
               </button>

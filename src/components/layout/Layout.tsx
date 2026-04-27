@@ -19,6 +19,13 @@ import DailyBriefing from '../DailyBriefing';
 import WeatherModal from '../WeatherModal';
 import { fetchWeather, WeatherData, getWeatherInfo, fetchCityName } from '../../services/weatherService';
 
+interface NavItem {
+  name: string;
+  icon: any;
+  path?: string;
+  url?: string;
+}
+
 interface ExternalLink {
   name: string;
   icon: any;
@@ -136,7 +143,7 @@ export default function Layout() {
     }, 400);
   };
 
-  const navItems = [
+  const navItems: NavItem[] = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
     { name: 'Kalender', icon: CalendarIcon, path: '/calendar' },
     { name: 'Aufgaben', icon: CheckSquare, path: '/tasks' },
@@ -217,19 +224,11 @@ export default function Layout() {
   const mainRef = React.useRef<HTMLElement>(null);
 
   return (
-    <div className="flex min-h-screen font-sans relative bg-[#FBFBFD] dark:bg-black transition-colors duration-500">
-      {/* Decorative Background Blurs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full bg-blue-600/[0.08] dark:bg-blue-600/[0.12] blur-[120px]" />
-        <div className="absolute bottom-[5%] left-[5%] w-[45%] h-[45%] rounded-full bg-purple-600/[0.06] dark:bg-purple-600/[0.1] blur-[120px]" />
-        <div className="absolute bottom-[-80px] right-[-60px] w-[350px] h-[350px] rounded-full bg-[radial-gradient(circle,_rgba(99,37,235,0.18)_0%,_transparent_65%)] blur-[80px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40%] h-[40%] rounded-full bg-blue-400/[0.03] dark:bg-blue-400/[0.05] blur-[100px]" />
-      </div>
-
+    <div className="flex min-h-screen font-sans relative bg-black transition-colors duration-500">
       {/* Mobile sidebar overlay */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-black/20 z-40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -237,24 +236,25 @@ export default function Layout() {
       {/* Sidebar */}
       <aside 
         className={cn(
-          "fixed inset-y-0 left-0 z-50 bg-white/80 dark:bg-white/[0.03] backdrop-blur-xl border-r border-[#D2D2D7]/30 dark:border-white/[0.06] transform transition-all duration-500 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 flex flex-col shadow-2xl lg:shadow-none",
+          "fixed inset-y-0 left-0 z-50 bg-white/10 dark:bg-black/40 backdrop-blur-2xl border-r border-white/[0.1] transform transition-all duration-500 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 flex flex-col shadow-2xl lg:shadow-none",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full",
           isSidebarCollapsed ? "lg:w-20" : "lg:w-64 w-64"
         )}
       >
         <div className={cn("p-8 flex items-center shrink-0", isSidebarCollapsed ? "flex-col gap-4 px-0" : "gap-3")}>
-          <div className="w-8 h-8 flex items-center justify-center text-[#007AFF] shrink-0">
+          <div className="w-8 h-8 flex items-center justify-center text-blue-500 shrink-0">
             <Zap size={24} fill="currentColor" />
           </div>
           {!isSidebarCollapsed ? (
             <div className="flex-1 flex items-center justify-between overflow-hidden">
-              <span className="font-bold text-2xl tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7] truncate">RoPro</span>
+              <span className="font-brand font-bold text-sm tracking-tighter text-[#1D1D1F] dark:text-[#F5F5F7] truncate uppercase">ROPRO</span>
               <WeatherSummaryIcon className="ml-2" />
             </div>
           ) : (
             <WeatherSummaryIcon />
           )}
           <button 
+            type="button"
             className="lg:hidden text-[#86868B] ml-auto hover:text-[#1D1D1F] transition-colors focus-visible:ring-2 rounded" 
             onClick={() => setIsSidebarOpen(false)}
             aria-label="Sidebar schließen"
@@ -276,7 +276,7 @@ export default function Layout() {
             {!isSidebarCollapsed && (
               <div className="flex items-center justify-between w-full">
                 <span className="text-sm font-medium">Suchen...</span>
-                <div className="flex items-center gap-1 opacity-50">
+                <div className="flex items-center gap-1 opacity-50 text-brand-muted">
                   <Command size={10} />
                   <span className="text-[10px] font-black">K</span>
                 </div>
@@ -288,31 +288,59 @@ export default function Layout() {
         <nav className="flex-1 py-2 overflow-y-auto flex flex-col gap-6">
           <div className="space-y-1">
             {!isSidebarCollapsed && <h3 className="px-4 text-[11px] font-bold text-[#86868B] uppercase tracking-wider mb-2">Hauptmenü</h3>}
-            {navItems.map((item) => (
-              <NavLink
-                key={item.name}
-                to={item.path}
-                className={({ isActive }) => cn(
-                  "sidebar-item",
-                  isActive && "sidebar-item-active",
-                  isSidebarCollapsed && "justify-center px-0"
-                )}
-                onClick={() => setIsSidebarOpen(false)}
-                title={isSidebarCollapsed ? item.name : undefined}
-              >
-                <item.icon size={18} className="shrink-0" />
-                {!isSidebarCollapsed && <span>{item.name}</span>}
-              </NavLink>
-            ))}
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const content = (
+                <>
+                  <Icon size={18} className="shrink-0" />
+                  {!isSidebarCollapsed && <span>{item.name}</span>}
+                </>
+              );
+
+              if ('url' in item) {
+                return (
+                  <a
+                    key={item.name}
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(
+                      "sidebar-item",
+                      isSidebarCollapsed && "justify-center px-0 text-slate-400"
+                    )}
+                    title={isSidebarCollapsed ? item.name : undefined}
+                  >
+                    {content}
+                  </a>
+                );
+              }
+
+              return (
+                <NavLink
+                  key={item.name}
+                  to={item.path!}
+                  className={({ isActive }) => cn(
+                    "sidebar-item",
+                    isActive && "sidebar-item-active",
+                    isSidebarCollapsed && "justify-center px-0"
+                  )}
+                  onClick={() => setIsSidebarOpen(false)}
+                  title={isSidebarCollapsed ? item.name : undefined}
+                >
+                  {content}
+                </NavLink>
+              );
+            })}
           </div>
 
           <div className="space-y-4">
             {categories.map((cat) => (
               <div key={cat.id} className="space-y-1">
                 <button
+                  type="button"
                   onClick={() => !isSidebarCollapsed && toggleCategory(cat.id)}
                   className={cn(
-                    "w-full flex items-center text-[11px] font-bold text-[#86868B] uppercase tracking-wider hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors",
+                    "w-full flex items-center text-[11px] font-bold text-[#86868B] uppercase tracking-wider hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors focus:outline-none",
                     isSidebarCollapsed ? "justify-center px-0" : "justify-between px-4 py-2"
                   )}
                   title={isSidebarCollapsed ? cat.name : undefined}
@@ -355,18 +383,19 @@ export default function Layout() {
 
         <div className="p-3 border-t border-[#D2D2D7]/30 dark:border-[#424245]/30 space-y-1.5 shrink-0">
            <button 
+             type="button"
              onClick={handleRandomize}
              disabled={isRolling}
              className={cn(
-               "w-full flex items-center gap-3 px-4 py-1.5 rounded-xl text-sm font-medium text-[#424245] dark:text-[#A1A1A6] hover:bg-brand/10 hover:text-brand transition-all relative group",
+               "sidebar-item w-auto focus:outline-none",
                isSidebarCollapsed && "justify-center px-0"
              )}
              title={isSidebarCollapsed ? "Zufall" : undefined}
            >
-             <div className="w-[18px] h-[18px] flex items-center justify-center shrink-0"><Dices size={16} className={cn("shrink-0", isRolling && "animate-spin")} /></div>
+             <Dices size={18} className={cn("shrink-0", isRolling && "animate-spin")} />
              {!isSidebarCollapsed && (
                <div className="flex items-center justify-between w-full">
-                 <span>Zufallsgenerator</span>
+                 <span className="text-[9px] font-black uppercase tracking-wider">Zufallsgenerator</span>
                  {randomResult && (
                    <motion.span 
                      initial={{ scale: 0.5, opacity: 0 }}
@@ -383,20 +412,6 @@ export default function Layout() {
                  {randomResult === 'Ja' ? 'J' : 'N'}
                </div>
              )}
-           </button>
-
-           <button 
-             onClick={toggleTheme}
-             className={cn(
-               "w-full flex items-center gap-3 px-4 py-1.5 rounded-xl text-sm font-medium text-[#424245] dark:text-[#A1A1A6] hover:bg-[#FBFBFD] dark:hover:bg-[#1C1C1E] transition-all",
-               isSidebarCollapsed && "justify-center px-0"
-             )}
-             title={isSidebarCollapsed ? (theme === 'dark' ? 'Heller Modus' : 'Dunkler Modus') : undefined}
-           >
-             <div className="w-[18px] h-[18px] flex items-center justify-center shrink-0">
-               {theme === 'dark' ? <Sun size={16} className="shrink-0" /> : <Moon size={16} className="shrink-0" />}
-             </div>
-             {!isSidebarCollapsed && <span>{theme === 'dark' ? 'Heller Modus' : 'Dunkler Modus'}</span>}
            </button>
 
            <div className="w-full mt-1">
@@ -429,8 +444,9 @@ export default function Layout() {
            </div>
 
            <button 
+             type="button"
              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-             className="hidden lg:flex w-full items-center justify-center h-7 rounded-xl bg-white/50 dark:bg-white/5 border border-black/5 dark:border-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-all text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white"
+             className="hidden lg:flex w-full items-center justify-center h-7 rounded-xl bg-white/50 dark:bg-white/5 border border-black/5 dark:border-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-all text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white focus:outline-none"
              aria-label={isSidebarCollapsed ? "Menü ausklappen" : "Menü einklappen"}
            >
              {isSidebarCollapsed ? <p className="text-[10px] font-bold">»</p> : <p className="text-[10px] font-bold">«</p>}
@@ -440,7 +456,7 @@ export default function Layout() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 h-screen relative z-10 transition-colors duration-500 overflow-hidden">
-        <header className="h-16 border-b border-[#D2D2D7]/30 dark:border-[#424245]/30 flex items-center justify-between px-6 lg:hidden shrink-0 bg-[#FBFBFD]/80 dark:bg-black/80 backdrop-blur-md z-30">
+        <header className="h-16 border-b border-[#D2D2D7]/30 dark:border-[#424245]/30 flex items-center justify-between px-6 lg:hidden shrink-0 bg-black/80 backdrop-blur-md z-30">
           <div className="flex items-center gap-3">
             <button 
               className="p-2 -ml-2 text-[#86868B] hover:text-[#1D1D1F] rounded-lg transition-colors"
@@ -449,8 +465,8 @@ export default function Layout() {
               <Menu size={24} />
             </button>
             <div className="flex items-center gap-2 overflow-hidden">
-              <Zap size={18} className="text-[#007AFF] shrink-0" fill="currentColor" />
-              <span className="font-bold text-xl tracking-tight text-[#1D1D1F] dark:text-[#F5F5F7] truncate">RoPro</span>
+              <Zap size={18} className="text-blue-500 shrink-0" fill="currentColor" />
+              <span className="font-brand font-bold text-sm tracking-tighter text-slate-900 dark:text-[#F5F5F7] truncate uppercase">ROPRO</span>
             </div>
           </div>
           <div className="flex items-center">
@@ -458,7 +474,7 @@ export default function Layout() {
           </div>
         </header>
 
-        <main ref={mainRef} className="flex-1 overflow-y-auto p-4 sm:p-10 lg:p-12 outline-none">
+        <main ref={mainRef} className="flex-1 overflow-y-auto p-4 sm:p-10 lg:p-12 outline-none" style={{ overflowAnchor: 'none' }}>
           <Outlet />
         </main>
       </div>

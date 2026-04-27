@@ -28,7 +28,7 @@ export function PromptEditor({ prompt, onBack, onSave }: { prompt: Prompt, onBac
 
   const colors = [
     { name: 'Standard', value: '' },
-    { name: 'Blau', value: '#007AFF' },
+    { name: 'Blau', value: '#60A5FA' },
     { name: 'Grün', value: '#34C759' },
     { name: 'Orange', value: '#FF9500' },
     { name: 'Lila', value: '#5856D6' },
@@ -109,8 +109,9 @@ export function PromptEditor({ prompt, onBack, onSave }: { prompt: Prompt, onBac
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-2 flex-1 min-w-[200px]">
             <button 
+              type="button"
               onClick={onBack}
-              className="p-2 -ml-2 text-brand-muted hover:text-brand hover:bg-slate-500/10 rounded-xl"
+              className="p-2 -ml-2 text-brand-muted hover:text-slate-900 dark:text-white hover:bg-slate-500/10 rounded-xl"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </button>
@@ -119,11 +120,12 @@ export function PromptEditor({ prompt, onBack, onSave }: { prompt: Prompt, onBac
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Prompt Titel"
-              className="text-2xl sm:text-3xl font-bold text-brand border-none focus:ring-0 p-0 w-full bg-transparent placeholder-brand-muted/50 outline-none"
+              className="text-lg sm:text-xl font-bold text-brand border-none focus:ring-0 p-0 w-full bg-transparent placeholder-brand-muted/50 outline-none"
             />
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <button 
+              type="button"
               onClick={() => setDeleteModal({ open: true, id: prompt.id })}
               className="p-2 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors flex-shrink-0 cursor-pointer"
               title="Prompt löschen"
@@ -135,16 +137,23 @@ export function PromptEditor({ prompt, onBack, onSave }: { prompt: Prompt, onBac
               onClick={handleSave}
               disabled={!hasChanges || isSaving}
               className={cn(
-                "h-10 px-6 rounded-2xl font-bold transition-all flex items-center gap-2",
-                hasChanges 
-                  ? "bg-[#007AFF] text-white hover:bg-[#0071E3] shadow-lg shadow-blue-500/20" 
-                  : "bg-slate-200 dark:bg-white/10 text-brand-muted cursor-not-allowed opacity-50"
+                "px-6 flex items-center gap-2",
+                hasChanges ? "btn-save" : "glass-button-secondary opacity-50"
               )}
             >
               <Save size={18} />
               <span className="hidden sm:inline">{isSaving ? "Speichert..." : "Speichern"}</span>
             </button>
             <button 
+              type="button"
+              onClick={copyContent}
+              className="p-2 text-brand-muted hover:text-accent hover:bg-slate-500/10 rounded-xl transition-all flex-shrink-0 cursor-pointer"
+              title="Prompt kopieren"
+            >
+              <Copy size={20} />
+            </button>
+            <button 
+              type="button"
               onClick={onBack}
               className="p-2 text-brand-muted hover:bg-slate-500/10 rounded-xl transition-all flex-shrink-0 cursor-pointer"
               title="Schließen"
@@ -166,10 +175,11 @@ export function PromptEditor({ prompt, onBack, onSave }: { prompt: Prompt, onBac
                {colors.map(c => (
                  <button
                     key={c.name}
+                    type="button"
                     onClick={() => setColor(c.value)}
                     className={cn(
                       "w-6 h-6 rounded-full border-2 transition-all",
-                      color === c.value ? "border-brand scale-110" : "border-transparent",
+                      color === c.value ? "border-accent scale-110" : "border-transparent",
                       !c.value ? "bg-slate-200 dark:bg-white/20" : ""
                     )}
                     style={c.value ? { backgroundColor: c.value } : {}}
@@ -181,11 +191,7 @@ export function PromptEditor({ prompt, onBack, onSave }: { prompt: Prompt, onBac
         </div>
       </div>
       
-      <div className="p-4 sm:p-6 border-b border-slate-200/50 dark:border-white/10 flex justify-end shrink-0">
-          <button onClick={copyContent} className="glass-button-secondary text-xs h-8">
-              <Copy size={14} /> Text kopieren
-          </button>
-      </div>
+
 
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto min-h-[200px]">
           <textarea 
@@ -202,8 +208,8 @@ export function PromptEditor({ prompt, onBack, onSave }: { prompt: Prompt, onBac
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
             <p className="text-sm text-[#86868B] mb-8">Dieser Prompt wird unwiderruflich entfernt.</p>
             <div className="flex flex-col gap-3">
-              <button onClick={handleDelete} className="w-full h-12 bg-red-500 text-white font-bold rounded-2xl hover:bg-red-600 transition-all">Löschen</button>
-              <button onClick={() => setDeleteModal(null)} className="w-full h-12 bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-all">Behalten</button>
+              <button onClick={handleDelete} className="btn-cancel w-full">Löschen</button>
+              <button onClick={() => setDeleteModal(null)} className="glass-button-secondary w-full">Behalten</button>
             </div>
           </div>
         </div>

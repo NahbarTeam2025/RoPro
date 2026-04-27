@@ -1,19 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-brand: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-brand: "Syncopate", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
-  --color-brand: #60A5FA;
+  --color-accent: #0055D4;
   --color-brand-muted: #86868B;
+}
+
+.glass-glossy {
+  @apply relative overflow-hidden;
+}
+
+.glass-glossy::after {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+h1, h2, h3, h4, h5, h6 {
+  @apply font-brand;
+}
+
 body {
   @apply antialiased break-words transition-colors duration-500 ease-out;
-  @apply bg-[#FBFBFD] text-[#1D1D1F];
+  @apply bg-[#000000] text-[#e5e5e5] tracking-tight;
+  font-size: 14px;
 }
 
 .dark body {
@@ -22,7 +38,7 @@ body {
 
 /* Global focus outlines */
 *:focus-visible {
-  @apply outline-none ring-2 ring-brand/50 ring-offset-2 ring-offset-transparent transition-shadow;
+  @apply outline-none ring-2 ring-accent/50 ring-offset-2 ring-offset-transparent transition-shadow;
 }
 
 /* Hide scrollbars globally */
@@ -38,11 +54,11 @@ body {
 @layer components {
   /* Apple-style Premium Card */
   .glass-card {
-    @apply bg-white dark:bg-white/[0.04] backdrop-blur-xl border border-black/5 dark:border-white/[0.08] shadow-[0_4px_24px_rgba(0,0,0,0.02)] transition-all duration-300;
+    @apply bg-[#1c1c1e]/20 backdrop-blur-2xl border border-white/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300;
   }
   
   .dark .glass-card {
-    @apply shadow-[0_8px_32px_rgba(0,0,0,0.4)];
+    @apply bg-[#1c1c1e]/20 border-white/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.6)];
   }
 
   /* Refined List Items */
@@ -60,57 +76,127 @@ body {
 
   /* Pro Section Heading */
   .pro-heading {
-    @apply text-[10px] sm:text-[11px] font-black uppercase tracking-[0.08em] text-brand-muted;
+    @apply font-brand text-[9px] sm:text-[10px] font-black uppercase tracking-tight text-brand-muted;
   }
 
   /* Specific Green Icons globally - making them more subtle */
   .icon-green {
-    @apply text-brand;
+    @apply text-accent;
   }
   .dark .icon-green {
-    @apply text-brand;
+    @apply text-accent;
   }
   
   /* Text colors for flexibility */
   .text-brand {
-    @apply text-[#1D1D1F] font-brand tracking-tight;
-  }
-  .dark .text-brand {
-    @apply text-[#e5e5e5] font-brand tracking-tight;
+    @apply text-[#1D1D1F] dark:text-[#e5e5e5] font-brand tracking-tighter;
   }
 
   .text-brand-muted {
-    @apply text-[#86868B];
-  }
-  .dark .text-brand-muted {
-    @apply text-[#A1A1A6];
+    @apply text-[#86868B] dark:text-[#A1A1A6];
   }
   
   /* Custom Inputs for Premium UI */
   .glass-input {
-    @apply w-full px-4 py-2.5 bg-[#F5F5F7] border border-transparent rounded-xl text-sm text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-brand/20 focus:bg-white transition-all duration-200 placeholder-[#86868B];
+    @apply w-full px-4 py-2.5 bg-[#F5F5F7] border border-transparent rounded-xl text-xs text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-accent/20 focus:bg-white transition-all duration-200 placeholder-[#86868B];
   }
   .dark .glass-input {
-    @apply bg-[#2C2C2E] border-transparent text-[#F5F5F7] focus:ring-brand/30 focus:bg-[#3A3A3C] placeholder-[#86868B];
+    @apply bg-[#2C2C2E] border-transparent text-[#F5F5F7] focus:ring-accent/30 focus:bg-[#3A3A3C] placeholder-[#86868B];
   }
 
   /* Custom Buttons */
+  .glass-button-primary,
+  .glass-button-secondary,
+  .btn-save,
+  .btn-cancel,
+  .btn-action {
+    @apply font-brand h-14 rounded-[1.25rem] font-black uppercase tracking-normal text-[9px] sm:text-[10px] transition-all duration-200 active:scale-95 flex items-center justify-center gap-2;
+  }
+
   .glass-button-primary {
-    @apply h-10 px-5 bg-brand hover:bg-brand/90 active:scale-[0.98] text-black font-bold text-sm rounded-xl transition-all duration-200 shadow-sm flex items-center justify-center gap-2;
+    @apply bg-accent text-white shadow-xl shadow-accent/20 hover:bg-accent/90 cursor-pointer;
   }
   
   .glass-button-secondary {
-    @apply h-10 px-5 bg-[#F5F5F7] hover:bg-[#E8E8ED] active:scale-[0.98] text-[#1D1D1F] font-semibold text-sm rounded-xl transition-all duration-200 border border-transparent shadow-sm flex items-center justify-center gap-2;
+    @apply bg-[#F5F5F7] text-[#1D1D1F] border border-transparent shadow-xl shadow-accent/20 cursor-pointer;
   }
   .dark .glass-button-secondary {
-    @apply bg-[#2C2C2E] hover:bg-[#3A3A3C] text-[#F5F5F7];
+    @apply bg-[#2C2C2E] text-[#F5F5F7];
+  }
+
+  .btn-save {
+    @apply bg-green-500 text-white shadow-xl shadow-green-500/20 hover:bg-green-600;
+  }
+
+  .btn-cancel {
+    @apply bg-red-500 text-white shadow-xl shadow-red-500/20 hover:bg-red-600;
+  }
+
+  .btn-action {
+    @apply bg-accent text-white shadow-xl shadow-accent/20 hover:bg-accent/90;
+  }
+
+  .btn-briefing-glow {
+    @apply font-brand h-14 rounded-[1.25rem] font-black uppercase tracking-normal text-[9px] sm:text-[10px] transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
+    @apply bg-zinc-950 text-white border border-white/5;
+    @apply shadow-[0_15px_30px_-12px_rgba(37,99,235,0.3)];
+    @apply hover:shadow-[0_20px_40px_-12px_rgba(37,99,235,0.4)] hover:bg-black;
+  }
+
+  .btn-green-glow {
+    @apply font-brand h-14 px-6 rounded-[1.25rem] font-bold uppercase tracking-normal text-[9px] transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
+    @apply bg-zinc-950 text-white border border-white/5;
+    @apply shadow-[0_10px_20px_-10px_rgba(34,197,94,0.4)];
+    @apply hover:shadow-[0_15px_30px_-8px_rgba(34,197,94,0.6)] hover:bg-black;
+  }
+
+  .btn-red-glow {
+    @apply font-brand h-14 px-6 rounded-[1.25rem] font-bold uppercase tracking-normal text-[9px] transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
+    @apply bg-zinc-950 text-white border border-white/5;
+    @apply shadow-[0_10px_20px_-10px_rgba(239,68,68,0.4)];
+    @apply hover:shadow-[0_15px_30px_-8px_rgba(239,68,68,0.6)] hover:bg-black;
+  }
+
+  .custom-scrollbar {
+    scrollbar-width: auto;
+    -ms-overflow-style: auto;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    display: block;
+    width: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-black/10 dark:bg-white/10 rounded-full hover:bg-black/20 dark:hover:bg-white/20 transition-colors;
   }
 
   .sidebar-item {
-    @apply flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all hover:bg-black/5 dark:hover:bg-white/5 text-[#424245] dark:text-[#A1A1A6] mr-4 rounded-r-xl;
+    @apply flex items-center gap-3 px-4 py-2.5 text-[11px] font-brand font-bold transition-all hover:bg-black/5 dark:hover:bg-white/5 text-[#424245] dark:text-[#A1A1A6] mr-4 rounded-r-xl uppercase;
   }
 
   .sidebar-item-active {
-    @apply border-l-2 border-blue-600 text-blue-600 dark:text-blue-400 font-bold pl-[14px] rounded-l-none rounded-r-lg bg-transparent shadow-none hover:bg-transparent;
+    @apply text-blue-500 font-bold;
   }
+}
+
+/* Note Editor Fixes */
+.tiptap-note-editor .tiptap p {
+  margin-top: 0.25em !important;
+  margin-bottom: 0.25em !important;
+}
+
+.tiptap-note-editor .tiptap h2 {
+  margin-top: 1em !important;
+  margin-bottom: 0.5em !important;
+}
+
+.tiptap-note-editor .tiptap ul, 
+.tiptap-note-editor .tiptap ol {
+  margin-top: 0.5em !important;
+  margin-bottom: 0.5em !important;
 }

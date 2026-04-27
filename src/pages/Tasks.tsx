@@ -4,7 +4,7 @@ import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { Check, Clock, Plus, Trash2, AlertCircle, Edit2, Settings2 } from 'lucide-react';
+import { Check, Clock, Plus, Trash2, AlertCircle, Edit2, Settings2, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { CategorySelect } from '../components/CategorySelect';
 import { CategoryManager } from '../components/CategoryManager';
@@ -30,7 +30,8 @@ export default function Tasks() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTask, setNewTask] = useState('');
   const [priority, setPriority] = useState<'high' | 'medium' | 'low'>('medium');
-  const [dueDate, setDueDate] = useState('');
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurrenceInterval, setRecurrenceInterval] = useState<'daily' | 'weekly' | 'monthly'>('weekly');
   const [categoryId, setCategoryId] = useState('');
@@ -68,12 +69,17 @@ export default function Tasks() {
     if (!newTask.trim() || !user) return;
 
     try {
+      let finalDueDate = null;
+      if (date) {
+        finalDueDate = new Date(`${date}T${time || '00:00'}:00`).toISOString();
+      }
+
       await addDoc(collection(db, 'todos'), {
         task: newTask.trim(),
         priority,
         categoryId,
-        color: '#007AFF', // Default blue
-        dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+        color: '#0055D4', // Default accent color
+        dueDate: finalDueDate,
         completed: false,
         isRecurring: isRecurring,
         recurrenceInterval: isRecurring ? recurrenceInterval : null,
@@ -82,7 +88,8 @@ export default function Tasks() {
         updatedAt: serverTimestamp()
       });
       setNewTask('');
-      setDueDate('');
+      setDate('');
+      setTime('');
       setPriority('medium');
       setCategoryId('');
       setIsRecurring(false);
@@ -92,6 +99,7 @@ export default function Tasks() {
   };
 
   const toggleTodo = async (todo: Todo) => {
+    // Confirmation removed
     try {
       if (!todo.completed && todo.isRecurring && todo.dueDate) {
         // If completing a recurring task, schedule the next one
@@ -168,22 +176,29 @@ export default function Tasks() {
     return true;
   });
 
-  const activeTodos = filteredTodos.filter(t => !t.completed);
+  const activeTodos = filteredTodos
+    .filter(t => !t.completed)
+    .sort((a, b) => {
+      if (a.dueDate && b.dueDate) return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      if (a.dueDate) return -1;
+      if (b.dueDate) return 1;
+      return 0;
+    });
   const completedTodos = filteredTodos.filter(t => t.completed);
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col relative z-10 pb-6">
       <header className="mb-6 sm:mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 px-0 sm:px-0">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-brand uppercase">Aufgaben</h1>
+          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white uppercase">Aufgaben</h1>
         </div>
         <div className="flex w-full overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 items-center gap-2 custom-scrollbar">
            <button 
              onClick={() => setShowCatManager(true)}
-             className="glass-button-secondary h-10 w-10 p-0 flex items-center justify-center shrink-0"
+             className="bg-white/10 dark:bg-black/20 hover:bg-white/20 dark:hover:bg-black/40 h-10 w-10 rounded-xl border border-white/5 flex items-center justify-center shrink-0 transition-all shadow-none"
              title="Kategorien verwalten"
            >
-             <Settings2 size={20} />
+             <Settings2 size={20} className="text-brand-muted" />
            </button>
            <select 
               value={filterCategory} 
@@ -216,22 +231,33 @@ export default function Tasks() {
                 value={newTask}
                 onChange={(e) => setNewTask(e.target.value)}
                 placeholder="Neue Aufgabe tippen..."
-                className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-brand/[0.03] focus:bg-brand/[0.06] transition-all"
+                className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-accent/[0.03] focus:bg-accent/[0.06] transition-all placeholder-slate-400 dark:placeholder-slate-500"
                 required
               />
-              <div className="absolute left-0 bottom-0 w-0 h-1 bg-brand transition-all duration-300 group-focus-within:w-full" />
+              <div className="absolute left-0 bottom-0 w-0 h-1 bg-accent transition-all duration-300 group-focus-within:w-full" />
             </div>
           </div>
           
           <div className="flex flex-wrap items-center gap-x-8 gap-y-6">
-            <div className="min-w-[140px] flex-1 space-y-2 flex flex-col border-l border-white/5 pl-4">
-              <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Fälligkeit</label>
-              <input
-                type="datetime-local"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="glass-input h-9 text-[10px] bg-transparent border-none p-0 focus:ring-0"
-              />
+            <div className="min-w-[140px] flex-1 space-y-4 flex flex-col border-l border-white/5 pl-4">
+              <div className="space-y-1">
+                <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Datum</label>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="glass-input h-9 text-[10px] bg-transparent border-none p-0 focus:ring-0"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Uhrzeit</label>
+                <input
+                  type="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className="glass-input h-9 text-[10px] bg-transparent border-none p-0 focus:ring-0"
+                />
+              </div>
             </div>
             <div className="w-full sm:w-32 space-y-2 flex flex-col border-l border-white/5 pl-4">
               <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Priorität</label>
@@ -251,7 +277,7 @@ export default function Tasks() {
                 type="task" 
                 value={categoryId} 
                 onChange={setCategoryId}
-                className="h-9 border-none bg-transparent p-0"
+                className="h-9 px-4"
               />
             </div>
             <div className="w-full sm:w-auto space-y-2 flex flex-col border-l border-white/5 pl-4">
@@ -262,7 +288,7 @@ export default function Tasks() {
                     onClick={() => setIsRecurring(!isRecurring)}
                     className={cn(
                       "h-9 px-3 rounded-xl border flex items-center justify-center gap-2 transition-all font-black text-[9px] uppercase tracking-wider",
-                      isRecurring ? "bg-blue-500/20 border-blue-500/50 text-blue-400" : "bg-white/5 border-white/5 text-brand-muted hover:text-brand"
+                      isRecurring ? "bg-accent text-white" : "bg-white/5 border-white/5 text-brand-muted hover:text-slate-900 dark:hover:text-white"
                     )}
                   >
                     {isRecurring ? <Check size={12} strokeWidth={3} /> : null}
@@ -272,7 +298,7 @@ export default function Tasks() {
                     <select
                       value={recurrenceInterval}
                       onChange={(e) => setRecurrenceInterval(e.target.value as any)}
-                      className="h-9 bg-white/5 border-none rounded-xl px-2 text-[9px] font-black uppercase tracking-wider text-blue-400"
+                      className="h-9 bg-accent/10 border-none rounded-xl px-2 text-[9px] font-black uppercase tracking-wider text-brand dark:text-white"
                     >
                       <option value="daily" className="bg-[#1C1C1E]">Täglich</option>
                       <option value="weekly" className="bg-[#1C1C1E]">Wöchentlich</option>
@@ -286,10 +312,10 @@ export default function Tasks() {
           <div className="flex justify-center border-t border-white/5 pt-8">
             <button
               type="submit"
-              className="glass-button-primary h-14 px-12 rounded-[1.25rem] shadow-xl shadow-brand/20 hover:shadow-brand/30 active:scale-95 transition-all flex items-center justify-center gap-3 group"
+              className="btn-green-glow px-10 flex items-center justify-center gap-3 group h-14"
             >
               <Plus size={24} className="group-hover:rotate-90 transition-transform duration-300" />
-              <span className="font-black uppercase tracking-[0.2em] text-xs">Aufgabe Hinzufügen</span>
+              <span>Aufgabe Hinzufügen</span>
             </button>
           </div>
         </form>
@@ -298,7 +324,7 @@ export default function Tasks() {
           {/* Active Tasks */}
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="pro-heading !text-brand">Aktive Aufgaben</h2>
+            <h2 className="pro-heading !text-slate-900 dark:!text-white">Aktive Aufgaben</h2>
               <span className="text-[10px] font-black text-brand-muted px-2.5 py-1 rounded-full uppercase tracking-widest">{activeTodos.length}</span>
             </div>
             
@@ -319,7 +345,7 @@ export default function Tasks() {
                      <div className="w-12 h-12 text-brand flex items-center justify-center mx-auto mb-4">
                       <Check size={32} />
                     </div>
-                    <h3 className="pro-heading !text-brand">Alles geschafft</h3>
+                    <h3 className="pro-heading !text-slate-900 dark:text-white">Alles geschafft</h3>
                     <p className="mt-1 text-sm font-medium text-brand-muted">Du hast keine anstehenden Aufgaben.</p>
                   </div>
                 )}
@@ -363,14 +389,14 @@ export default function Tasks() {
               <button 
                 type="button"
                 onClick={handleDelete}
-                className="w-full h-12 bg-red-500 text-white font-bold rounded-2xl hover:bg-red-600 transition-all"
+                className="btn-cancel w-full"
               >
                 Löschen
               </button>
               <button 
                 type="button"
                 onClick={() => setDeleteModal(null)}
-                className="w-full h-12 bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-all"
+                className="glass-button-secondary w-full"
               >
                 Behalten
               </button>
@@ -398,16 +424,31 @@ export default function Tasks() {
 function EditTaskModal({ todo, categories, onClose, onSave }: { todo: Todo, categories: any[], onClose: () => void, onSave: (todo: Todo) => void }) {
   const [task, setTask] = useState(todo.task);
   const [priority, setPriority] = useState(todo.priority);
-  const [dueDate, setDueDate] = useState(todo.dueDate ? todo.dueDate.substring(0, 16) : '');
+  const [date, setDate] = useState(() => {
+    if (!todo.dueDate) return '';
+    try {
+      return format(new Date(todo.dueDate), 'yyyy-MM-dd');
+    } catch { return ''; }
+  });
+  const [time, setTime] = useState(() => {
+    if (!todo.dueDate) return '';
+    try {
+      return format(new Date(todo.dueDate), 'HH:mm');
+    } catch { return ''; }
+  });
   const [categoryId, setCategoryId] = useState(todo.categoryId);
   const [isRecurring, setIsRecurring] = useState(!!todo.isRecurring);
   const [recurrenceInterval, setRecurrenceInterval] = useState<'daily' | 'weekly' | 'monthly'>(todo.recurrenceInterval || 'weekly');
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/10 backdrop-blur-md">
-      <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
-        <h3 className="text-2xl font-black text-brand mb-2 tracking-tight">Bearbeiten</h3>
-        <p className="text-sm text-brand-muted mb-8">Aufgabe anpassen</p>
+      <div className="glass-card w-full max-w-[480px] max-h-[90vh] overflow-y-auto rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)] custom-scrollbar relative">
+        <div className="flex items-center justify-between mb-10">
+          <h3 className="text-2xl font-black text-brand tracking-tight">Bearbeiten</h3>
+          <button onClick={onClose} className="p-2 text-brand-muted hover:text-brand transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5">
+            <X size={24} />
+          </button>
+        </div>
         
         <div className="space-y-4 mb-8">
           <div className="space-y-1.5 flex flex-col">
@@ -420,7 +461,7 @@ function EditTaskModal({ todo, categories, onClose, onSave }: { todo: Todo, cate
               required
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
             <div className="space-y-1.5 flex flex-col">
               <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Priorität</label>
               <select
@@ -439,18 +480,28 @@ function EditTaskModal({ todo, categories, onClose, onSave }: { todo: Todo, cate
                 type="task" 
                 value={categoryId} 
                 onChange={setCategoryId}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5 flex flex-col">
-              <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Fälligkeitsdatum</label>
-              <input
-                type="datetime-local"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
                 className="glass-input h-10"
               />
+            </div>
+            <div className="space-y-4">
+              <div className="space-y-1.5 flex flex-col">
+                <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Datum</label>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="glass-input h-10"
+                />
+              </div>
+              <div className="space-y-1.5 flex flex-col">
+                <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Uhrzeit</label>
+                <input
+                  type="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className="glass-input h-10"
+                />
+              </div>
             </div>
             <div className="space-y-1.5 flex flex-col">
               <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Wiederholen</label>
@@ -460,7 +511,7 @@ function EditTaskModal({ todo, categories, onClose, onSave }: { todo: Todo, cate
                   onClick={() => setIsRecurring(!isRecurring)}
                   className={cn(
                     "flex-1 h-10 rounded-xl border flex items-center justify-center gap-2 transition-all font-bold text-[10px] uppercase",
-                    isRecurring ? "bg-blue-500/10 border-blue-500 text-blue-500" : "bg-slate-500/10 border-transparent text-brand-muted"
+                    isRecurring ? "bg-accent text-white shadow-lg shadow-accent/20" : "bg-slate-500/10 border-transparent text-brand-muted"
                   )}
                 >
                   {isRecurring ? <Check size={12} /> : null}
@@ -485,23 +536,31 @@ function EditTaskModal({ todo, categories, onClose, onSave }: { todo: Todo, cate
         <div className="flex flex-col gap-3">
           <button 
             type="button"
-            onClick={() => onSave({ 
-              ...todo, 
-              task, 
-              priority, 
-              dueDate: dueDate ? new Date(dueDate).toISOString() : null, 
-              categoryId,
-              isRecurring,
-              recurrenceInterval: isRecurring ? recurrenceInterval : null
-            })}
-            className="w-full h-12 bg-[#007AFF] text-white font-bold rounded-2xl hover:bg-[#0071E3] transition-all"
+            onClick={() => {
+              let finalDueDate = todo.dueDate;
+              if (date) {
+                finalDueDate = new Date(`${date}T${time || '00:00'}:00`).toISOString();
+              } else {
+                finalDueDate = null;
+              }
+              onSave({ 
+                ...todo, 
+                task, 
+                priority, 
+                dueDate: finalDueDate, 
+                categoryId,
+                isRecurring,
+                recurrenceInterval: isRecurring ? recurrenceInterval : null
+              });
+            }}
+            className="btn-green-glow w-full h-14"
           >
             Speichern
           </button>
           <button 
             type="button"
             onClick={onClose}
-            className="w-full h-12 bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-all"
+            className="btn-red-glow w-full h-14"
           >
             Abbrechen
           </button>
@@ -521,7 +580,11 @@ function TaskItem({ todo, onToggle, onDelete, onEdit, categories }: { todo: Todo
       todo.completed && "opacity-60",
       isOverdue && !todo.completed && "bg-red-500/[0.03]"
     )}
-    style={{ borderLeftColor: todo.completed ? 'transparent' : (isOverdue ? 'rgba(239, 68, 68, 0.6)' : 'rgba(37, 99, 235, 0.6)') }}
+    style={{ borderLeftColor: todo.completed ? 'transparent' : (
+      todo.priority === 'high' ? '#FF3B30' : 
+      todo.priority === 'medium' ? '#FF9500' : 
+      '#34C759'
+    ) }}
     >
       <div className="flex items-start gap-4 overflow-hidden">
         <button 
@@ -529,7 +592,7 @@ function TaskItem({ todo, onToggle, onDelete, onEdit, categories }: { todo: Todo
           onClick={onToggle}
           className={cn(
             "flex-shrink-0 w-5 h-5 rounded border mt-0.5 flex items-center justify-center transition-all cursor-pointer",
-            todo.completed ? "bg-brand border-brand text-white" : "border-slate-300 dark:border-white/10 text-transparent hover:border-brand bg-transparent"
+            todo.completed ? "bg-accent border-accent text-white" : "border-slate-300 dark:border-white/10 text-transparent hover:border-accent bg-transparent"
           )}
         >
           <Check size={12} className="stroke-[4]" />
@@ -537,7 +600,7 @@ function TaskItem({ todo, onToggle, onDelete, onEdit, categories }: { todo: Todo
         <div className="min-w-0 flex flex-col justify-center cursor-pointer" onClick={onEdit}>
           <p className={cn(
             "text-sm font-bold truncate transition-all mb-1 tracking-tight",
-            todo.completed ? "text-brand-muted line-through" : "text-brand"
+            todo.completed ? "text-brand-muted line-through" : "text-slate-900 dark:text-white"
           )}>
             {todo.task}
           </p>
@@ -546,7 +609,7 @@ function TaskItem({ todo, onToggle, onDelete, onEdit, categories }: { todo: Todo
               "pro-heading !text-[9px]",
               todo.priority === 'high' ? "!text-red-500" :
               todo.priority === 'medium' ? "!text-amber-500" :
-              "!text-brand"
+              "!text-green-500"
             )}>
               {todo.priority === 'high' ? 'Prio: Hoch' : todo.priority === 'medium' ? 'Prio: Mittel' : 'Prio: Niedrig'}
             </span>
@@ -556,8 +619,8 @@ function TaskItem({ todo, onToggle, onDelete, onEdit, categories }: { todo: Todo
               </span>
             )}
             {todo.isRecurring && (
-              <span className="pro-heading !text-[9px] !text-blue-500 flex items-center gap-0.5">
-                <Clock size={8} /> Wiederkehrend ({todo.recurrenceInterval === 'daily' ? 'Täglich' : todo.recurrenceInterval === 'weekly' ? 'Wöchentlich' : 'Monatlich'})
+              <span className="pro-heading !text-[9px] !text-slate-400 flex items-center gap-0.5">
+                <Clock size={8} className="text-slate-400" /> Wiederkehrend ({todo.recurrenceInterval === 'daily' ? 'Täglich' : todo.recurrenceInterval === 'weekly' ? 'Wöchentlich' : 'Monatlich'})
               </span>
             )}
             {todo.dueDate && (
@@ -565,7 +628,7 @@ function TaskItem({ todo, onToggle, onDelete, onEdit, categories }: { todo: Todo
                 "inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-[0.1em]",
                 isOverdue && !todo.completed ? "text-red-500" : "text-brand-muted/60"
               )}>
-                {isOverdue && !todo.completed ? <AlertCircle size={10} className="stroke-[3]" /> : <Clock size={10} className="stroke-[3]" />}
+                {isOverdue && !todo.completed ? <AlertCircle size={10} className="stroke-[3] text-red-500" /> : <Clock size={10} className="stroke-[3] text-slate-400" />}
                 {format(new Date(todo.dueDate), 'd. MMM, HH:mm')}
               </span>
             )}
@@ -575,7 +638,7 @@ function TaskItem({ todo, onToggle, onDelete, onEdit, categories }: { todo: Todo
       <div className="flex items-center gap-1">
         <button 
           onClick={onEdit}
-          className="p-2 text-brand-muted hover:text-brand hover:bg-brand/10 rounded-lg lg:opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+          className="p-2 text-brand-muted hover:text-accent hover:bg-accent/10 rounded-lg lg:opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
           aria-label="Aufgabe bearbeiten"
         >
           <Edit2 size={14} />

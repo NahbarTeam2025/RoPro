@@ -99,6 +99,15 @@ export default function Household() {
     }
   };
 
+  const formatEuro = (amount: number) => {
+    return amount.toLocaleString('de-DE', { 
+      style: 'currency', 
+      currency: 'EUR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).replace(',', '.');
+  };
+
   useEffect(() => {
     if (!user) return;
     
@@ -297,7 +306,7 @@ export default function Household() {
     <div className="max-w-5xl mx-auto flex flex-col relative z-10 w-full px-0 sm:px-0 pb-10">
       <header className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-brand uppercase">Haushaltsbuch</h1>
+          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white uppercase">Haushaltsbuch</h1>
         </div>
         <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
           <select 
@@ -318,7 +327,10 @@ export default function Household() {
                 if (!showAdd) resetForm();
               }
             }}
-            className="glass-button-primary flex items-center gap-2 h-12 px-6 shrink-0 w-full sm:w-auto"
+            className={cn(
+              "flex items-center gap-2 h-12 px-6 shrink-0 w-full sm:w-auto",
+              editingId ? "btn-cancel" : "btn-briefing-glow"
+            )}
           >
             <Plus size={20} />
             <span>{editingId ? 'Abbrechen' : 'Eintrag'}</span>
@@ -328,16 +340,16 @@ export default function Household() {
 
       {showAdd && (
         <form onSubmit={handleSave} className="glass-card p-6 sm:p-8 rounded-[2.5rem] mb-10 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             <div className="space-y-1.5 lg:col-span-1">
-              <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Typ</label>
-              <div className="flex gap-2 p-1.5 bg-brand/[0.03] dark:bg-white/[0.03] rounded-2xl h-12">
+              <label className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] px-1">Typ</label>
+              <div className="flex gap-2 p-1.5 bg-accent/[0.03] dark:bg-white/[0.03] rounded-2xl h-12">
                 <button 
                   type="button"
                   onClick={() => setType('expense')}
                   className={cn(
                     "flex-1 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all",
-                    type === 'expense' ? "bg-red-500 text-white shadow-lg shadow-red-500/20" : "text-brand-muted hover:text-brand"
+                    type === 'expense' ? "bg-red-500 text-white shadow-lg shadow-red-500/20" : "text-brand-muted hover:text-slate-900 dark:hover:text-white"
                   )}
                 >
                   Ausgabe
@@ -347,7 +359,7 @@ export default function Household() {
                   onClick={() => setType('income')}
                   className={cn(
                     "flex-1 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all",
-                    type === 'income' ? "bg-green-500 text-white shadow-lg shadow-green-500/20" : "text-brand-muted hover:text-brand"
+                    type === 'income' ? "bg-green-500 text-white shadow-lg shadow-green-500/20" : "text-brand-muted hover:text-slate-900 dark:hover:text-white"
                   )}
                 >
                   Einnahme
@@ -356,12 +368,12 @@ export default function Household() {
             </div>
 
             <div className="space-y-1.5 lg:col-span-1">
-              <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Betrag (€)</label>
+              <label className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em] px-1">Betrag (€)</label>
               <input 
                 type="number" step="0.01" 
                 value={amount} onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="glass-input h-12 font-black text-lg bg-brand/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-brand" required
+                className="glass-input h-12 font-black text-lg bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent" required
               />
             </div>
 
@@ -370,15 +382,8 @@ export default function Household() {
               <input 
                 type="text" value={description} onChange={(e) => setDescription(e.target.value)}
                 placeholder="z.B. Miete"
-                className="glass-input h-12 bg-brand/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-brand font-bold" required
+                className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-brand font-bold" required
               />
-            </div>
-
-            <div className="space-y-1.5 lg:col-span-1">
-              <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Kategorie</label>
-              <div className="h-12 flex items-center bg-brand/[0.03] dark:bg-white/[0.03] rounded-2xl px-4">
-                <CategorySelect type="household" value={categoryId} onChange={setCategoryId} className="w-full border-none bg-transparent" />
-              </div>
             </div>
 
             <div className="space-y-1.5 lg:col-span-1">
@@ -397,7 +402,7 @@ export default function Household() {
                   onClick={() => setIsRecurring(!isRecurring)}
                   className={cn(
                     "flex-1 h-12 rounded-2xl border flex items-center justify-center gap-2 transition-all font-black text-[9px] uppercase tracking-widest",
-                    isRecurring ? "bg-blue-500/20 border-blue-500/50 text-blue-400" : "bg-brand/[0.03] dark:bg-white/[0.03] border-transparent text-brand-muted"
+                    isRecurring ? "bg-brand text-white shadow-lg shadow-accent/20" : "bg-brand/[0.03] dark:bg-white/[0.03] border-transparent text-brand-muted"
                   )}
                 >
                   {isRecurring ? <Check size={14} strokeWidth={3} /> : null}
@@ -407,7 +412,7 @@ export default function Household() {
                   <select
                     value={interval}
                     onChange={(e) => setInterval(e.target.value as any)}
-                    className="flex-1 h-12 bg-blue-500/10 border-none rounded-2xl px-2 text-[9px] font-black uppercase tracking-widest text-blue-400"
+                    className="flex-1 h-12 bg-brand/10 border-none rounded-2xl px-2 text-[9px] font-black uppercase tracking-widest text-brand dark:text-white"
                   >
                     <option value="monthly" className="bg-[#1C1C1E]">Monatlich</option>
                     <option value="yearly" className="bg-[#1C1C1E]">Jährlich</option>
@@ -417,10 +422,10 @@ export default function Household() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row justify-end gap-3 mt-8 pt-6 border-t border-slate-200/50 dark:border-white/10">
-            <button type="submit" className="px-10 h-14 bg-brand text-white rounded-[1.25rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-brand/20 active:scale-95 transition-all group">
+            <button type="submit" className="btn-green-glow px-10">
               {editingId ? 'Aktualisieren' : 'Eintrag speichern'}
             </button>
-            <button type="button" onClick={() => { setShowAdd(false); resetForm(); }} className="px-8 h-14 glass-button-secondary font-black uppercase tracking-[0.2em] text-xs active:scale-95 transition-all">
+            <button type="button" onClick={() => { setShowAdd(false); resetForm(); }} className="btn-red-glow px-8">
               Abbrechen
             </button>
           </div>
@@ -438,8 +443,8 @@ export default function Household() {
           </div>
           <div>
             <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-0.5">Einnahmen</div>
-            <div className="text-lg font-black text-brand tracking-tight">
-              {income.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+            <div className="text-lg font-black text-slate-900 dark:text-white tracking-tight">
+              {formatEuro(income)}
             </div>
           </div>
         </div>
@@ -453,8 +458,8 @@ export default function Household() {
           </div>
           <div>
             <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-0.5">Ausgaben</div>
-            <div className="text-lg font-black text-brand tracking-tight">
-              {expenses.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+            <div className="text-lg font-black text-red-500 tracking-tight">
+              {formatEuro(expenses)}
             </div>
           </div>
         </div>
@@ -470,9 +475,9 @@ export default function Household() {
             <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-0.5">Bilanz</div>
             <div className={cn(
               "text-lg font-black tracking-tight",
-              balance >= 0 ? "text-brand" : "text-red-500"
+              balance >= 0 ? "text-blue-500" : "text-red-500"
               )}>
-              {balance.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+              {formatEuro(balance)}
             </div>
           </div>
         </div>
@@ -480,14 +485,14 @@ export default function Household() {
         {/* Savings Tile */}
         <div className="flex flex-col gap-3 p-2">
           <div className="flex items-center gap-3">
-            <div className="text-orange-500 shrink-0">
+            <div className="text-green-500 shrink-0">
               <PiggyBank size={24} />
             </div>
             <div className="flex-1">
               <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-0.5">Gespartes Geld</div>
-              <div className="text-lg font-black text-brand tracking-tight">
-                {savings?.amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }) || '0,00 €'}
-              </div>
+            <div className="text-lg font-black text-green-500 tracking-tight">
+              {savings ? formatEuro(savings.amount) : formatEuro(0)}
+            </div>
             </div>
           </div>
           <div className="flex gap-2">
@@ -587,62 +592,7 @@ export default function Household() {
           </div>
         </div>
 
-        {/* Category Distribution Chart */}
-        <div className="glass-card p-6 rounded-[2rem] border border-white/[0.06] flex flex-col">
-          <h3 className="text-[10px] font-black text-brand uppercase tracking-widest flex items-center gap-2 mb-4">
-            <PieChartIcon size={14} /> Kategorien
-          </h3>
-          <div className="flex-1 flex flex-col sm:flex-row lg:flex-col items-center gap-6">
-            <div className="h-[140px] w-full max-w-[140px] relative">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={expenseByCategory}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={45}
-                    outerRadius={65}
-                    paddingAngle={5}
-                    dataKey="Betrag"
-                  >
-                    {expenseByCategory.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <RechartsTooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'rgba(5,5,5,0.9)', 
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: '12px',
-                      fontSize: '10px'
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                 <span className="text-[8px] font-bold text-brand-muted uppercase">Total</span>
-                 <span className="text-xs font-black text-brand tracking-tighter">
-                   {expenses.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
-                 </span>
-              </div>
-            </div>
-            
-            <div className="flex-1 w-full space-y-2 max-h-[160px] overflow-y-auto custom-scrollbar pr-2">
-              {expenseByCategory.map((cat, index) => (
-                <div key={cat.name} className="flex items-center justify-between group">
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                    <span className="text-[10px] font-bold text-brand-muted truncate max-w-[80px]">{cat.name}</span>
-                  </div>
-                  <span className="text-[10px] font-black text-brand">{Math.round((cat.Betrag / expenses) * 100)}%</span>
-                </div>
-              ))}
-              {expenseByCategory.length === 0 && (
-                <p className="text-[10px] text-center text-brand-muted font-bold py-6">Keine Ausgaben vorhanden.</p>
-              )}
-            </div>
-          </div>
-        </div>
+        {/* Removed Categories chart based on user request */}
       </div>
 
       {/* Transaction List / Abos View */}
@@ -653,7 +603,7 @@ export default function Household() {
               onClick={() => setActiveView('transactions')}
               className={cn(
                 "flex-1 sm:px-6 py-2 rounded-xl text-xs font-bold transition-all",
-                activeView === 'transactions' ? "bg-white dark:bg-brand text-brand dark:text-white shadow-sm" : "text-brand-muted hover:text-brand"
+                activeView === 'transactions' ? "bg-white dark:bg-accent text-slate-900 dark:text-white shadow-sm" : "text-brand-muted hover:text-slate-900 dark:hover:text-white"
               )}
             >
               Transaktionen
@@ -662,20 +612,14 @@ export default function Household() {
               onClick={() => setActiveView('abos')}
               className={cn(
                 "flex-1 sm:px-6 py-2 rounded-xl text-xs font-bold transition-all",
-                activeView === 'abos' ? "bg-white dark:bg-brand text-brand dark:text-white shadow-sm" : "text-brand-muted hover:text-brand"
+                activeView === 'abos' ? "bg-white dark:bg-accent text-slate-900 dark:text-white shadow-sm" : "text-brand-muted hover:text-slate-900 dark:hover:text-white"
               )}
             >
               Abos
             </button>
           </div>
           <div className="flex items-center gap-2">
-            <button 
-              onClick={() => setShowCatManager(true)}
-              className="p-2.5 text-brand-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-2xl transition-all"
-              title="Kategorien verwalten"
-            >
-              <Filter size={20} />
-            </button>
+            {/* Category Filter removed based on user request */}
           </div>
         </div>
 
@@ -685,20 +629,20 @@ export default function Household() {
             <div className="p-6 grid grid-cols-1 sm:grid-cols-3 gap-6 border-b border-slate-200/50 dark:border-white/10 shrink-0">
               <div className="p-2">
                 <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-1">Monatlich gesamt</div>
-                <div className="text-xl font-black text-brand tracking-tight">
-                  {monthlyRecurringSum?.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }) || '0,00 €'}
+                <div className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                  {formatEuro(monthlyRecurringSum || 0)}
                 </div>
               </div>
               <div className="p-2">
                 <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-1">Jährl. Abos</div>
-                <div className="text-xl font-black text-brand tracking-tight">
-                  {yearlyRecurringSum?.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }) || '0,00 €'}
+                <div className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                  {formatEuro(yearlyRecurringSum || 0)}
                 </div>
               </div>
               <div className="p-2">
-                <div className="text-[9px] font-bold text-blue-500 uppercase tracking-widest mb-1">Pro Jahr total</div>
-                <div className="text-xl font-black text-blue-600 dark:text-blue-400 tracking-tight">
-                  {totalPerYearSum?.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }) || '0,00 €'}
+                <div className="text-[9px] font-bold text-brand uppercase tracking-widest mb-1">Pro Jahr total</div>
+                <div className="text-xl font-black text-brand dark:text-white tracking-tight">
+                  {formatEuro(totalPerYearSum || 0)}
                 </div>
               </div>
             </div>
@@ -715,30 +659,22 @@ export default function Household() {
                 <div className="divide-y divide-slate-200/50 dark:divide-white/5">
                   {activeAbos.map(abo => (
                     <div key={abo.id} className="p-4 sm:p-6 flex items-center gap-4 sm:gap-5 hover:bg-slate-500/5 transition-colors">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center shrink-0 text-blue-500">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center shrink-0 text-brand dark:text-white">
                         <PieChartIcon size={24} className="sm:w-8 sm:h-8" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-1">
-                          <h4 className="font-bold text-brand">{abo.description}</h4>
-                          <span className="text-[9px] font-black text-brand px-1.5 py-0.5 rounded-lg uppercase tracking-tighter shrink-0 border border-blue-500/10">
-                            {abo.interval === 'yearly' ? 'Jährlich' : 'Monatlich'}
+                        <div className="flex flex-col gap-1">
+                          <h4 className="font-bold text-slate-900 dark:text-white truncate">{abo.description}</h4>
+                          <span className="text-[9px] sm:text-[10px] font-bold text-brand-muted uppercase tracking-wider italic">
+                            {abo.date?.toDate ? format(abo.date.toDate(), 'dd.MM.yyyy', { locale: de }) : '--'}
                           </span>
-                        </div>
-                        <div className="text-[9px] sm:text-[10px] font-bold text-brand-muted uppercase tracking-wider flex items-center gap-1">
-                          {categories.find(c => c.id === abo.category)?.name && (
-                            <span className="mr-1">{categories.find(c => c.id === abo.category)?.name}</span>
-                          )}
-                          {abo.date?.toDate && (
-                            <span>Zuletzt: {format(abo.date.toDate(), 'dd.MM.yyyy', { locale: de })}</span>
-                          )}
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-base sm:text-lg font-black tracking-tighter text-brand">
-                          {abo.amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                        <div className="text-base sm:text-lg font-black tracking-tighter text-slate-900 dark:text-white">
+                          {formatEuro(abo.amount)}
                         </div>
-                        <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest">
+                        <div className="text-[9px] font-bold text-blue-500 uppercase tracking-widest">
                           {abo.interval === 'yearly' ? 'pro Jahr' : 'pro Monat'}
                         </div>
                       </div>
@@ -771,21 +707,14 @@ export default function Household() {
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-1">
-                          <h4 className="font-bold text-brand">{t.description}</h4>
-                          {t.isRecurring && (
-                            <span className="text-[9px] font-black text-brand px-1.5 py-0.5 rounded-lg uppercase tracking-tighter shrink-0 border border-blue-500/10">
-                              {t.interval === 'yearly' ? 'Jährlich' : 'Monatlich'}
-                            </span>
-                          )}
-                          {categories.find(c => c.id === t.category)?.name && (
-                            <span className="text-[9px] sm:text-[10px] font-black text-brand-muted uppercase tracking-widest px-2 py-0.5 rounded-lg border border-slate-200/30 dark:border-white/5 shrink-0">
-                              {categories.find(c => c.id === t.category)?.name}
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-[9px] sm:text-[10px] font-bold text-brand-muted uppercase tracking-wider flex items-center gap-1">
-                          <span className="shrink-0">{t.date?.toDate ? format(t.date.toDate(), 'dd.MM.yyyy', { locale: de }) : '--'}</span>
+                        <div className="flex flex-col gap-1">
+                          <h4 className="font-bold text-slate-900 dark:text-white whitespace-nowrap truncate">{t.description}</h4>
+                          <span className="text-[9px] font-black text-accent uppercase tracking-tighter w-fit">
+                            {t.isRecurring ? (t.interval === 'yearly' ? 'Jährlich' : 'Monatlich') : 'Einmalig'}
+                          </span>
+                          <span className="text-[9px] sm:text-[10px] font-bold text-brand-muted uppercase tracking-wider flex items-center gap-1 italic">
+                            {t.date?.toDate ? format(t.date.toDate(), 'dd.MM.yyyy', { locale: de }) : '--'}
+                          </span>
                         </div>
                       </div>
 
@@ -793,7 +722,7 @@ export default function Household() {
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
                           <button 
                             onClick={() => handleEdit(t)}
-                            className="p-1 text-brand-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all"
+                            className="p-1 text-brand-muted hover:text-brand hover:bg-brand/10 rounded-lg transition-all"
                             title="Bearbeiten"
                           >
                             <Edit2 size={14} />
@@ -808,9 +737,9 @@ export default function Household() {
                         </div>
                         <div className={cn(
                           "text-base sm:text-lg font-black tracking-tighter whitespace-nowrap",
-                          t.type === 'income' ? "text-green-500" : "text-brand"
+                          t.type === 'income' ? "text-green-500" : "text-red-500"
                         )}>
-                          {t.type === 'income' ? '+' : '-'} {t.amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                          {t.type === 'income' ? '+' : '-'} {formatEuro(t.amount)}
                         </div>
                       </div>
                     </div>
@@ -845,7 +774,7 @@ export default function Household() {
               </button>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar max-h-[210px]">
               <div className="space-y-3">
                 {(() => {
                   const items = filteredTransactions
@@ -865,34 +794,34 @@ export default function Household() {
                   return items.map(t => {
                     const catName = categories.find(c => c.id === t.category)?.name || t.category || '--';
                     return (
-                      <div key={t.id} className="p-2 flex items-center justify-between group">
-                        <div className="flex items-center gap-3">
+                      <div key={t.id} className="px-4 py-2 flex items-center justify-between group">
+                        <div className="flex items-center gap-4 flex-1 min-w-0">
                           <div className={cn(
-                            "w-10 h-10 flex items-center justify-center",
+                            "w-10 h-10 flex items-center justify-center shrink-0",
                             t.type === 'income' ? "text-green-500" : "text-red-500"
                           )}>
                             {t.type === 'income' ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
                           </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-brand text-sm">{t.description}</span>
+                          <div className="flex flex-col items-start min-w-0">
+                            <span className="font-bold text-brand text-sm whitespace-nowrap truncate w-full">{t.description}</span>
+                            <div className="flex flex-col gap-0.5 mt-0.5">
                               {t.isRecurring && (
-                                <span className="text-[8px] font-black text-brand px-1.5 py-0.5 rounded uppercase tracking-tighter border border-blue-500/10">
+                                <span className="text-[8px] font-black text-accent uppercase tracking-tighter whitespace-nowrap">
                                   {t.interval === 'yearly' ? 'Jährlich' : 'Monatlich'}
                                 </span>
                               )}
-                            </div>
-                            <div className="text-[10px] font-bold text-brand-muted uppercase tracking-tight">
-                              {categories.find(c => c.id === t.category)?.name ? `${categories.find(c => c.id === t.category)?.name} • ` : ''}
-                              {t.date?.toDate ? format(t.date.toDate(), 'dd.MM.yyyy') : ''}
+                              <div className="text-[9px] font-bold text-brand-muted uppercase tracking-tight whitespace-nowrap">
+                                {categories.find(c => c.id === t.category)?.name ? `${categories.find(c => c.id === t.category)?.name} • ` : ''}
+                                {t.date?.toDate ? format(t.date.toDate(), 'dd.MM.yyyy') : ''}
+                              </div>
                             </div>
                           </div>
                         </div>
-                        <div className="flex flex-col items-end gap-1 min-w-[80px] shrink-0">
+                        <div className="flex flex-col items-end gap-1 min-w-[100px] shrink-0 text-right">
                           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
                             <button 
                               onClick={() => handleEdit(t)}
-                              className="p-1 text-brand-muted hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all"
+                              className="p-1 text-brand-muted hover:text-brand hover:bg-brand/10 rounded-lg transition-all"
                             >
                               <Edit2 size={14} />
                             </button>
@@ -908,9 +837,9 @@ export default function Household() {
                           </div>
                           <span className={cn(
                             "font-black text-sm whitespace-nowrap",
-                            t.type === 'income' ? "text-green-500" : "text-brand"
+                            t.type === 'income' ? "text-green-500" : "text-red-500"
                           )}>
-                            {t.type === 'income' ? '+' : '-'} {t.amount?.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }) || '0,00 €'}
+                            {t.type === 'income' ? '+' : '-'} {formatEuro(t.amount || 0)}
                           </span>
                         </div>
                       </div>
@@ -919,14 +848,17 @@ export default function Household() {
                 })()}
               </div>
             </div>
-            
-            <div className="p-8 border-t border-slate-200/50 dark:border-white/10">
+
+            <div className="p-8 pb-10 border-t border-slate-200/50 dark:border-white/10 shrink-0">
                <div className="flex justify-between items-center font-black text-brand">
-                 <span>Gesamt {detailModal.type === 'income' ? 'Einnahmen' : 'Ausgaben'}</span>
-                 <span className={detailModal.type === 'income' ? "text-green-500" : ""}>
+                 <span>Gesamt</span>
+                 <span className={cn(
+                   "text-right min-w-[100px]",
+                   detailModal.type === 'income' ? "text-green-500" : "text-red-500"
+                 )}>
                    {detailModal.type === 'income' 
-                     ? income.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
-                     : expenses.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
+                     ? formatEuro(income)
+                     : formatEuro(expenses)
                    }
                  </span>
                </div>
@@ -945,14 +877,14 @@ export default function Household() {
               <button 
                 type="button"
                 onClick={handleConfirmDelete}
-                className="w-full h-12 bg-red-500 text-white font-bold rounded-2xl hover:bg-red-600 transition-all"
+                className="btn-cancel w-full"
               >
                 Löschen
               </button>
               <button 
                 type="button"
                 onClick={() => setDeleteModal(null)}
-                className="w-full h-12 bg-[#F5F5F7] dark:bg-[#2C2C2E] text-[#1D1D1F] dark:text-[#F5F5F7] font-bold rounded-2xl hover:bg-[#E8E8ED] dark:hover:bg-[#3A3A3C] transition-all"
+                className="glass-button-secondary w-full"
               >
                 Behalten
               </button>

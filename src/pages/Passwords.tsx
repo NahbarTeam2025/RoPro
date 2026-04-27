@@ -431,7 +431,7 @@ export default function Passwords() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <RefreshCw className="animate-spin text-brand" size={32} />
+          <RefreshCw className="animate-spin text-slate-900 dark:text-white" size={32} />
           <p className="text-brand-muted font-bold text-sm tracking-widest uppercase">Safe wird vorbereitet...</p>
         </div>
       </div>
@@ -442,20 +442,20 @@ export default function Passwords() {
 
   if (isLocked) {
     return (
-      <div className="max-w-md mx-auto mt-20 px-6">
+      <div className="max-w-md mx-auto px-6 pt-12 sm:pt-24 flex items-start justify-center">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass-card p-10 rounded-[2.5rem] flex flex-col items-center gap-8 relative overflow-hidden"
+          className="glass-card p-10 rounded-[2.5rem] flex flex-col items-center gap-8 relative overflow-hidden w-full"
         >
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand to-transparent opacity-20" />
           
-          <div className="w-20 h-20 flex items-center justify-center text-brand">
+          <div className="w-20 h-20 flex items-center justify-center text-slate-900 dark:text-white">
             <Lock size={48} strokeWidth={1.5} />
           </div>
 
           <div className="text-center space-y-2">
-            <h1 className="text-3xl font-black text-brand tracking-tighter">
+            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
               {config ? 'Safe entsperren' : 'Safe einrichten'}
             </h1>
             <p className="text-sm text-brand-muted font-medium px-4">
@@ -489,7 +489,7 @@ export default function Passwords() {
             <button
               onClick={config ? handleUnlock : handleCreateVault}
               disabled={!masterPassword}
-              className="w-full h-14 bg-brand text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-brand/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+              className="btn-briefing-glow w-full disabled:opacity-50"
             >
               {config ? 'Entsperren' : 'Vault Erstellen'}
             </button>
@@ -507,13 +507,14 @@ export default function Passwords() {
   return (
     <div className="max-w-6xl mx-auto px-0 sm:px-0 pb-20">
       <header className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-8 bg-white/5 p-8 rounded-[3rem] border border-white/5 backdrop-blur-xl">
-        <div className="flex items-center gap-6">
-          <div className="w-16 h-16 flex items-center justify-center text-brand">
-            <Shield size={48} />
+        <div className="flex items-center gap-4 sm:gap-6 min-w-0 flex-1">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center text-brand shrink-0">
+            <Shield size={32} className="sm:hidden" />
+            <Shield size={48} className="hidden sm:block" />
           </div>
-          <div>
-            <h1 className="text-4xl font-black text-brand tracking-tighter mb-1 select-none">Password Safe</h1>
-            <div className="flex items-center gap-2 text-[10px] font-bold text-brand-muted uppercase tracking-widest">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-4xl font-black text-brand tracking-tighter mb-1 select-none leading-none break-words">Password Safe</h1>
+            <div className="flex items-center gap-2 text-[10px] font-bold text-brand-muted uppercase tracking-widest leading-none">
               <Check size={12} className="text-green-500" />
               <span>Vault Entsperrt</span>
             </div>
@@ -540,13 +541,15 @@ export default function Passwords() {
           </div>
           <button 
             onClick={() => handleOpenAddModal()}
-            className="h-14 aspect-square bg-brand text-white rounded-2xl flex items-center justify-center shadow-xl shadow-brand/20 hover:scale-105 transition-all"
+            className="btn-briefing-glow h-14 w-14 sm:w-auto sm:px-6 flex items-center justify-center gap-2 shrink-0"
+            title="Passwort hinzufügen"
           >
             <Plus size={24} />
+            <span className="hidden sm:inline">Hinzufügen</span>
           </button>
           <button 
             onClick={lockVault}
-            className="h-14 px-6 bg-slate-500/10 text-brand-muted rounded-2xl flex items-center justify-center gap-3 font-bold text-xs uppercase tracking-widest border border-transparent hover:border-red-500/30 hover:text-red-500 transition-all group"
+            className="btn-briefing-glow h-14 px-6 flex items-center justify-center gap-3 transition-all"
           >
             <Lock size={16} className="group-hover:animate-bounce" />
             <span>Sperren</span>
@@ -587,7 +590,7 @@ export default function Passwords() {
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
                   <button 
                     onClick={() => handleOpenAddModal(entry)}
-                    className="p-2 text-brand-muted hover:text-brand transition-colors rounded-xl hover:bg-brand/5"
+                    className="p-2 text-brand-muted hover:text-accent transition-colors rounded-xl hover:bg-accent/5"
                   >
                     <Edit2 size={16} />
                   </button>
@@ -647,7 +650,7 @@ export default function Passwords() {
                     href={entry.url.startsWith('http') ? entry.url : `https://${entry.url}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-3 bg-blue-500/5 hover:bg-blue-500/10 text-blue-500 hover:text-blue-600 rounded-xl transition-all font-bold text-[10px] uppercase tracking-widest border border-blue-500/10"
+                    className="flex items-center justify-center gap-2 w-full py-3 bg-brand/5 hover:bg-brand/10 text-brand dark:text-white rounded-xl transition-all font-bold text-[10px] uppercase tracking-widest border border-accent/10"
                   >
                     <span>Website öffnen</span>
                     <ExternalLink size={12} />
@@ -767,13 +770,13 @@ export default function Passwords() {
               <div className="flex gap-3 p-5 shrink-0 bg-white/5 backdrop-blur-xl border-t border-white/5">
                 <button 
                   onClick={() => setShowAddModal(false)}
-                  className="flex-1 h-12 bg-slate-500/10 text-brand-muted rounded-xl font-black uppercase text-[10px] tracking-widest transition-all"
+                  className="flex-1 btn-red-glow"
                 >
                   Abbrechen
                 </button>
                 <button 
                   onClick={saveEntry}
-                  className="flex-[2] h-12 bg-brand text-white rounded-xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-brand/20 hover:scale-[1.01] active:scale-[0.99] transition-all"
+                  className="flex-[2] btn-green-glow"
                 >
                   {editingEntry ? 'Aktualisieren' : 'Speichern'}
                 </button>
@@ -809,7 +812,7 @@ export default function Passwords() {
               <div className="flex gap-3">
                 <button 
                   onClick={() => setDeleteConfirmId(null)}
-                  className="flex-1 h-12 bg-slate-500/10 text-brand-muted rounded-xl font-black uppercase text-[10px] tracking-widest transition-all"
+                  className="flex-1 glass-button-secondary"
                 >
                   Abbrechen
                 </button>
@@ -818,7 +821,7 @@ export default function Passwords() {
                     deleteEntry(deleteConfirmId);
                     setDeleteConfirmId(null);
                   }}
-                  className="flex-1 h-12 bg-red-500 text-white rounded-xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-red-500/20 transition-all"
+                  className="flex-1 btn-cancel"
                 >
                   Löschen
                 </button>

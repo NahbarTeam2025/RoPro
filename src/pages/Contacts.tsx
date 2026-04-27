@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Plus, Search, Trash2, Edit2, X, Phone, Mail, MapPin, 
-  Cake, ChevronRight, User, MoreVertical, FileText
+  Cake, ChevronRight, User, MoreVertical, FileText, Check
 } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { 
@@ -24,6 +24,7 @@ interface Contact {
   address?: string;
   notes?: string;
   color?: string;
+  isFavorite?: boolean;
   userId: string;
   createdAt: any;
   updatedAt: any;
@@ -47,7 +48,8 @@ export default function Contacts() {
     birthday: '',
     address: '',
     notes: '',
-    color: '#007AFF'
+    color: '#60A5FA',
+    isFavorite: false
   });
 
   useEffect(() => {
@@ -55,8 +57,7 @@ export default function Contacts() {
 
     const q = query(
       collection(db, 'contacts'),
-      where('userId', '==', user.uid),
-      orderBy('name', 'asc')
+      where('userId', '==', user.uid)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -64,7 +65,14 @@ export default function Contacts() {
         id: doc.id,
         ...doc.data()
       })) as Contact[];
-      setContacts(data);
+      
+      const sorted = [...data].sort((a, b) => {
+        if (a.isFavorite && !b.isFavorite) return -1;
+        if (!a.isFavorite && b.isFavorite) return 1;
+        return a.name.localeCompare(b.name, 'de');
+      });
+
+      setContacts(sorted);
       setLoading(false);
 
       // Handle search selection
@@ -125,7 +133,8 @@ export default function Contacts() {
       birthday: contact.birthday || '',
       address: contact.address || '',
       notes: contact.notes || '',
-      color: contact.color || '#007AFF'
+      color: contact.color || '#60A5FA',
+      isFavorite: !!contact.isFavorite
     });
     setIsAddModalOpen(true);
   };
@@ -140,7 +149,8 @@ export default function Contacts() {
       birthday: '',
       address: '',
       notes: '',
-      color: '#007AFF'
+      color: '#60A5FA',
+      isFavorite: false
     });
   };
 
@@ -154,14 +164,14 @@ export default function Contacts() {
     <div className="max-w-6xl mx-auto flex flex-col h-full px-0 sm:px-0 pb-6">
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 sm:mb-12">
         <div>
-          <h1 className="text-4xl font-black text-brand tracking-tight mb-1 uppercase">Kontakte</h1>
+          <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-1 uppercase">Kontakte</h1>
         </div>
         <button 
           onClick={() => setIsAddModalOpen(true)}
-          className="glass-button-primary flex items-center gap-2 px-6 py-3 h-12"
+          className="btn-briefing-glow px-6 flex items-center gap-2"
         >
           <Plus size={20} />
-          <span className="font-bold">Kontakt hinzufügen</span>
+          <span>Kontakt hinzufügen</span>
         </button>
       </header>
 
@@ -192,21 +202,28 @@ export default function Contacts() {
                       key={contact.id}
                       onClick={() => setSelectedContact(contact)}
                       className={cn(
-                        "w-full text-left px-6 py-4 refined-list-item flex items-center gap-3 transition-all group",
+                        "w-full text-left px-6 py-4 refined-list-item flex items-center gap-3 transition-all group relative border-l-[3px]",
                         selectedContact?.id === contact.id 
-                          ? "bg-brand text-white shadow-lg shadow-blue-500/20 z-10" 
-                          : ""
+                          ? "bg-white dark:bg-white/[0.03] border-l-accent shadow-[0_0_20px_-5px_rgba(34,197,94,0.3)] dark:shadow-[0_0_20px_-5px_rgba(0,113,227,0.4)] z-10" 
+                          : "border-l-transparent"
                       )}
                     >
                       <div className={cn(
-                        "w-8 h-8 flex items-center justify-center font-black text-sm shrink-0 transition-colors lowercase",
-                        selectedContact?.id === contact.id ? "bg-white/20" : "text-brand"
+                        "w-10 h-10 flex items-center justify-center font-black text-xs shrink-0 transition-all rounded-full lowercase",
+                        selectedContact?.id === contact.id 
+                          ? "bg-accent text-white shadow-lg shadow-accent/25" 
+                          : "bg-slate-100 dark:bg-white/5 text-slate-900 dark:text-white"
                       )}>
                         {contact.name[0]}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className={cn("font-bold truncate tracking-tight text-xs", selectedContact?.id === contact.id ? "text-white" : "text-brand")}>
-                          {contact.name}
+                        <div className="flex items-center gap-2">
+                          <div className={cn("font-bold truncate tracking-tight text-xs", selectedContact?.id === contact.id ? "text-white" : "text-slate-900 dark:text-white")}>
+                            {contact.name}
+                          </div>
+                          {contact.isFavorite && (
+                            <div className={cn("w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(255,149,0,0.5)]")} />
+                          )}
                         </div>
                         {(contact.email || contact.phone) && (
                           <div className={cn("text-[10px] truncate font-medium uppercase tracking-tighter opacity-70", selectedContact?.id === contact.id ? "text-white/70" : "text-brand-muted")}>
@@ -240,7 +257,12 @@ export default function Contacts() {
                       {selectedContact.name[0].toUpperCase()}
                     </div>
                     <div className="min-w-0">
-                      <h2 className="text-2xl sm:text-3xl font-black text-brand tracking-tight mb-2 uppercase break-words">{selectedContact.name}</h2>
+                      <div className="flex items-center gap-3 mb-2">
+                        <h2 className="text-2xl sm:text-3xl font-black text-brand tracking-tight uppercase break-words">{selectedContact.name}</h2>
+                        {selectedContact.isFavorite && (
+                          <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_10px_rgba(255,149,0,0.6)]" title="Favorit" />
+                        )}
+                      </div>
                       <div className="flex flex-wrap gap-2 text-xs font-bold text-brand-muted uppercase tracking-widest">
                          {selectedContact.birthday && (
                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200/30 dark:border-white/5">
@@ -258,7 +280,7 @@ export default function Contacts() {
                   <div className="flex items-center gap-2 sm:self-start">
                     <button 
                       onClick={(e) => openEditModal(selectedContact, e)}
-                      className="p-2.5 rounded-xl text-brand-muted hover:text-brand hover:bg-slate-200 transition-all shadow-sm border border-slate-200/50 dark:border-white/5"
+                      className="p-2.5 rounded-xl text-brand-muted hover:text-accent hover:bg-slate-200 transition-all shadow-sm border border-slate-200/50 dark:border-white/5"
                     >
                       <Edit2 size={18} />
                     </button>
@@ -411,29 +433,27 @@ export default function Contacts() {
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Farbe</label>
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    {['#007AFF', '#34C759', '#FF9500', '#FF3B30', '#AF52DE', '#5856D6', '#FF2D55'].map(c => (
-                      <button
-                        key={c}
-                        type="button"
-                        onClick={() => setFormData({...formData, color: c})}
-                        className={cn(
-                          "w-8 h-8 rounded-full border-2 transition-all shadow-sm",
-                          formData.color === c ? "border-brand scale-110" : "border-transparent"
-                        )}
-                        style={{ backgroundColor: c }}
-                      />
-                    ))}
-                  </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, isFavorite: !formData.isFavorite})}
+                    className={cn(
+                      "flex items-center gap-2 px-4 py-2 rounded-xl border transition-all text-[10px] font-black uppercase tracking-widest",
+                      formData.isFavorite 
+                        ? "bg-orange-500 text-white border-orange-500 shadow-lg shadow-orange-500/20" 
+                        : "bg-slate-500/5 text-brand-muted border-transparent"
+                    )}
+                  >
+                    {formData.isFavorite ? <Check size={12} strokeWidth={3} /> : null}
+                    <span>Zu Favoriten hinzufügen</span>
+                  </button>
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4">
-                  <button type="button" onClick={closeModal} className="px-6 py-3 glass-button-secondary font-bold">Abbrechen</button>
-                  <button type="submit" className="px-10 py-3 glass-button-primary font-bold">
-                    {editingContact ? 'Speichern' : 'Kontakt erstellen'}
+                <div className="flex flex-col gap-3 pt-4">
+                  <button type="submit" className="btn-green-glow w-full h-14">
+                    {editingContact ? 'Speichern' : 'Erstellen'}
                   </button>
+                  <button type="button" onClick={closeModal} className="btn-red-glow w-full h-14">Abbrechen</button>
                 </div>
               </form>
             </motion.div>
