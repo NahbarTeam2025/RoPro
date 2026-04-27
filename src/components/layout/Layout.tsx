@@ -224,7 +224,21 @@ export default function Layout() {
   const mainRef = React.useRef<HTMLElement>(null);
 
   return (
-    <div className="flex min-h-screen font-sans relative bg-black transition-colors duration-500">
+    <div className="flex min-h-screen font-sans relative bg-black transition-colors duration-500 overflow-hidden">
+      {/* Background Video */}
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover opacity-100"
+          src="https://meine-assets.pages.dev/ropro.mp4"
+        />
+        {/* Overlay to ensure readability and glass effect works well */}
+        <div className="absolute inset-0 bg-black/20" />
+      </div>
+
       {/* Mobile sidebar overlay */}
       {isSidebarOpen && (
         <div 
