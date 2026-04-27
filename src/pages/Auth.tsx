@@ -7,6 +7,8 @@ export default function Auth() {
   const { user, loginWithGoogle, loading, error } = useAuth();
   const navigate = useNavigate();
 
+  const currentDomain = window.location.hostname;
+
   useEffect(() => {
     if (user && !loading) {
       navigate('/');
@@ -33,10 +35,17 @@ export default function Auth() {
         <p className="text-sm font-bold text-brand-muted mb-10 leading-relaxed uppercase tracking-widest px-4">The High-End Productivity OS</p>
         
         {error && (
-          <div className="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-xs text-red-500 font-bold leading-relaxed">
+          <div className="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-xs text-red-500 font-bold leading-relaxed text-left">
+            <div className="flex items-center gap-2 mb-2 font-black uppercase tracking-widest text-[10px]">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              Status: Fehler
+            </div>
             {error}
-            <div className="mt-2 pt-2 border-t border-red-500/10">
-              Prüfe die Firebase Authorized Domains oder öffne die App in einem neuen Tab.
+            <div className="mt-4 pt-4 border-t border-red-500/10 space-y-2 opacity-80">
+              <p>Stellen Sie sicher, dass diese Domain in der Firebase Console unter <span className="font-mono text-[9px] bg-red-500/20 px-1 py-0.5 rounded">Authentication &gt; Settings &gt; Authorized Domains</span> hinzugefügt wurde:</p>
+              <div className="font-mono text-[10px] bg-red-500/20 p-2 rounded break-all select-all">
+                {currentDomain}
+              </div>
             </div>
           </div>
         )}
