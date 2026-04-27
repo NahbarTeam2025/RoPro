@@ -223,47 +223,69 @@ export default function Layout() {
   const { pathname } = useLocation();
   const mainRef = React.useRef<HTMLElement>(null);
   const videoRef = React.useRef<HTMLVideoElement>(null);
-
-  React.useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {});
-    }
-  }, [pathname]);
+  const isPlayingRef = React.useRef(false);
 
   React.useEffect(() => {
     const video = videoRef.current;
-    if (video) {
-      const playVideo = () => {
-        if (video.paused) {
-          video.play().catch(error => {
-            // Silently fail as it might be blocked by browser until user interaction
-          });
+    if (!video) return;
+
+    const attemptPlay = async () => {
+      if (!video) return;
+      if (video.paused && !isPlayingRef.current) {
+        try {
+          isPlayingRef.current = true;
+          await video.play();
+        } catch (error) {
+          // Playback failed (e.g. user hasn't interacted yet)
+        } finally {
+          isPlayingRef.current = false;
         }
-      };
+      }
+    };
 
-      // Force play on mount
-      playVideo();
-      
-      // Attempt play on various events
-      const events = ['pause', 'waiting', 'stalled', 'suspend'];
-      events.forEach(event => video.addEventListener(event, playVideo));
+    // Attempt play on mount and whenever needed
+    attemptPlay();
 
-      // Heartbeat check to ensure video is playing
-      const interval = setInterval(() => {
-        playVideo();
-        // Fallback for some browsers where loop might fail
-        if (video.ended) {
-          video.currentTime = 0;
-          playVideo();
-        }
-      }, 1000);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        attemptPlay();
+      }
+    };
 
-      return () => {
-        events.forEach(event => video.removeEventListener(event, playVideo));
-        clearInterval(interval);
-      };
-    }
+    const handleStall = () => {
+      console.warn("Video stalled, attempting recovery...");
+      video.load();
+      attemptPlay();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    video.addEventListener('stalled', handleStall);
+    video.addEventListener('suspend', attemptPlay);
+    video.addEventListener('waiting', attemptPlay);
+
+    // Heartbeat check every 2 seconds
+    const interval = setInterval(() => {
+      if (video.paused || video.ended) {
+        if (video.ended) video.currentTime = 0;
+        attemptPlay();
+      }
+    }, 2000);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      video.removeEventListener('stalled', handleStall);
+      video.removeEventListener('suspend', attemptPlay);
+      video.removeEventListener('waiting', attemptPlay);
+      clearInterval(interval);
+    };
   }, []);
+
+  React.useEffect(() => {
+    // Re-trigger play on navigation if paused
+    if (videoRef.current && videoRef.current.paused) {
+      videoRef.current.play().catch(() => {});
+    }
+  }, [pathname]);
 
   return (
     <div className="flex min-h-screen font-sans relative bg-transparent overflow-hidden">
