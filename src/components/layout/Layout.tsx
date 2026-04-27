@@ -224,6 +224,8 @@ export default function Layout() {
   const mainRef = React.useRef<HTMLElement>(null);
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const isPlayingRef = React.useRef(false);
+  const lastTimeRef = React.useRef(0);
+  const consecutiveFrozenRef = React.useRef(0);
 
   React.useEffect(() => {
     const video = videoRef.current;
@@ -253,7 +255,6 @@ export default function Layout() {
     };
 
     const handleStall = () => {
-      console.warn("Video stalled, attempting recovery...");
       video.load();
       attemptPlay();
     };
@@ -262,20 +263,42 @@ export default function Layout() {
     video.addEventListener('stalled', handleStall);
     video.addEventListener('suspend', attemptPlay);
     video.addEventListener('waiting', attemptPlay);
+    video.addEventListener('error', handleStall);
 
-    // Heartbeat check every 2 seconds
+    // Precise heartbeat check
     const interval = setInterval(() => {
+      if (!video) return;
+
+      // Check if video is actually progressing
+      if (!video.paused && !video.ended) {
+        if (video.currentTime === lastTimeRef.current) {
+          consecutiveFrozenRef.current += 1;
+        } else {
+          consecutiveFrozenRef.current = 0;
+        }
+        lastTimeRef.current = video.currentTime;
+
+        // If frozen for > 4 heartbeats (4 seconds) while "playing"
+        if (consecutiveFrozenRef.current > 4) {
+          handleStall();
+          consecutiveFrozenRef.current = 0;
+          return;
+        }
+      }
+
+      // Standard pause/end check
       if (video.paused || video.ended) {
         if (video.ended) video.currentTime = 0;
         attemptPlay();
       }
-    }, 2000);
+    }, 1000);
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       video.removeEventListener('stalled', handleStall);
       video.removeEventListener('suspend', attemptPlay);
       video.removeEventListener('waiting', attemptPlay);
+      video.removeEventListener('error', handleStall);
       clearInterval(interval);
     };
   }, []);
