@@ -4,7 +4,7 @@ import { useAuth } from './hooks/useAuth';
 import Layout from './components/layout/Layout';
 
 // Lazy load pages for better performance
-const Auth = lazy(() => import('./pages/Auth'));
+import Auth from './pages/Auth';
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Notes = lazy(() => import('./pages/Notes'));
 const Tasks = lazy(() => import('./pages/Tasks'));
