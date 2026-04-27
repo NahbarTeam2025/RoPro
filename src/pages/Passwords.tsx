@@ -506,7 +506,7 @@ export default function Passwords() {
 
   return (
     <div className="max-w-6xl mx-auto px-0 sm:px-0 pb-20">
-      <header className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-8 bg-white/5 p-8 rounded-[3rem] border border-white/5 backdrop-blur-xl">
+      <header className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-8 bg-white/5 p-8 rounded-[3rem] border border-white/5 ">
         <div className="flex items-center gap-4 sm:gap-6 min-w-0 flex-1">
           <div className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center text-brand shrink-0">
             <Shield size={32} className="sm:hidden" />
@@ -678,7 +678,7 @@ export default function Passwords() {
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }}
               onClick={() => setShowAddModal(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+              className="absolute inset-0 bg-black/80 backdrop-blur-xl"
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -767,7 +767,7 @@ export default function Passwords() {
                 </div>
               </div>
 
-              <div className="flex gap-3 p-5 shrink-0 bg-white/5 backdrop-blur-xl border-t border-white/5">
+              <div className="flex gap-3 p-5 shrink-0 bg-white/5  border-t border-white/5">
                 <button 
                   onClick={() => setShowAddModal(false)}
                   className="flex-1 btn-red-glow"
@@ -795,7 +795,7 @@ export default function Passwords() {
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }}
               onClick={() => setDeleteConfirmId(null)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+              className="absolute inset-0 bg-black/80 backdrop-blur-xl"
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.9 }}

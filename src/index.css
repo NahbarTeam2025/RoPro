@@ -55,14 +55,10 @@ body {
   /* Apple-style Premium Card */
   .glass-card {
     @apply bg-[#1c1c1e]/20 backdrop-blur-lg border border-white/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300;
-    transform: translateZ(0);
-    will-change: transform, backdrop-filter;
   }
   
   .dark .glass-card {
     @apply bg-[#1c1c1e]/20 border-white/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.6)];
-    transform: translateZ(0);
-    will-change: transform, backdrop-filter;
   }
 
   /* Refined List Items */

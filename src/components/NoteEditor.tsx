@@ -186,7 +186,7 @@ export function NoteEditor({ note, onBack, onSave }: { note: Note, onBack: () =>
 
       <div className="flex-1 overflow-y-auto w-full prose-container custom-scrollbar tiptap-note-editor relative">
         {editor && (
-          <div className="sticky top-0 z-[50] bg-[#F2F2F7]/95 dark:bg-[#1C1C1E]/95 backdrop-blur-md flex items-center gap-1 px-4 sm:px-6 py-2 border-b border-slate-200/50 dark:border-white/10 flex-wrap shrink-0 shadow-sm glass-glossy">
+          <div className="sticky top-0 z-[50] bg-[#F2F2F7]/95 dark:bg-[#1C1C1E]/95  flex items-center gap-1 px-4 sm:px-6 py-2 border-b border-slate-200/50 dark:border-white/10 flex-wrap shrink-0 shadow-sm glass-glossy">
             <button
               onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
               className={cn("p-2 rounded-xl cursor-pointer transition-colors", editor.isActive('heading', { level: 2 }) ? 'bg-accent/10 text-accent font-black' : 'text-brand-muted hover:bg-slate-200 dark:hover:bg-white/10')}
@@ -225,7 +225,7 @@ export function NoteEditor({ note, onBack, onSave }: { note: Note, onBack: () =>
       </div>
 
       {deleteModal && deleteModal.open && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/40 backdrop-blur-md">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/80 backdrop-blur-xl">
           <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] p-10 shadow-2xl">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
             <p className="text-sm text-[#86868B] mb-8">Diese Notiz wird unwiderruflich entfernt.</p>

@@ -376,7 +376,7 @@ export default function Links() {
       )}
       {/* Custom Delete Modal */}
       {deleteModal && deleteModal.open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/10 backdrop-blur-md">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-xl">
           <div className="glass-card w-full max-w-sm rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
             <p className="text-sm text-[#86868B] mb-8">Dieser Link wird unwiderruflich entfernt.</p>
@@ -402,7 +402,7 @@ export default function Links() {
 
       {/* Edit Modal */}
       {editLink && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 pt-20 text-left overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xl p-4 pt-20 text-left overflow-y-auto">
           <div className="glass-card shadow-2xl w-full max-w-md my-auto rounded-[2.5rem] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="p-8 pb-0 flex justify-between items-start">
                <div>

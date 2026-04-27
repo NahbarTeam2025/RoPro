@@ -236,7 +236,7 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-[#000000] opacity-90 backdrop-blur-xl"
             onClick={onClose}
           />
           
@@ -246,7 +246,6 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
             transition={{ duration: 0.2 }}
             className="w-full max-w-[480px] bg-[#1c1c1e]/40 backdrop-blur-lg rounded-[2rem] border border-white/5 shadow-2xl overflow-hidden flex flex-col"
-            style={{ transform: 'translateZ(0)', willChange: 'transform, backdrop-filter' }}
           >
             <div className="relative border-b border-black/5 dark:border-white/5">
               <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-muted" size={20} />

@@ -57,7 +57,7 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/40 backdrop-blur-md"
+            className="absolute inset-0 bg-[#000000] opacity-90 backdrop-blur-xl"
             onClick={onClose}
           />
           
@@ -66,7 +66,6 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             className="relative w-full max-w-[480px] md:max-w-2xl bg-[#1c1c1e]/40 backdrop-blur-lg rounded-[2.5rem] border border-white/5 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
-            style={{ transform: 'translateZ(0)', willChange: 'transform, backdrop-filter' }}
           >
             {/* Header */}
             <div className="p-8 pb-4 flex items-center justify-between shrink-0">
@@ -153,8 +152,8 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
                 <h3 className="text-[11px] font-black text-brand uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                   <TrendingUp size={14} /> 2-Wochen Trend
                 </h3>
-                <div className="h-64 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
+                <div className="h-64 w-full min-w-0">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <AreaChart data={trendData}>
                       <defs>
                         <linearGradient id="colorMax" x1="0" y1="0" x2="0" y2="1">

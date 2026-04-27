@@ -40,7 +40,7 @@ export function CategoryManager({ type, onClose }: CategoryManagerProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-[250] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 pt-20 overflow-y-auto">
+    <div className="fixed inset-0 z-[250] flex items-center justify-center bg-black/80 backdrop-blur-xl p-4 pt-20 overflow-y-auto">
       <div className="glass-card w-full max-w-[480px] my-auto rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-200 max-h-[80vh]">
         <div className="p-8 border-b border-slate-200/50 dark:border-white/10 flex justify-between items-center shrink-0">
           <div>

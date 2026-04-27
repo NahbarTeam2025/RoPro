@@ -223,88 +223,32 @@ export default function Layout() {
   const { pathname } = useLocation();
   const mainRef = React.useRef<HTMLElement>(null);
   const videoRef = React.useRef<HTMLVideoElement>(null);
-  const isPlayingRef = React.useRef(false);
-  const lastTimeRef = React.useRef(0);
-  const consecutiveFrozenRef = React.useRef(0);
 
   React.useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
-
-    const attemptPlay = async () => {
-      if (!video) return;
-      if (video.paused && !isPlayingRef.current) {
-        try {
-          isPlayingRef.current = true;
-          await video.play();
-        } catch (error) {
-          // Playback failed (e.g. user hasn't interacted yet)
-        } finally {
-          isPlayingRef.current = false;
+    if (video) {
+      // Just a simple visibility change handler to ensure video isn't permanently paused by the browser
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible' && video.paused) {
+          video.play().catch(() => {});
         }
-      }
-    };
+      };
 
-    // Attempt play on mount and whenever needed
-    attemptPlay();
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        attemptPlay();
-      }
-    };
-
-    const handleStall = () => {
-      video.load();
-      attemptPlay();
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    video.addEventListener('stalled', handleStall);
-    video.addEventListener('suspend', attemptPlay);
-    video.addEventListener('waiting', attemptPlay);
-    video.addEventListener('error', handleStall);
-
-    // Precise heartbeat check
-    const interval = setInterval(() => {
-      if (!video) return;
-
-      // Check if video is actually progressing
-      if (!video.paused && !video.ended) {
-        if (video.currentTime === lastTimeRef.current) {
-          consecutiveFrozenRef.current += 1;
-        } else {
-          consecutiveFrozenRef.current = 0;
-        }
-        lastTimeRef.current = video.currentTime;
-
-        // If frozen for > 4 heartbeats (4 seconds) while "playing"
-        if (consecutiveFrozenRef.current > 4) {
-          handleStall();
-          consecutiveFrozenRef.current = 0;
-          return;
-        }
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      
+      // Simple play attempt on mount
+      if (video.paused) {
+         video.play().catch(() => {});
       }
 
-      // Standard pause/end check
-      if (video.paused || video.ended) {
-        if (video.ended) video.currentTime = 0;
-        attemptPlay();
-      }
-    }, 1000);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      video.removeEventListener('stalled', handleStall);
-      video.removeEventListener('suspend', attemptPlay);
-      video.removeEventListener('waiting', attemptPlay);
-      video.removeEventListener('error', handleStall);
-      clearInterval(interval);
-    };
+      return () => {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      };
+    }
   }, []);
 
   React.useEffect(() => {
-    // Re-trigger play on navigation if paused
+    // Attempt to resume playback on navigation just in case framework paused it
     if (videoRef.current && videoRef.current.paused) {
       videoRef.current.play().catch(() => {});
     }
@@ -313,21 +257,15 @@ export default function Layout() {
   return (
     <div className="flex min-h-screen font-sans relative bg-transparent overflow-hidden">
       {/* Background Video */}
-      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-black">
+      <div className="fixed inset-0 z-0 bg-black">
         <video
           ref={videoRef}
           autoPlay
           loop
           muted
           playsInline
-          preload="auto"
-          className="w-full h-full object-cover opacity-100"
-          style={{ 
-            willChange: 'transform',
-            transform: 'translateZ(0)',
-            backfaceVisibility: 'hidden'
-          }}
-          src="https://meine-assets.pages.dev/ropro.mp4"
+          className="w-full h-full object-cover"
+          src="https://meine-assets.pages.dev/ropro.webm"
         />
         {/* Overlay to ensure readability and glass effect works well */}
         <div className="absolute inset-0 bg-black/10" />
@@ -336,7 +274,7 @@ export default function Layout() {
       {/* Mobile sidebar overlay */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/20 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/80 backdrop-blur-xl z-40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -348,7 +286,6 @@ export default function Layout() {
           isSidebarOpen ? "translate-x-0" : "-translate-x-full",
           isSidebarCollapsed ? "lg:w-20" : "lg:w-64 w-64"
         )}
-        style={{ transform: 'translateZ(0)', willChange: 'transform, backdrop-filter' }}
       >
         <div className={cn("p-8 flex items-center shrink-0", isSidebarCollapsed ? "flex-col gap-4 px-0" : "gap-3")}>
           <div className="w-8 h-8 flex items-center justify-center text-blue-500 shrink-0">
@@ -564,8 +501,8 @@ export default function Layout() {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen relative z-10 transition-colors duration-500 overflow-hidden" style={{ transform: 'translateZ(0)', contain: 'layout size style' }}>
-        <header className="h-16 border-b border-[#D2D2D7]/30 dark:border-[#424245]/30 flex items-center justify-between px-6 lg:hidden shrink-0 bg-black/80 backdrop-blur-lg z-30" style={{ transform: 'translateZ(0)', willChange: 'backdrop-filter' }}>
+      <div className="flex-1 flex flex-col min-w-0 h-screen relative z-10 transition-colors duration-500 overflow-hidden">
+        <header className="h-16 border-b border-[#D2D2D7]/30 dark:border-[#424245]/30 flex items-center justify-between px-6 lg:hidden shrink-0 bg-white/10 dark:bg-black/40 backdrop-blur-lg z-30">
           <div className="flex items-center gap-3">
             <button 
               className="p-2 -ml-2 text-[#86868B] hover:text-[#1D1D1F] rounded-lg transition-colors"
