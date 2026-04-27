@@ -222,12 +222,55 @@ export default function Layout() {
 
   const { pathname } = useLocation();
   const mainRef = React.useRef<HTMLElement>(null);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+
+  React.useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
+  }, [pathname]);
+
+  React.useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+      const playVideo = () => {
+        if (video.paused) {
+          video.play().catch(error => {
+            // Silently fail as it might be blocked by browser until user interaction
+          });
+        }
+      };
+
+      // Force play on mount
+      playVideo();
+      
+      // Attempt play on various events
+      const events = ['pause', 'waiting', 'stalled', 'suspend'];
+      events.forEach(event => video.addEventListener(event, playVideo));
+
+      // Heartbeat check to ensure video is playing
+      const interval = setInterval(() => {
+        playVideo();
+        // Fallback for some browsers where loop might fail
+        if (video.ended) {
+          video.currentTime = 0;
+          playVideo();
+        }
+      }, 1000);
+
+      return () => {
+        events.forEach(event => video.removeEventListener(event, playVideo));
+        clearInterval(interval);
+      };
+    }
+  }, []);
 
   return (
-    <div className="flex min-h-screen font-sans relative bg-black transition-colors duration-500 overflow-hidden">
+    <div className="flex min-h-screen font-sans relative bg-transparent overflow-hidden">
       {/* Background Video */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
         <video
+          ref={videoRef}
           autoPlay
           loop
           muted
@@ -235,11 +278,6 @@ export default function Layout() {
           preload="auto"
           className="w-full h-full object-cover opacity-100"
           src="https://meine-assets.pages.dev/ropro.mp4"
-          onEnded={(e) => {
-            const v = e.currentTarget;
-            v.currentTime = 0;
-            v.play();
-          }}
         />
         {/* Overlay to ensure readability and glass effect works well */}
         <div className="absolute inset-0 bg-black/20" />
