@@ -232,8 +232,14 @@ export default function Layout() {
           loop
           muted
           playsInline
+          preload="auto"
           className="w-full h-full object-cover opacity-100"
           src="https://meine-assets.pages.dev/ropro.mp4"
+          onEnded={(e) => {
+            const v = e.currentTarget;
+            v.currentTime = 0;
+            v.play();
+          }}
         />
         {/* Overlay to ensure readability and glass effect works well */}
         <div className="absolute inset-0 bg-black/20" />
