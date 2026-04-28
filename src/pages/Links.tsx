@@ -202,7 +202,7 @@ export default function Links() {
              <select 
                 value={filterCategory} 
                 onChange={(e) => setFilterCategory(e.target.value)}
-                className="glass-input h-10 w-full sm:w-48 appearance-none bg-white dark:bg-[#050505] text-xs font-bold uppercase tracking-wider px-4"
+                className="glass-input h-10 w-full sm:w-48 appearance-none bg-white dark:bg-[#050505] text-xs font-bold uppercase tracking-wider px-4 text-center"
              >
                <option value="all">Alle Kategorien</option>
                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}

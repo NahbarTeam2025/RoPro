@@ -148,13 +148,13 @@ export default function Prompts() {
              </select>
           </div>
           <div className="relative">
-            <Search className="absolute left-3 top-2.5 text-brand-muted opacity-50" size={16} />
+            <Search className="absolute left-3 top-2.5 text-white/40" size={16} />
             <input
               type="text"
               placeholder="Suchen..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="glass-input pl-9 rounded-xl"
+              className="w-full pl-9 py-2 text-sm bg-slate-900 dark:bg-black/40 text-white placeholder:text-white/40 rounded-xl border border-white/10"
             />
           </div>
         </div>

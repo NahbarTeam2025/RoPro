@@ -203,6 +203,22 @@ export default function Calendar() {
     <div className="max-w-5xl mx-auto space-y-6 relative z-10 w-full px-0 sm:px-0 pb-10 lg:pb-6">
       <div className="glass-card rounded-[2.5rem] p-6 mb-6">
         <div className="flex items-center justify-between gap-4">
+          <div className="hidden sm:block shrink-0">
+            <button 
+              onClick={() => setCurrentDate(new Date())}
+              className="btn-briefing-glow h-12 px-6 flex items-center justify-center shrink-0"
+            >
+              Heute
+            </button>
+          </div>
+
+          <div className="flex-1 px-1 sm:px-4 flex justify-center">
+            <h1 className="text-xl sm:text-3xl font-black tracking-tighter text-brand capitalize leading-none text-center flex flex-col items-center">
+              <span className="block">{format(currentDate, "MMMM", { locale: de })}</span>
+              <span className="text-[10px] sm:text-lg opacity-40 mt-1 tracking-widest block">{format(currentDate, "yyyy")}</span>
+            </h1>
+          </div>
+
           <div className="flex items-center gap-2">
             <button 
               onClick={prevMonth}
@@ -217,20 +233,6 @@ export default function Calendar() {
               <ChevronRight size={24} />
             </button>
           </div>
-
-          <div className="flex-1 px-1 sm:px-4 flex justify-center">
-            <h1 className="text-xl sm:text-3xl font-black tracking-tighter text-brand capitalize leading-none text-center flex flex-col items-center">
-              <span className="block">{format(currentDate, "MMMM", { locale: de })}</span>
-              <span className="text-[10px] sm:text-lg opacity-40 mt-1 tracking-widest block">{format(currentDate, "yyyy")}</span>
-            </h1>
-          </div>
-
-          <button 
-            onClick={() => setCurrentDate(new Date())}
-            className="btn-briefing-glow h-12 px-6 hidden sm:flex shrink-0"
-          >
-            Heute
-          </button>
         </div>
       </div>
 

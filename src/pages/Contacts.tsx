@@ -178,14 +178,14 @@ export default function Contacts() {
       <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 flex-1 min-h-0">
         {/* Left: Contact List */}
         <div className="lg:w-1/3 flex flex-col gap-4">
-          <div className="relative mb-2">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted" size={16} />
+          <div className="relative mb-2 w-full lg:w-[245px]">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={16} />
             <input 
               type="text"
               placeholder="Suchen..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="glass-input w-full pl-11 pr-4 py-3 text-sm shadow-sm"
+              className="w-full pl-11 pr-4 py-3 text-sm shadow-sm bg-slate-900 dark:bg-black/40 text-white placeholder:text-white/40 rounded-2xl border border-white/10"
             />
           </div>
 
@@ -370,6 +370,47 @@ export default function Contacts() {
               </div>
 
               <form onSubmit={handleCreateOrUpdate} className="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                {!editingContact && (
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Vorlagen</label>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setFormData({
+                          ...formData,
+                          name: '',
+                          email: '',
+                          phone: '',
+                          birthday: '',
+                          address: '',
+                          notes: 'Geschäftlicher Kontakt\nAbteilung: \nPosition: ',
+                          color: '#3B82F6',
+                          isFavorite: false
+                        })}
+                        className="px-3 py-1.5 rounded-lg bg-slate-500/10 text-brand-muted text-[10px] font-bold uppercase tracking-wider hover:bg-brand hover:text-white transition-all"
+                      >
+                        Geschäftlich
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({
+                          ...formData,
+                          name: '',
+                          email: '',
+                          phone: '',
+                          birthday: '',
+                          address: '',
+                          notes: 'Privater Kontakt\nVerwandtschaftsgrad: ',
+                          color: '#EF4444',
+                          isFavorite: false
+                        })}
+                        className="px-3 py-1.5 rounded-lg bg-slate-500/10 text-brand-muted text-[10px] font-bold uppercase tracking-wider hover:bg-brand hover:text-white transition-all"
+                      >
+                        Privat
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Vollständiger Name</label>

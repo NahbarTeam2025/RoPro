@@ -358,7 +358,7 @@ export default function Household() {
           <select 
             value={filterMonth} 
             onChange={(e) => setFilterMonth(e.target.value)}
-            className="glass-input h-12 w-full sm:w-48 appearance-none bg-white dark:bg-[#050505] font-bold text-sm tracking-tight px-4"
+            className="glass-input h-12 w-full sm:w-48 appearance-none bg-white dark:bg-[#050505] font-bold text-sm tracking-tight px-4 text-center"
           >
             {availableMonths.map(m => (
               <option key={m} value={m}>{format(new Date(`${m}-01`), 'MMMM yyyy', { locale: de })}</option>
@@ -545,7 +545,7 @@ export default function Household() {
               value={savingsInput}
               onChange={(e) => setSavingsInput(e.target.value)}
               placeholder="Betrag"
-              className="glass-input h-8 text-[10px] w-full px-2"
+              className="h-8 text-[10px] w-full px-2 bg-slate-900 dark:bg-black/40 text-white placeholder:text-white/40 rounded-lg border border-white/10"
             />
             <button 
               type="button"
@@ -570,25 +570,25 @@ export default function Household() {
       {/* Visualizations Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Trend Chart */}
-        <div className="glass-card p-6 rounded-[2rem] lg:col-span-2 border border-white/[0.06] overflow-hidden">
-          <div className="flex items-center justify-between mb-6">
+        <div className="glass-card p-6 rounded-[2rem] lg:col-span-2 border border-white/[0.06] overflow-hidden select-none outline-none">
+          <div className="flex items-center justify-between mb-6 outline-none">
             <h3 className="text-[10px] font-black text-brand uppercase tracking-widest flex items-center gap-2">
               <BarChart3 size={14} /> Trend {format(currentMonthDate, 'MMMM', { locale: de })}
             </h3>
             <div className="flex items-center gap-3">
-               <div className="flex items-center gap-1.5">
+               <div className="flex items-center gap-1.5 outline-none">
                   <div className="w-2 h-2 rounded-full bg-blue-500" />
                   <span className="text-[8px] font-bold text-brand-muted uppercase">Bilanz</span>
                </div>
-               <div className="flex items-center gap-1.5">
+               <div className="flex items-center gap-1.5 outline-none">
                   <div className="w-2 h-2 rounded-full bg-red-500/40" />
                   <span className="text-[8px] font-bold text-brand-muted uppercase">Ausgaben</span>
                </div>
             </div>
           </div>
-          <div className="h-[200px] w-full min-w-0">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-              <AreaChart data={trendData}>
+          <div className="h-[200px] w-full min-w-0 outline-none" tabIndex={-1}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} className="outline-none">
+              <AreaChart data={trendData} accessibilityLayer>
                 <defs>
                   <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.1}/>
