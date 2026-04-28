@@ -374,15 +374,15 @@ export default function Dashboard() {
             <div className="grid grid-cols-3 gap-2 mb-2 p-3">
               <div className="text-center">
                 <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Plus</div>
-                <div className="text-[11px] font-black text-green-500">+{formatEuro(stats.income || 0)}€</div>
+                <div className="text-[11px] font-black text-slate-900 dark:text-white">{formatEuro(stats.income || 0)}€</div>
               </div>
               <div className="text-center border-x border-black/5 dark:border-white/5">
                 <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Minus</div>
-                <div className="text-[11px] font-black text-red-500">-{formatEuro(stats.expenses || 0)}€</div>
+                <div className="text-[11px] font-black text-slate-900 dark:text-white">{formatEuro(stats.expenses || 0)}€</div>
               </div>
               <div className="text-center">
                 <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Bilanz</div>
-                <div className={cn("text-[11px] font-black", balance >= 0 ? "text-blue-500" : "text-red-500")}>{formatEuro(balance || 0)}€</div>
+                <div className="text-[11px] font-black text-slate-900 dark:text-white">{formatEuro(balance || 0)}€</div>
               </div>
             </div>
             {transactions.slice(0, 3).length > 0 ? (
@@ -396,7 +396,7 @@ export default function Dashboard() {
                        <div className="text-xs font-bold text-[#1D1D1F] dark:text-[#F5F5F7]"> {t.description}</div>
                        <div className="text-[10px] font-medium text-[#86868B]">{format(t.date?.toDate() || new Date(), 'dd.MM')}</div>
                      </div>
-                     <div className={cn("text-xs font-black", t.type === 'income' ? "text-green-500" : "text-red-500")}>{t.type === 'income' ? '+' : '-'} {formatEuro(t.amount)}€</div>
+                     <div className="text-xs font-black text-slate-900 dark:text-white">{formatEuro(t.amount)}€</div>
                    </div>
                  ))}
                </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { collection, query, where, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, updateDoc, setDoc } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
 import { 
   Plus, Trash2, ArrowUpCircle, ArrowDownCircle, Wallet, 
@@ -67,6 +67,8 @@ export default function Household() {
       } else {
         setSavings({ id: user.uid, amount: 0 });
       }
+    }, (error) => {
+      handleFirestoreError(error, OperationType.GET, `savings/${user.uid}`);
     });
 
     return () => unsubscribe();
@@ -84,16 +86,29 @@ export default function Household() {
       const currentAmount = savings?.amount || 0;
       const newAmount = type === 'add' ? currentAmount + value : currentAmount - value;
       
-      // Use setDoc with merge to create or update
-      await setDoc(doc(db, 'savings', user.uid), {
-        userId: user.uid,
-        amount: newAmount,
-        updatedAt: serverTimestamp()
-      }, { merge: true });
+      const path = `savings/${user.uid}`;
+      try {
+        // Use setDoc with merge to create or update
+        await setDoc(doc(db, 'savings', user.uid), {
+          userId: user.uid,
+          amount: newAmount,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+      } catch (error) {
+        handleFirestoreError(error, OperationType.WRITE, path);
+      }
 
       setSavingsInput('');
     } catch (error) {
       console.error("Error updating savings:", error);
+      if (error instanceof Error) {
+        try {
+          const info = JSON.parse(error.message);
+          alert(`Fehler beim Sparen: ${info.error}`);
+        } catch {
+          alert('Fehler beim Aktualisieren des Sparschweins.');
+        }
+      }
     } finally {
       setIsUpdatingSavings(false);
     }
@@ -125,6 +140,8 @@ export default function Household() {
       });
       setTransactions(docs);
       setLoading(false);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, 'transactions');
     });
 
     return () => unsubscribe();
@@ -159,19 +176,36 @@ export default function Household() {
       };
 
       if (editingId) {
-        await updateDoc(doc(db, 'transactions', editingId), transactionData);
+        const path = `transactions/${editingId}`;
+        try {
+          await updateDoc(doc(db, 'transactions', editingId), transactionData);
+        } catch (error) {
+          handleFirestoreError(error, OperationType.UPDATE, path);
+        }
       } else {
-        await addDoc(collection(db, 'transactions'), {
-          ...transactionData,
-          createdAt: serverTimestamp()
-        });
+        const path = 'transactions';
+        try {
+          await addDoc(collection(db, 'transactions'), {
+            ...transactionData,
+            createdAt: serverTimestamp()
+          });
+        } catch (error) {
+          handleFirestoreError(error, OperationType.CREATE, path);
+        }
       }
       
       resetForm();
       setShowAdd(false);
     } catch (error) {
       console.error("Error saving transaction:", error);
-      alert('Fehler beim Speichern. Bitte versuche es erneut.');
+      if (error instanceof Error) {
+        try {
+          const info = JSON.parse(error.message);
+          alert(`Fehler beim Speichern: ${info.error}`);
+        } catch {
+          alert('Fehler beim Speichern. Bitte versuche es erneut.');
+        }
+      }
     }
   };
 
@@ -202,12 +236,24 @@ export default function Household() {
 
   const handleConfirmDelete = async () => {
     if (!deleteModal || !user) return;
+    const path = `transactions/${deleteModal.id}`;
     try {
-      await deleteDoc(doc(db, 'transactions', deleteModal.id));
+      try {
+        await deleteDoc(doc(db, 'transactions', deleteModal.id));
+      } catch (error) {
+        handleFirestoreError(error, OperationType.DELETE, path);
+      }
       setDeleteModal(null);
     } catch (error) {
       console.error("Error deleting transaction:", error);
-      alert('Fehler beim Löschen der Transaktion');
+      if (error instanceof Error) {
+        try {
+          const info = JSON.parse(error.message);
+          alert(`Fehler beim Löschen: ${info.error}`);
+        } catch {
+          alert('Fehler beim Löschen der Transaktion');
+        }
+      }
     }
   };
 
@@ -458,7 +504,7 @@ export default function Household() {
           </div>
           <div>
             <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-0.5">Ausgaben</div>
-            <div className="text-lg font-black text-red-500 tracking-tight">
+            <div className="text-lg font-black text-slate-900 dark:text-white tracking-tight">
               {formatEuro(expenses)}
             </div>
           </div>
@@ -467,16 +513,13 @@ export default function Household() {
         <div className="flex items-center gap-3 p-2">
           <div className={cn(
             "transition-colors shrink-0",
-            balance >= 0 ? "text-blue-500" : "text-red-500"
+            "text-blue-500"
           )}>
             <PiggyBank size={24} />
           </div>
           <div>
             <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-0.5">Bilanz</div>
-            <div className={cn(
-              "text-lg font-black tracking-tight",
-              balance >= 0 ? "text-blue-500" : "text-red-500"
-              )}>
+            <div className="text-lg font-black tracking-tight text-slate-900 dark:text-white">
               {formatEuro(balance)}
             </div>
           </div>
@@ -490,7 +533,7 @@ export default function Household() {
             </div>
             <div className="flex-1">
               <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-0.5">Gespartes Geld</div>
-            <div className="text-lg font-black text-green-500 tracking-tight">
+            <div className="text-lg font-black text-slate-900 dark:text-white tracking-tight">
               {savings ? formatEuro(savings.amount) : formatEuro(0)}
             </div>
             </div>
@@ -718,7 +761,7 @@ export default function Household() {
                         </div>
                       </div>
 
-                      <div className="flex flex-col items-end gap-1 min-w-[100px] shrink-0">
+                      <div className="flex flex-col items-end gap-2 min-w-[100px] shrink-0">
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
                           <button 
                             onClick={() => handleEdit(t)}
@@ -735,11 +778,14 @@ export default function Household() {
                             <Trash2 size={14} />
                           </button>
                         </div>
-                        <div className={cn(
-                          "text-base sm:text-lg font-black tracking-tighter whitespace-nowrap",
-                          t.type === 'income' ? "text-green-500" : "text-red-500"
-                        )}>
-                          {t.type === 'income' ? '+' : '-'} {formatEuro(t.amount)}
+                        <div className="flex items-center gap-2">
+                          <div className={cn(
+                            "w-1 h-4 rounded-full",
+                            t.type === 'income' ? "bg-green-500/40" : "bg-red-500/40"
+                          )} />
+                          <div className="text-base sm:text-lg font-black tracking-tighter whitespace-nowrap text-slate-900 dark:text-white">
+                            {formatEuro(t.amount)}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -796,10 +842,7 @@ export default function Household() {
                     return (
                       <div key={t.id} className="px-4 py-2 flex items-center justify-between group">
                         <div className="flex items-center gap-4 flex-1 min-w-0">
-                          <div className={cn(
-                            "w-10 h-10 flex items-center justify-center shrink-0",
-                            t.type === 'income' ? "text-green-500" : "text-red-500"
-                          )}>
+                          <div className="w-10 h-10 flex items-center justify-center shrink-0 text-brand-muted/40">
                             {t.type === 'income' ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
                           </div>
                           <div className="flex flex-col items-start min-w-0">
@@ -835,12 +878,15 @@ export default function Household() {
                               <Trash2 size={14} />
                             </button>
                           </div>
-                          <span className={cn(
-                            "font-black text-sm whitespace-nowrap",
-                            t.type === 'income' ? "text-green-500" : "text-red-500"
-                          )}>
-                            {t.type === 'income' ? '+' : '-'} {formatEuro(t.amount || 0)}
-                          </span>
+                          <div className="flex items-center gap-2 justify-end w-full">
+                            <div className={cn(
+                              "w-1 h-3 rounded-full",
+                              t.type === 'income' ? "bg-green-500/40" : "bg-red-500/40"
+                            )} />
+                            <span className="font-black text-sm whitespace-nowrap text-slate-900 dark:text-white">
+                              {formatEuro(t.amount || 0)}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     );
@@ -852,10 +898,7 @@ export default function Household() {
             <div className="p-8 pb-10 border-t border-slate-200/50 dark:border-white/10 shrink-0">
                <div className="flex justify-between items-center font-black text-brand">
                  <span>Gesamt</span>
-                 <span className={cn(
-                   "text-right min-w-[100px]",
-                   detailModal.type === 'income' ? "text-green-500" : "text-red-500"
-                 )}>
+                 <span className="text-right min-w-[100px] text-slate-900 dark:text-white">
                    {detailModal.type === 'income' 
                      ? formatEuro(income)
                      : formatEuro(expenses)

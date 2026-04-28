@@ -140,7 +140,8 @@ service cloud.firestore {
              data.userId == request.auth.uid &&
              data.createdAt is timestamp &&
              data.updatedAt is timestamp &&
-             (data.keys().hasAny(['isRecurring']) ? data.isRecurring is bool : true);
+             (data.keys().hasAny(['isRecurring']) ? data.isRecurring is bool : true) &&
+             (data.keys().hasAny(['interval']) ? (data.interval == null || (data.interval is string && data.interval in ['monthly', 'yearly'])) : true);
     }
 
     match /transactions/{transactionId} {
@@ -148,7 +149,7 @@ service cloud.firestore {
       allow list: if isSignedIn() && existing().userId == request.auth.uid;
       allow create: if isSignedIn() && isValidId(transactionId) && isValidTransaction(incoming()) && incoming().createdAt == request.time && incoming().updatedAt == request.time;
       allow update: if isSignedIn() && isValidId(transactionId) && isValidTransaction(incoming()) && incoming().createdAt == existing().createdAt && incoming().updatedAt == request.time && (
-        incoming().diff(existing()).affectedKeys().hasOnly(['description', 'amount', 'type', 'category', 'date', 'isRecurring', 'updatedAt'])
+        incoming().diff(existing()).affectedKeys().hasOnly(['description', 'amount', 'type', 'category', 'date', 'isRecurring', 'interval', 'userId', 'updatedAt'])
       );
       allow delete: if isSignedIn() && isValidId(transactionId) && existing().userId == request.auth.uid;
     }
