@@ -586,11 +586,12 @@ export default function Household() {
                </div>
             </div>
           </div>
-          <div className="h-[200px] w-full min-w-0 outline-none" tabIndex={-1}>
-            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1} className="outline-none">
-              <AreaChart data={trendData} accessibilityLayer>
-                <defs>
-                  <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
+          <div className="h-[200px] w-full relative outline-none" tabIndex={-1}>
+            <div className="absolute inset-0">
+              <ResponsiveContainer width="99%" height="100%" className="outline-none">
+                <AreaChart data={trendData} accessibilityLayer>
+                  <defs>
+                    <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.1}/>
                     <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
                   </linearGradient>
@@ -632,6 +633,7 @@ export default function Household() {
                 />
               </AreaChart>
             </ResponsiveContainer>
+            </div>
           </div>
         </div>
 
