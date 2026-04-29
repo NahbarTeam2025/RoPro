@@ -14,7 +14,6 @@ import {
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import GlobalSearch from '../GlobalSearch';
-import DailyBriefing from '../DailyBriefing';
 import WeatherModal from '../WeatherModal';
 import { fetchWeather, WeatherData, getWeatherInfo, fetchCityName } from '../../services/weatherService';
 
@@ -43,7 +42,6 @@ export default function Layout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isBriefingOpen, setIsBriefingOpen] = useState(true);
   const [isWeatherOpen, setIsWeatherOpen] = useState(false);
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [locationName, setLocationName] = useState('Standort wird ermittelt...');
@@ -488,12 +486,6 @@ export default function Layout() {
       </div>
 
       <GlobalSearch isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-      <DailyBriefing 
-        isOpen={isBriefingOpen} 
-        onClose={() => setIsBriefingOpen(false)} 
-        weatherData={weatherData}
-        locationName={locationName}
-      />
       <WeatherModal 
         isOpen={isWeatherOpen} 
         onClose={() => setIsWeatherOpen(false)} 

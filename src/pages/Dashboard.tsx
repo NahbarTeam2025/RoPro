@@ -384,9 +384,9 @@ export default function Dashboard() {
                 <div className="text-[11px] font-black text-slate-900 dark:text-white">{formatEuro(balance || 0)}€</div>
               </div>
             </div>
-            {transactions.slice(0, 3).length > 0 ? (
-               <div className="flex flex-col -mx-6 -mb-6">
-                 {transactions.slice(0, 3).map(t => (
+            {transactions.length > 0 ? (
+               <div className="flex flex-col -mx-6 -mb-6 h-[220px] overflow-y-auto">
+                 {transactions.map(t => (
                    <div key={t.id} className="flex items-center gap-3 px-6 py-4 refined-list-item rounded-none">
                      <div className={cn("w-8 h-8 flex items-center justify-center shrink-0 ml-1", t.type === 'income' ? "text-green-500" : "text-red-500")}>
                        {t.type === 'income' ? <ArrowUpCircle size={20} /> : <ArrowDownCircle size={20} />}

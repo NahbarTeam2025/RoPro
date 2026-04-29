@@ -4,7 +4,7 @@ import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { Check, Clock, Plus, Trash2, AlertCircle, Edit2, Settings2, X } from 'lucide-react';
+import { Check, Clock, Plus, Trash2, AlertCircle, Edit2, Settings2, X, ChevronDown } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { CategorySelect } from '../components/CategorySelect';
 import { CategoryManager } from '../components/CategoryManager';
@@ -40,6 +40,7 @@ export default function Tasks() {
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [filterMonth, setFilterMonth] = useState<string>('all');
   const [showCatManager, setShowCatManager] = useState(false);
+  const [isFormExpanded, setIsFormExpanded] = useState(false);
 
   const [deleteModal, setDeleteModal] = useState<{ open: boolean, id: string } | null>(null);
   const [editTask, setEditTask] = useState<Todo | null>(null);
@@ -222,103 +223,127 @@ export default function Tasks() {
       </header>
 
       <div className="flex-1 flex flex-col gap-6 px-0 sm:px-0">
-        <form onSubmit={addTask} className="glass-card p-6 sm:p-8 rounded-[2.5rem] flex flex-col gap-8">
-          <div className="space-y-2.5 flex flex-col">
-            <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Was steht an?</label>
-            <div className="relative group">
-              <input
-                type="text"
-                value={newTask}
-                onChange={(e) => setNewTask(e.target.value)}
-                placeholder="Neue Aufgabe tippen..."
-                className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-accent/[0.03] focus:bg-accent/[0.06] transition-all placeholder-slate-400 dark:placeholder-slate-500"
-                required
-              />
-              <div className="absolute left-0 bottom-0 w-0 h-1 bg-accent transition-all duration-300 group-focus-within:w-full" />
-            </div>
-          </div>
-          
-          <div className="flex flex-wrap items-center gap-x-8 gap-y-6">
-            <div className="min-w-[140px] flex-1 space-y-4 flex flex-col border-l border-white/5 pl-4">
-              <div className="space-y-1">
-                <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Datum</label>
-                <input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="glass-input h-9 text-[10px] bg-transparent border-none p-0 focus:ring-0"
-                />
+        <div className="glass-card p-6 sm:p-8 rounded-[2.5rem] flex flex-col gap-0 transition-all duration-300">
+          <div 
+            className="flex items-center justify-between cursor-pointer group"
+            onClick={() => setIsFormExpanded(!isFormExpanded)}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-accent/10 text-accent flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-all">
+                <Plus size={20} className={cn("transition-transform duration-300", isFormExpanded ? "rotate-45" : "")} />
               </div>
-              <div className="space-y-1">
-                <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Uhrzeit</label>
-                <input
-                  type="time"
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  className="glass-input h-9 text-[10px] bg-transparent border-none p-0 focus:ring-0"
-                />
-              </div>
+              <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">Neue Aufgabe</h2>
             </div>
-            <div className="w-full sm:w-32 space-y-2 flex flex-col border-l border-white/5 pl-4">
-              <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Priorität</label>
-              <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value as any)}
-                className="glass-input h-9 text-[10px] font-black uppercase appearance-none bg-transparent border-none p-0 focus:ring-0"
-              >
-                <option value="high" className="bg-[#1C1C1E]">🔴 Hoch</option>
-                <option value="medium" className="bg-[#1C1C1E]">🟡 Mittel</option>
-                <option value="low" className="bg-[#1C1C1E]">🟢 Niedrig</option>
-              </select>
-            </div>
-            <div className="w-full sm:w-40 space-y-2 flex flex-col border-l border-white/5 pl-4">
-              <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Kategorie</label>
-              <CategorySelect 
-                type="task" 
-                value={categoryId} 
-                onChange={setCategoryId}
-                className="h-9 px-4"
-              />
-            </div>
-            <div className="w-full sm:w-auto space-y-2 flex flex-col border-l border-white/5 pl-4">
-               <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Wiederholen</label>
-               <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsRecurring(!isRecurring)}
-                    className={cn(
-                      "h-9 px-3 rounded-xl border flex items-center justify-center gap-2 transition-all font-black text-[9px] uppercase tracking-wider",
-                      isRecurring ? "bg-accent text-white" : "bg-white/5 border-white/5 text-brand-muted hover:text-slate-900 dark:hover:text-white"
-                    )}
-                  >
-                    {isRecurring ? <Check size={12} strokeWidth={3} /> : null}
-                    <span>{isRecurring ? 'An' : 'Aus'}</span>
-                  </button>
-                  {isRecurring && (
-                    <select
-                      value={recurrenceInterval}
-                      onChange={(e) => setRecurrenceInterval(e.target.value as any)}
-                      className="h-9 bg-accent/10 border-none rounded-xl px-2 text-[9px] font-black uppercase tracking-wider text-brand dark:text-white"
-                    >
-                      <option value="daily" className="bg-[#1C1C1E]">Täglich</option>
-                      <option value="weekly" className="bg-[#1C1C1E]">Wöchentlich</option>
-                      <option value="monthly" className="bg-[#1C1C1E]">Monatlich</option>
-                    </select>
-                  )}
-               </div>
-            </div>
-          </div>
-
-          <div className="flex justify-center border-t border-white/5 pt-8">
-            <button
-              type="submit"
-              className="btn-green-glow px-10 flex items-center justify-center gap-3 group h-14"
-            >
-              <Plus size={24} className="group-hover:rotate-90 transition-transform duration-300" />
-              <span>Aufgabe Hinzufügen</span>
+            <button type="button" className="p-2 text-brand-muted group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+              <ChevronDown size={20} className={cn("transition-transform duration-300", isFormExpanded ? "rotate-180" : "")} />
             </button>
           </div>
-        </form>
+
+          <div className={cn(
+            "grid transition-all duration-300 ease-in-out",
+            isFormExpanded ? "grid-rows-[1fr] opacity-100 mt-6 pt-6 border-t border-slate-200/50 dark:border-white/5" : "grid-rows-[0fr] opacity-0 mt-0"
+          )}>
+            <div className="overflow-hidden">
+              <form onSubmit={(e) => { addTask(e); setIsFormExpanded(false); }} className="flex flex-col gap-8">
+                <div className="space-y-2.5 flex flex-col">
+                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Was steht an?</label>
+                  <div className="relative group">
+                    <input
+                      type="text"
+                      value={newTask}
+                      onChange={(e) => setNewTask(e.target.value)}
+                      placeholder="Neue Aufgabe tippen..."
+                      className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-accent/[0.03] focus:bg-accent/[0.06] transition-all placeholder-slate-400 dark:placeholder-slate-500"
+                      required
+                    />
+                    <div className="absolute left-0 bottom-0 w-0 h-1 bg-accent transition-all duration-300 group-focus-within:w-full" />
+                  </div>
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-x-8 gap-y-6">
+                  <div className="min-w-[140px] flex-1 space-y-4 flex flex-col border-l border-white/5 pl-4">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Datum</label>
+                      <input
+                        type="date"
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                        className="glass-input h-9 text-[10px] bg-transparent border-none p-0 focus:ring-0"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Uhrzeit</label>
+                      <input
+                        type="time"
+                        value={time}
+                        onChange={(e) => setTime(e.target.value)}
+                        className="glass-input h-9 text-[10px] bg-transparent border-none p-0 focus:ring-0"
+                      />
+                    </div>
+                  </div>
+                  <div className="w-full sm:w-32 space-y-2 flex flex-col border-l border-white/5 pl-4">
+                    <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Priorität</label>
+                    <select
+                      value={priority}
+                      onChange={(e) => setPriority(e.target.value as any)}
+                      className="glass-input h-9 text-[10px] font-black uppercase appearance-none bg-transparent border-none p-0 focus:ring-0"
+                    >
+                      <option value="high" className="bg-[#1C1C1E]">🔴 Hoch</option>
+                      <option value="medium" className="bg-[#1C1C1E]">🟡 Mittel</option>
+                      <option value="low" className="bg-[#1C1C1E]">🟢 Niedrig</option>
+                    </select>
+                  </div>
+                  <div className="w-full sm:w-40 space-y-2 flex flex-col border-l border-white/5 pl-4">
+                    <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Kategorie</label>
+                    <CategorySelect 
+                      type="task" 
+                      value={categoryId} 
+                      onChange={setCategoryId}
+                      className="h-9 px-4"
+                    />
+                  </div>
+                  <div className="w-full sm:w-auto space-y-2 flex flex-col border-l border-white/5 pl-4">
+                    <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Wiederholen</label>
+                    <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setIsRecurring(!isRecurring)}
+                          className={cn(
+                            "h-9 px-3 rounded-xl border flex items-center justify-center gap-2 transition-all font-black text-[9px] uppercase tracking-wider",
+                            isRecurring ? "bg-accent text-white" : "bg-white/5 border-white/5 text-brand-muted hover:text-slate-900 dark:hover:text-white"
+                          )}
+                        >
+                          {isRecurring ? <Check size={12} strokeWidth={3} /> : null}
+                          <span>{isRecurring ? 'An' : 'Aus'}</span>
+                        </button>
+                        {isRecurring && (
+                          <select
+                            value={recurrenceInterval}
+                            onChange={(e) => setRecurrenceInterval(e.target.value as any)}
+                            className="h-9 bg-accent/10 border-none rounded-xl px-2 text-[9px] font-black uppercase tracking-wider text-brand dark:text-white"
+                          >
+                            <option value="daily" className="bg-[#1C1C1E]">Täglich</option>
+                            <option value="weekly" className="bg-[#1C1C1E]">Wöchentlich</option>
+                            <option value="monthly" className="bg-[#1C1C1E]">Monatlich</option>
+                          </select>
+                        )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-center border-t border-white/5 pt-8">
+                  <button
+                    type="submit"
+                    className="btn-green-glow px-10 flex items-center justify-center gap-3 group h-14"
+                  >
+                    <Plus size={24} className="group-hover:rotate-90 transition-transform duration-300" />
+                    <span>Aufgabe Hinzufügen</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
 
         <div className="flex-1 space-y-8">
           {/* Active Tasks */}
