@@ -153,7 +153,7 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
                   <TrendingUp size={14} /> 2-Wochen Trend
                 </h3>
                 <div className="h-64 w-full min-w-0">
-                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                  <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                     <AreaChart data={trendData}>
                       <defs>
                         <linearGradient id="colorMax" x1="0" y1="0" x2="0" y2="1">

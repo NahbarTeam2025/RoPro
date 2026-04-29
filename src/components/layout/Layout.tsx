@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { useTheme } from '../../contexts/ThemeContext';
 import { 
   LayoutDashboard, CheckSquare, Calendar as CalendarIcon, FileText, 
-  Link as LinkIcon, Menu, X, Sun, Moon, Zap, MessageSquare, 
+  Link as LinkIcon, Menu, X, Sun, Zap, MessageSquare, 
   Cloud, Image as ImageIcon, BarChart2, Search, Activity, 
   Gauge, Mail, Brain, Cpu, ChevronDown, ChevronUp, Wallet,
   Code, BookOpen, Sparkles, FastForward, Layers, Compass,
@@ -41,7 +40,6 @@ interface Category {
 
 export default function Layout() {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -220,52 +218,16 @@ export default function Layout() {
     setOpenCategories(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const { pathname } = useLocation();
   const mainRef = React.useRef<HTMLElement>(null);
-  const videoRef = React.useRef<HTMLVideoElement>(null);
-
-  React.useEffect(() => {
-    const video = videoRef.current;
-    if (video) {
-      // Just a simple visibility change handler to ensure video isn't permanently paused by the browser
-      const handleVisibilityChange = () => {
-        if (document.visibilityState === 'visible' && video.paused) {
-          video.play().catch(() => {});
-        }
-      };
-
-      document.addEventListener('visibilitychange', handleVisibilityChange);
-      
-      // Simple play attempt on mount
-      if (video.paused) {
-         video.play().catch(() => {});
-      }
-
-      return () => {
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
-      };
-    }
-  }, []);
-
-  React.useEffect(() => {
-    // Attempt to resume playback on navigation just in case framework paused it
-    if (videoRef.current && videoRef.current.paused) {
-      videoRef.current.play().catch(() => {});
-    }
-  }, [pathname]);
 
   return (
     <div className="flex min-h-screen font-sans relative bg-transparent overflow-hidden">
-      {/* Background Video */}
+      {/* Background Image */}
       <div className="fixed inset-0 z-0 bg-black">
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-cover"
-          src="https://meine-assets.pages.dev/ropro.webm"
+        <img
+          src="https://meine-assets.pages.dev/b1.webp"
+          alt="Background"
+          className="w-full h-full object-cover opacity-25"
         />
         {/* Overlay to ensure readability and glass effect works well */}
         <div className="absolute inset-0 bg-black/10" />

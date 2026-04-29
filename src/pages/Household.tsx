@@ -587,7 +587,7 @@ export default function Household() {
             </div>
           </div>
           <div className="h-[200px] w-full min-w-0 outline-none" tabIndex={-1}>
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} className="outline-none">
+            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1} className="outline-none">
               <AreaChart data={trendData} accessibilityLayer>
                 <defs>
                   <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
