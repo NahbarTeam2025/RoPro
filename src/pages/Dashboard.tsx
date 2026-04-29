@@ -94,8 +94,7 @@ export default function Dashboard() {
       const allApp = snap.docs.map(d => ({ id: d.id, ...d.data() } as any));
       const upApp = allApp
         .filter(t => t.dueDate && (new Date(t.dueDate) >= todayStart))
-        .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
-        .slice(0, 3);
+        .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
       setAppointments(upApp);
     }));
 
@@ -257,7 +256,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8 mt-4 md:mt-0 flex-1">
           <DashboardCard title="Termine" icon={CalendarIcon} to="/calendar" color="#60A5FA">
             {appointments.length > 0 ? (
-               <div className="flex flex-col -mx-6">
+               <div className="flex flex-col -mx-6 h-[220px] overflow-y-auto custom-scrollbar">
                 {appointments.map(app => (
                   <div key={app.id} className="refined-list-item flex items-center gap-4 px-6 py-4 relative group border-l-[3px] rounded-none" style={{ borderLeftColor: app.color || '#60A5FA' }}>
                     <div className="w-10 h-10 flex flex-col items-center justify-center shrink-0 ml-1">
