@@ -105,7 +105,7 @@ export default function Layout() {
     return () => clearInterval(interval);
   }, []);
 
-  const WeatherSummaryIcon = ({ className = "" }: { className?: string }) => {
+  const WeatherSummaryIcon = ({ className = "", iconSize = 14, textSize = "text-[10px]" }: { className?: string, iconSize?: number, textSize?: string }) => {
     if (!weatherData) return null;
     const iconName = getWeatherInfo(weatherData.current.weatherCode).icon;
     const IconComponent = {
@@ -124,8 +124,8 @@ export default function Layout() {
         )}
         title="Wetterdetails zeigen"
       >
-        <IconComponent size={14} className="text-orange-400 group-hover:scale-110 transition-transform" />
-        <span className="text-[10px] font-black">{Math.round(weatherData.current.temp)}°</span>
+        <IconComponent size={iconSize} className="text-orange-400 group-hover:scale-110 transition-transform" />
+        <span className={cn("font-black", textSize)}>{Math.round(weatherData.current.temp)}°</span>
       </button>
     );
   };
@@ -234,7 +234,7 @@ export default function Layout() {
       {/* Mobile sidebar overlay */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/80 backdrop-blur-xl z-40 lg:hidden"
+          className="fixed inset-0 bg-black/20 z-40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -242,52 +242,30 @@ export default function Layout() {
       {/* Sidebar */}
       <aside 
         className={cn(
-          "fixed inset-y-0 left-0 z-50 bg-white/10 dark:bg-black/40 backdrop-blur-lg border-r border-white/[0.1] transform transition-all duration-500 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 flex flex-col shadow-2xl lg:shadow-none",
+          "fixed inset-y-0 left-0 z-50 bg-white/40 dark:bg-black/40 backdrop-blur-xl border-none transform transition-all duration-500 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 flex flex-col shadow-2xl lg:shadow-none",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full",
           isSidebarCollapsed ? "lg:w-20" : "lg:w-64 w-64"
         )}
       >
-        <div className={cn("p-8 flex items-center shrink-0", isSidebarCollapsed ? "flex-col gap-4 px-0" : "gap-3")}>
+        <div className={cn("h-16 px-6 lg:h-auto lg:p-8 flex items-center shrink-0", isSidebarCollapsed ? "flex-col gap-4 px-0" : "gap-3")}>
           <div className="w-8 h-8 flex items-center justify-center text-blue-500 shrink-0">
             <Zap size={24} fill="currentColor" />
           </div>
           {!isSidebarCollapsed ? (
             <div className="flex-1 flex items-center justify-between overflow-hidden">
               <span className="font-brand font-bold text-sm tracking-tighter text-[#1D1D1F] dark:text-[#F5F5F7] truncate uppercase">ROPRO</span>
-              <WeatherSummaryIcon className="ml-2" />
+              <WeatherSummaryIcon className="ml-2 hidden lg:flex" />
             </div>
           ) : (
-            <WeatherSummaryIcon />
+            <WeatherSummaryIcon className="hidden lg:flex" />
           )}
           <button 
             type="button"
-            className="lg:hidden text-[#86868B] ml-auto hover:text-[#1D1D1F] transition-colors focus-visible:ring-2 rounded" 
+            className="lg:hidden text-[#86868B] ml-auto hover:text-[#1D1D1F] transition-colors focus-visible:ring-2 rounded-lg flex items-center justify-center w-10 h-10 -mr-2" 
             onClick={() => setIsSidebarOpen(false)}
             aria-label="Sidebar schließen"
           >
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* Global Search Button */}
-        <div className={cn("px-4 mb-4", isSidebarCollapsed && "px-3")}>
-          <button
-            onClick={() => setIsSearchOpen(true)}
-            className={cn(
-              "w-full flex items-center gap-3 px-4 h-10 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 text-brand-muted hover:text-brand hover:bg-brand/10 hover:border-brand/20 transition-all group",
-              isSidebarCollapsed && "justify-center px-0"
-            )}
-          >
-            <Search size={18} className="shrink-0 group-hover:scale-110 transition-transform" />
-            {!isSidebarCollapsed && (
-              <div className="flex items-center justify-between w-full">
-                <span className="text-sm font-medium">Suchen...</span>
-                <div className="flex items-center gap-1 opacity-50 text-brand-muted">
-                  <Command size={10} />
-                  <span className="text-[10px] font-black">K</span>
-                </div>
-              </div>
-            )}
+            <X size={28} />
           </button>
         </div>
 
@@ -387,21 +365,21 @@ export default function Layout() {
           </div>
         </nav>
 
-        <div className="p-3 border-t border-[#D2D2D7]/30 dark:border-[#424245]/30 space-y-1.5 shrink-0">
+        <div className="py-3 border-t border-[#D2D2D7]/30 dark:border-[#424245]/30 space-y-1.5 shrink-0">
            <button 
              type="button"
              onClick={handleRandomize}
              disabled={isRolling}
              className={cn(
-               "sidebar-item w-auto focus:outline-none",
-               isSidebarCollapsed && "justify-center px-0"
+               "sidebar-item focus:outline-none w-full",
+               isSidebarCollapsed && "justify-center px-0 text-slate-400"
              )}
              title={isSidebarCollapsed ? "Zufall" : undefined}
            >
              <Dices size={18} className={cn("shrink-0", isRolling && "animate-spin")} />
              {!isSidebarCollapsed && (
-               <div className="flex items-center justify-between w-full">
-                 <span className="text-[9px] font-black uppercase tracking-wider">Zufallsgenerator</span>
+               <>
+                 <span className="flex-1 text-left">Zufallsgenerator</span>
                  {randomResult && (
                    <motion.span 
                      initial={{ scale: 0.5, opacity: 0 }}
@@ -411,7 +389,7 @@ export default function Layout() {
                      {randomResult}
                    </motion.span>
                  )}
-               </div>
+               </>
              )}
              {isSidebarCollapsed && randomResult && !isRolling && (
                <div className="absolute top-0.5 right-0.5 bg-brand text-white text-[8px] w-3.5 h-3.5 flex items-center justify-center rounded-full font-black shadow-sm ring-2 ring-[#F2F2F7] dark:ring-[#000000]">
@@ -421,10 +399,11 @@ export default function Layout() {
            </button>
 
            <div className="w-full mt-1">
-             <div 
+             <button 
+               type="button"
                className={cn(
-                 "flex items-center gap-3 px-4 py-1.5 rounded-xl transition-all hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer group",
-                 isSidebarCollapsed && "justify-center px-0"
+                 "sidebar-item w-full focus:outline-none hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500 dark:text-red-500",
+                 isSidebarCollapsed && "justify-center px-0 text-red-500"
                )}
                onClick={logout}
                title={isSidebarCollapsed ? "Abmelden" : undefined}
@@ -437,16 +416,12 @@ export default function Layout() {
                    referrerPolicy="no-referrer"
                  />
                ) : (
-                 <div className="w-[18px] h-[18px] flex items-center justify-center shrink-0">
-                   <LogOut size={16} className="text-red-500" />
-                 </div>
+                 <LogOut size={18} className="shrink-0" />
                )}
                {!isSidebarCollapsed && (
-                 <span className="text-[9px] font-black text-red-500 uppercase tracking-wider">
-                   Abmelden
-                 </span>
+                 <span>Abmelden</span>
                )}
-             </div>
+             </button>
            </div>
 
            <button 
@@ -462,25 +437,28 @@ export default function Layout() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 h-screen relative z-10 transition-colors duration-500 overflow-hidden">
-        <header className="h-16 border-b border-[#D2D2D7]/30 dark:border-[#424245]/30 flex items-center justify-between px-6 lg:hidden shrink-0 bg-white/10 dark:bg-black/40 backdrop-blur-lg z-30">
-          <div className="flex items-center gap-3">
+        <header className="absolute top-0 inset-x-0 h-16 flex items-center justify-between px-6 lg:hidden shrink-0 bg-white/40 dark:bg-black/40 backdrop-blur-xl z-[60] border-none">
+          <div className="flex items-center gap-3 flex-1 mr-4">
             <button 
-              className="p-2 -ml-2 text-[#86868B] hover:text-[#1D1D1F] rounded-lg transition-colors"
+              className="w-10 h-10 flex items-center justify-center -ml-2 text-[#86868B] hover:text-[#1D1D1F] rounded-lg transition-colors shrink-0"
               onClick={() => setIsSidebarOpen(true)}
             >
-              <Menu size={24} />
+              <Menu size={28} />
             </button>
-            <div className="flex items-center gap-2 overflow-hidden">
-              <Zap size={18} className="text-blue-500 shrink-0" fill="currentColor" />
-              <span className="font-brand font-bold text-sm tracking-tighter text-slate-900 dark:text-[#F5F5F7] truncate uppercase">ROPRO</span>
-            </div>
+            <button 
+              onClick={() => setIsSearchOpen(true)}
+              className="flex-1 flex items-center gap-2 h-11 px-4 bg-black/10 dark:bg-black/50 rounded-xl text-[#86868B] hover:bg-black/15 dark:hover:bg-white/10 transition-colors"
+            >
+              <Search size={18} className="shrink-0" />
+              <span className="text-sm font-medium">Suchen...</span>
+            </button>
           </div>
-          <div className="flex items-center">
-            <WeatherSummaryIcon />
+          <div className="flex items-center justify-center shrink-0">
+            <WeatherSummaryIcon iconSize={24} textSize="text-sm" />
           </div>
         </header>
 
-        <main ref={mainRef} className="flex-1 overflow-y-auto p-4 sm:p-10 lg:p-12 outline-none" style={{ overflowAnchor: 'none' }}>
+        <main ref={mainRef} className="flex-1 overflow-y-auto p-4 pt-24 sm:p-10 sm:pt-28 lg:p-12 outline-none" style={{ overflowAnchor: 'none' }}>
           <Outlet />
         </main>
       </div>

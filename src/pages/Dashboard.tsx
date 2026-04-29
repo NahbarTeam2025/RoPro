@@ -25,7 +25,7 @@ function Clock() {
   }, []);
 
   return (
-    <div className="text-right sm:text-left">
+    <div className="text-center w-full">
       <h1 className="text-4xl sm:text-5xl font-black tracking-tighter text-white leading-none">
         {format(currentTime, 'HH:mm')}
       </h1>
@@ -206,46 +206,8 @@ export default function Dashboard() {
 
   return (
     <div className="max-w-[1500px] mx-auto flex flex-col relative z-10 w-full px-6 sm:px-8 pb-10">
-      <header className="mb-12 mt-4 flex flex-row-reverse sm:flex-row items-start justify-between relative w-full px-1">
+      <header className="mb-8 mt-4 flex justify-center w-full px-1">
         <Clock />
-        <div className="flex flex-col gap-3 items-start sm:items-end">
-          <a href="https://www.google.com" target="_blank" rel="noopener noreferrer" className="p-1 hover:scale-110 transition-all group flex items-center justify-center" title="Google Suche">
-            <img 
-              src="https://www.google.com/s2/favicons?sz=64&domain=google.com" 
-              alt="Google" 
-              className="w-6 h-6 object-contain" 
-              referrerPolicy="no-referrer"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-                const parent = (e.target as HTMLImageElement).parentElement;
-                if (parent) {
-                  const icon = document.createElement('div');
-                  icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
-                  icon.className = "text-[#1D1D1F] dark:text-[#F5F5F7]";
-                  parent.appendChild(icon);
-                }
-              }}
-            />
-          </a>
-          <a href="https://roberterbach.de/" target="_blank" rel="noopener noreferrer" className="p-1 hover:scale-110 transition-all group flex items-center justify-center" title="Robert Erbach Webseite">
-             <img 
-               src="https://www.google.com/s2/favicons?sz=64&domain=roberterbach.de" 
-               alt="" 
-               className="w-6 h-6 object-contain" 
-               referrerPolicy="no-referrer"
-               onError={(e) => {
-                 (e.target as HTMLImageElement).style.display = 'none';
-                 const parent = (e.target as HTMLImageElement).parentElement;
-                 if (parent) {
-                   const icon = document.createElement('div');
-                   icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>';
-                   icon.className = "text-[#1D1D1F] dark:text-[#F5F5F7]";
-                   parent.appendChild(icon);
-                 }
-               }}
-             />
-          </a>
-        </div>
       </header>
 
       {loading ? (
