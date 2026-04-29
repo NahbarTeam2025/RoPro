@@ -781,10 +781,12 @@ export default function Household() {
                           </button>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className={cn(
-                            "w-1 h-4 rounded-full",
-                            t.type === 'income' ? "bg-green-500/40" : "bg-red-500/40"
-                          )} />
+                          <span className={cn(
+                            "font-black text-lg",
+                            t.type === 'income' ? "text-green-500" : "text-red-500"
+                          )}>
+                            {t.type === 'income' ? '+' : '-'}
+                          </span>
                           <div className="text-base sm:text-lg font-black tracking-tighter whitespace-nowrap text-slate-900 dark:text-white">
                             {formatEuro(t.amount)}
                           </div>
@@ -881,10 +883,12 @@ export default function Household() {
                             </button>
                           </div>
                           <div className="flex items-center gap-2 justify-end w-full">
-                            <div className={cn(
-                              "w-1 h-3 rounded-full",
-                              t.type === 'income' ? "bg-green-500/40" : "bg-red-500/40"
-                            )} />
+                            <span className={cn(
+                              "font-black text-sm",
+                              t.type === 'income' ? "text-green-500" : "text-red-500"
+                            )}>
+                              {t.type === 'income' ? '+' : '-'}
+                            </span>
                             <span className="font-black text-sm whitespace-nowrap text-slate-900 dark:text-white">
                               {formatEuro(t.amount || 0)}
                             </span>

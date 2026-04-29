@@ -387,7 +387,7 @@ export default function Dashboard() {
             {transactions.slice(0, 3).length > 0 ? (
                <div className="flex flex-col -mx-6 -mb-6">
                  {transactions.slice(0, 3).map(t => (
-                   <div key={t.id} className={cn("flex items-center gap-3 px-6 py-4 refined-list-item border-l-[3px] rounded-none", t.type === 'income' ? "border-l-green-500" : "border-l-red-500")}>
+                   <div key={t.id} className="flex items-center gap-3 px-6 py-4 refined-list-item rounded-none">
                      <div className={cn("w-8 h-8 flex items-center justify-center shrink-0 ml-1", t.type === 'income' ? "text-green-500" : "text-red-500")}>
                        {t.type === 'income' ? <ArrowUpCircle size={20} /> : <ArrowDownCircle size={20} />}
                      </div>
@@ -395,7 +395,12 @@ export default function Dashboard() {
                        <div className="text-xs font-bold text-[#1D1D1F] dark:text-[#F5F5F7]"> {t.description}</div>
                        <div className="text-[10px] font-medium text-[#86868B]">{format(t.date?.toDate() || new Date(), 'dd.MM')}</div>
                      </div>
-                     <div className="text-xs font-black text-slate-900 dark:text-white">{formatEuro(t.amount)}€</div>
+                     <div className="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1">
+                       <span className={t.type === 'income' ? "text-green-500" : "text-red-500"}>
+                         {t.type === 'income' ? '+' : '-'}
+                       </span>
+                       {formatEuro(t.amount)}€
+                     </div>
                    </div>
                  ))}
                </div>
