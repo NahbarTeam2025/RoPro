@@ -125,7 +125,7 @@ export default function Prompts() {
              <select 
                 value={filterCategory} 
                 onChange={(e) => setFilterCategory(e.target.value)}
-                className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider px-2"
+                className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-xs font-bold uppercase tracking-wider px-2"
              >
                <option value="all">Kategorie</option>
                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -145,8 +145,8 @@ export default function Prompts() {
                         key={prompt.id}
                         onClick={() => setActivePrompt(prompt)}
                         className={cn(
-                          "w-full text-left p-5 refined-list-item transition-all focus:outline-none cursor-pointer group relative border-l-2 rounded-none",
-                          activePrompt?.id === prompt.id ? "bg-black/[0.03] dark:bg-white/[0.05]" : "bg-transparent border-transparent"
+                          "w-full text-left p-5 refined-list-item transition-all focus:outline-none cursor-pointer group relative border-l-[3px] rounded-none",
+                          activePrompt?.id === prompt.id ? "bg-black/[0.03] dark:bg-white/[0.05]" : "bg-transparent"
                         )}
                       style={{ borderLeftColor: prompt.color ? `${prompt.color}99` : 'rgba(37, 99, 235, 0.6)' }}
                     >

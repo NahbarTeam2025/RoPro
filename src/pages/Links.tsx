@@ -224,7 +224,7 @@ export default function Links() {
              <select 
                 value={filterCategory} 
                 onChange={(e) => setFilterCategory(e.target.value)}
-                className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider px-2"
+                className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-xs font-bold uppercase tracking-wider px-2"
              >
                <option value="all">Kategorie</option>
                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -232,7 +232,7 @@ export default function Links() {
              <select 
                 value={filterMonth} 
                 onChange={(e) => setFilterMonth(e.target.value)}
-                className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider px-2"
+                className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-xs font-bold uppercase tracking-wider px-2"
              >
                <option value="all">Zeitraum</option>
                {availableMonths.map(m => (
@@ -244,7 +244,7 @@ export default function Links() {
         <div className="flex-1 bg-transparent rounded-[2rem] m-4 mt-0 overflow-hidden">
           <div className="h-full overflow-y-auto custom-scrollbar">
             {filteredLinks.length === 0 ? (
-              <div className="p-8 text-center text-[10px] uppercase font-bold text-brand-muted tracking-widest">Keine Links gefunden</div>
+              <div className="p-8 text-center text-xs uppercase font-bold text-brand-muted tracking-widest">Keine Links gefunden</div>
             ) : (
               <div className="flex flex-col">
                 {filteredLinks.map(link => {
@@ -254,23 +254,23 @@ export default function Links() {
                       key={link.id}
                       onClick={() => { setEditLink(link); setShowAdd(false); setEditTitle(link.title); setEditUrl(link.url); setEditCategoryId(link.categoryId); setEditColor(link.color || ''); }}
                       className={cn(
-                        "w-full text-left p-4 refined-list-item transition-all focus:outline-none cursor-pointer group relative border-l-2 rounded-none",
-                        editLink?.id === link.id ? "bg-black/[0.03] dark:bg-white/[0.05]" : "bg-transparent border-transparent"
+                        "w-full text-left p-4 refined-list-item transition-all focus:outline-none cursor-pointer group relative border-l-[3px] rounded-none",
+                        editLink?.id === link.id ? "bg-black/[0.03] dark:bg-white/[0.05]" : "bg-transparent"
                       )}
                       style={{ borderLeftColor: link.color || '#2563EB' }}
                     >
                       <div className="flex justify-between items-start gap-2">
-                        <div className="flex items-center gap-2 overflow-hidden">
-                           <div className="w-4 h-4 shrink-0">
+                        <div className="flex items-center gap-3 overflow-hidden">
+                           <div className="w-8 h-8 shrink-0">
                              <img 
-                                src={`https://www.google.com/s2/favicons?sz=32&domain=${getDomain(link.url)}`} 
+                                src={`https://www.google.com/s2/favicons?sz=64&domain=${getDomain(link.url)}`} 
                                 alt="" 
-                                className="w-4 h-4 object-contain"
+                                className="w-8 h-8 object-contain rounded-md"
                                 referrerPolicy="no-referrer"
                                 onError={(e) => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2386868B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>'; }} 
                               />
                            </div>
-                           <h3 className="font-bold truncate text-sm tracking-tight text-slate-900 dark:text-white">{link.title}</h3>
+                           <h3 className="font-bold truncate text-base tracking-tight text-slate-900 dark:text-white">{link.title}</h3>
                         </div>
                         {link.isPinned && (
                           <div className="text-accent shrink-0">
@@ -285,9 +285,10 @@ export default function Links() {
                           target="_blank" 
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
-                          className="text-[8px] font-black text-brand-muted/50 hover:text-brand transition-colors uppercase tracking-tighter"
+                          className="text-brand-muted/50 hover:text-brand transition-colors"
+                          title="Öffnen"
                         >
-                          Öffnen <ExternalLink size={8} className="inline mb-0.5" />
+                          <ExternalLink size={12} />
                         </a>
                       </div>
                     </div>
@@ -337,7 +338,7 @@ export default function Links() {
             <form onSubmit={updateLink} className="max-w-xl mx-auto w-full space-y-8">
               <div className="space-y-6">
                 <div className="space-y-2 flex flex-col">
-                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Titel</label>
+                  <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Titel</label>
                   <input
                     type="text"
                     value={editTitle}
@@ -347,7 +348,7 @@ export default function Links() {
                   />
                 </div>
                 <div className="space-y-2 flex flex-col">
-                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">URL</label>
+                  <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">URL</label>
                   <input
                     type="text"
                     value={editUrl}
@@ -358,7 +359,7 @@ export default function Links() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                   <div className="space-y-2 flex flex-col">
-                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Kategorie</label>
+                    <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Kategorie</label>
                     <CategorySelect 
                       type="link" 
                       value={editCategoryId} 
@@ -367,7 +368,7 @@ export default function Links() {
                     />
                   </div>
                   <div className="space-y-2 flex flex-col">
-                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Farbe</label>
+                    <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Farbe</label>
                     <div className="flex items-center gap-2 h-12 bg-accent/[0.03] dark:bg-white/[0.03] rounded-2xl px-4 border-none w-full">
                        {colors.map(c => (
                          <button
@@ -418,7 +419,7 @@ export default function Links() {
             <form onSubmit={addLink} className="max-w-xl mx-auto w-full space-y-8">
               <div className="space-y-6">
                 <div className="space-y-2 flex flex-col">
-                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Website-Titel</label>
+                  <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Website-Titel</label>
                   <input
                     type="text"
                     value={title}
@@ -429,7 +430,7 @@ export default function Links() {
                   />
                 </div>
                 <div className="space-y-2 flex flex-col">
-                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">URL</label>
+                  <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">URL</label>
                   <input
                     type="text"
                     value={url}
@@ -441,7 +442,7 @@ export default function Links() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                   <div className="space-y-2 flex flex-col">
-                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Kategorie</label>
+                    <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Kategorie</label>
                     <CategorySelect 
                       type="link" 
                       value={categoryId} 
@@ -450,7 +451,7 @@ export default function Links() {
                     />
                   </div>
                   <div className="space-y-2 flex flex-col">
-                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Farbe</label>
+                    <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Farbe</label>
                     <div className="flex items-center gap-2 h-12 bg-accent/[0.03] dark:bg-white/[0.03] rounded-2xl px-4 border-none w-full">
                        {colors.map(c => (
                          <button

@@ -36,14 +36,14 @@ export default function Auth() {
         
         {error && (
           <div className="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-xs text-red-500 font-bold leading-relaxed text-left">
-            <div className="flex items-center gap-2 mb-2 font-black uppercase tracking-widest text-[10px]">
+            <div className="flex items-center gap-2 mb-2 font-black uppercase tracking-widest text-xs">
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
               Status: Fehler
             </div>
             {error}
             <div className="mt-4 pt-4 border-t border-red-500/10 space-y-2 opacity-80">
-              <p>Stellen Sie sicher, dass diese Domain in der Firebase Console unter <span className="font-mono text-[9px] bg-red-500/20 px-1 py-0.5 rounded">Authentication &gt; Settings &gt; Authorized Domains</span> hinzugefügt wurde:</p>
-              <div className="font-mono text-[10px] bg-red-500/20 p-2 rounded break-all select-all">
+              <p>Stellen Sie sicher, dass diese Domain in der Firebase Console unter <span className="font-mono text-xs bg-red-500/20 px-1 py-0.5 rounded">Authentication &gt; Settings &gt; Authorized Domains</span> hinzugefügt wurde:</p>
+              <div className="font-mono text-xs bg-red-500/20 p-2 rounded break-all select-all">
                 {currentDomain}
               </div>
             </div>
@@ -64,7 +64,7 @@ export default function Auth() {
         </button>
 
         <div className="pt-6 border-t border-slate-200/50 dark:border-white/10">
-          <p className="text-[11px] text-brand-muted font-bold uppercase tracking-widest leading-loose">
+          <p className="text-xs text-brand-muted font-bold uppercase tracking-widest leading-loose">
             Probleme beim Login?<br />
             <a href="/" target="_blank" className="text-brand dark:text-white hover:underline decoration-2 underline-offset-4">App in neuem Tab öffnen</a>
           </p>

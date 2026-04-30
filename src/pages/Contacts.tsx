@@ -178,7 +178,7 @@ export default function Contacts() {
           {loading ? (
             <div className="text-center py-10 text-brand-muted font-medium">Laden...</div>
           ) : filteredContacts.length === 0 ? (
-            <div className="text-center py-10 text-brand-muted font-bold tracking-tight uppercase text-[10px]">Keine Kontakte</div>
+            <div className="text-center py-10 text-brand-muted font-bold tracking-tight uppercase text-xs">Keine Kontakte</div>
           ) : (
             <div className="flex flex-col">
               {filteredContacts.map(contact => (
@@ -194,7 +194,7 @@ export default function Contacts() {
                   >
                     <div className="flex-1 min-w-0 text-left ml-2">
                       <div className="flex items-center gap-2">
-                        <div className={cn("font-bold truncate tracking-tight text-xs", selectedContact?.id === contact.id ? "text-brand" : "text-slate-900 dark:text-white")}>
+                        <div className={cn("font-bold truncate tracking-tight text-base", selectedContact?.id === contact.id ? "text-brand" : "text-slate-900 dark:text-white")}>
                           {contact.name}
                         </div>
                         {contact.isFavorite && (
@@ -202,7 +202,7 @@ export default function Contacts() {
                         )}
                       </div>
                       {contact.phone && (
-                        <div className="text-[10px] truncate font-medium uppercase tracking-tighter text-brand-muted opacity-70 mt-0.5">
+                        <div className="text-sm truncate font-medium uppercase tracking-tighter text-brand-muted opacity-70 mt-0.5">
                           {contact.phone}
                         </div>
                       )}
@@ -239,7 +239,7 @@ export default function Contacts() {
             <form onSubmit={handleCreateOrUpdate} className="max-w-xl mx-auto w-full space-y-8">
               {!editingContact && (
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Vorlagen</label>
+                  <label className="text-xs font-black text-brand-muted uppercase tracking-widest px-1">Vorlagen</label>
                   <div className="flex gap-2">
                     <button
                       type="button"
@@ -248,7 +248,7 @@ export default function Contacts() {
                         notes: 'Geschäftlicher Kontakt\nAbteilung: \nPosition: ',
                         color: '#3B82F6'
                       })}
-                      className="px-4 py-2 rounded-xl bg-slate-500/10 text-brand-muted text-[10px] font-bold uppercase tracking-wider hover:bg-brand hover:text-white transition-all"
+                      className="px-4 py-2 rounded-xl bg-slate-500/10 text-brand-muted text-xs font-bold uppercase tracking-wider hover:bg-brand hover:text-white transition-all"
                     >
                       Geschäftlich
                     </button>
@@ -259,7 +259,7 @@ export default function Contacts() {
                         notes: 'Privater Kontakt\nVerwandtschaftsgrad: ',
                         color: '#EF4444'
                       })}
-                      className="px-4 py-2 rounded-xl bg-slate-500/10 text-brand-muted text-[10px] font-bold uppercase tracking-wider hover:bg-brand hover:text-white transition-all"
+                      className="px-4 py-2 rounded-xl bg-slate-500/10 text-brand-muted text-xs font-bold uppercase tracking-wider hover:bg-brand hover:text-white transition-all"
                     >
                       Privat
                     </button>
@@ -269,7 +269,7 @@ export default function Contacts() {
 
               <div className="space-y-8">
                 <div className="space-y-2 flex flex-col">
-                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Vollständiger Name</label>
+                  <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Vollständiger Name</label>
                   <input 
                     required
                     type="text"
@@ -283,7 +283,7 @@ export default function Contacts() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">E-Mail</label>
+                      <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">E-Mail</label>
                       <input 
                         type="email"
                         value={formData.email}
@@ -293,7 +293,7 @@ export default function Contacts() {
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Telefon</label>
+                      <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Telefon</label>
                       <input 
                         type="tel"
                         value={formData.phone}
@@ -305,7 +305,7 @@ export default function Contacts() {
                   </div>
                   <div className="space-y-4">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Geburtstag</label>
+                      <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Geburtstag</label>
                       <input 
                         type="date"
                         value={formData.birthday}
@@ -314,12 +314,12 @@ export default function Contacts() {
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Favorit</label>
+                      <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Favorit</label>
                       <button
                         type="button"
                         onClick={() => setFormData({...formData, isFavorite: !formData.isFavorite})}
                         className={cn(
-                          "glass-input h-12 rounded-2xl border-none flex items-center justify-center gap-2 transition-all font-black text-[10px] uppercase tracking-wider",
+                          "glass-input h-12 rounded-2xl border-none flex items-center justify-center gap-2 transition-all font-black text-xs uppercase tracking-wider",
                           formData.isFavorite ? "bg-amber-500/20 text-amber-500" : "bg-accent/[0.03] dark:bg-white/[0.03] text-brand-muted hover:bg-slate-500/10"
                         )}
                       >
@@ -331,7 +331,7 @@ export default function Contacts() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Adresse</label>
+                  <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Adresse</label>
                   <textarea 
                     value={formData.address}
                     onChange={(e) => setFormData({...formData, address: e.target.value})}
@@ -341,7 +341,7 @@ export default function Contacts() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Notizen</label>
+                  <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Notizen</label>
                   <textarea 
                     value={formData.notes}
                     onChange={(e) => setFormData({...formData, notes: e.target.value})}
@@ -396,7 +396,7 @@ export default function Contacts() {
                       <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_10px_rgba(255,149,0,0.6)] mt-2" />
                     )}
                   </div>
-                  <div className="flex flex-wrap justify-start gap-2 text-[10px] font-black text-brand-muted uppercase tracking-widest">
+                  <div className="flex flex-wrap justify-start gap-2 text-xs font-black text-brand-muted uppercase tracking-widest">
                      {selectedContact.birthday && (
                         <span className="px-3 py-1.5 rounded-full border border-slate-200/30 dark:border-white/5">
                           🎂 {format(parseISO(selectedContact.birthday), 'd. MMMM', { locale: de })}
@@ -411,7 +411,7 @@ export default function Contacts() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div className="space-y-6">
                   <section>
-                    <h4 className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] mb-4">Kontaktinfo</h4>
+                    <h4 className="text-xs font-black text-brand-muted uppercase tracking-[0.2em] mb-4">Kontaktinfo</h4>
                     <div className="space-y-4">
                       <div className="group">
                         <label className="block text-[8px] font-black text-brand-muted uppercase tracking-wider mb-1 px-1 opacity-50">Telefon</label>
@@ -430,7 +430,7 @@ export default function Contacts() {
                 </div>
                 <div className="space-y-6">
                   <section>
-                    <h4 className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] mb-4">Adresse</h4>
+                    <h4 className="text-xs font-black text-brand-muted uppercase tracking-[0.2em] mb-4">Adresse</h4>
                     <div className="text-sm font-black text-brand whitespace-pre-wrap leading-relaxed text-left">
                       {selectedContact.address || '--'}
                     </div>
@@ -440,7 +440,7 @@ export default function Contacts() {
 
               {selectedContact.notes && (
                 <section className="text-left">
-                  <h4 className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] mb-4">Notizen</h4>
+                  <h4 className="text-xs font-black text-brand-muted uppercase tracking-[0.2em] mb-4">Notizen</h4>
                   <div className="text-sm font-black text-brand whitespace-pre-wrap leading-relaxed bg-accent/[0.03] p-4 rounded-2xl text-left">
                     {selectedContact.notes}
                   </div>

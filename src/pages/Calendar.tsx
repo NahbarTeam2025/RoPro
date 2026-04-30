@@ -215,7 +215,7 @@ export default function Calendar() {
           <div className="flex-1 px-1 sm:px-4 flex justify-center">
             <h1 className="text-lg sm:text-2xl font-black tracking-tighter text-brand capitalize leading-none text-center flex flex-row items-baseline gap-2">
               <span className="block">{format(currentDate, "MMMM", { locale: de })}</span>
-              <span className="text-[10px] sm:text-sm opacity-40 tracking-widest block">{format(currentDate, "yyyy")}</span>
+              <span className="text-xs sm:text-sm opacity-40 tracking-widest block">{format(currentDate, "yyyy")}</span>
             </h1>
           </div>
 
@@ -439,14 +439,14 @@ export default function Calendar() {
                         setNewTaskText('');
                         setNewTaskTime('');
                       }} 
-                      className="text-[10px] font-bold text-red-500 uppercase hover:underline"
+                      className="text-xs font-bold text-red-500 uppercase hover:underline"
                     >
                       Abbrechen
                     </button>
                   )}
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black text-brand uppercase tracking-[0.2em] mb-2 px-1">
+                  <label className="block text-xs font-black text-brand uppercase tracking-[0.2em] mb-2 px-1">
                     Titel
                   </label>
                   <input
@@ -458,7 +458,7 @@ export default function Calendar() {
                   />
                   <div className="flex flex-col sm:flex-row gap-4">
                     <div className="flex-1 space-y-1.5">
-                      <label className="block text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Datum</label>
+                      <label className="block text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Datum</label>
                       <input
                         type="date"
                         value={format(selectedDay.date, 'yyyy-MM-dd')}
@@ -472,7 +472,7 @@ export default function Calendar() {
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="block text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Uhrzeit</label>
+                      <label className="block text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Uhrzeit</label>
                       <input
                         type="time"
                         value={newTaskTime}

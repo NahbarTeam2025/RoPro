@@ -29,7 +29,7 @@ function Clock() {
       <h1 className="text-4xl sm:text-5xl font-black tracking-tighter text-white leading-none">
         {format(currentTime, 'HH:mm')}
       </h1>
-      <p className="text-[10px] font-medium text-[#86868B] mt-2 sm:mt-3 capitalize">
+      <p className="text-xs font-medium text-[#86868B] mt-2 sm:mt-3 capitalize">
         {format(currentTime, 'EEEE, d. MMMM', { locale: de })}
       </p>
     </div>
@@ -218,16 +218,16 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8 mt-4 md:mt-0 flex-1">
           <DashboardCard title="Termine" icon={CalendarIcon} to="/calendar" color="#60A5FA">
             {appointments.length > 0 ? (
-               <div className="flex flex-col -mx-6 -mb-6 h-[220px] overflow-y-auto custom-scrollbar">
+               <div className={cn("flex flex-col -mx-6 max-h-[222px] md:max-h-[296px] overflow-y-auto custom-scrollbar", nextHoliday ? "-mb-3" : "-mb-6")}>
                 {appointments.map(app => (
-                  <div key={app.id} className="refined-list-item flex items-center gap-4 px-6 py-4 relative group border-l-[3px] rounded-none" style={{ borderLeftColor: app.color || '#60A5FA' }}>
+                  <div key={app.id} className="refined-list-item h-[74px] shrink-0 flex items-center gap-4 px-6 relative group border-l-[3px] rounded-none" style={{ borderLeftColor: app.color || '#60A5FA' }}>
                     <div className="w-10 h-10 flex flex-col items-center justify-center shrink-0 ml-1">
                        <span className="text-xs font-black text-slate-900 dark:text-white leading-none">{format(new Date(app.dueDate), 'dd')}</span>
                        <span className="text-[8px] font-bold text-brand-muted uppercase tracking-tighter" style={{ opacity: 0.7 }}>{format(new Date(app.dueDate), 'MMM', { locale: de })}</span>
                     </div>
                     <div className="flex-1 min-w-0 pr-10">
                       <span className="text-xs font-bold text-brand block truncate tracking-tight">{app.task}</span>
-                      <span className="text-[10px] font-medium text-brand-muted">{format(new Date(app.dueDate), 'HH:mm')} Uhr</span>
+                      <span className="text-xs font-medium text-brand-muted">{format(new Date(app.dueDate), 'HH:mm')} Uhr</span>
                     </div>
                     <div className="absolute right-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button type="button" onClick={(e) => { e.stopPropagation(); setEditItem({ type: 'appointments', data: app }); }} className="p-1.5 text-brand-muted hover:text-accent transition-colors"><Edit2 size={12} /></button>
@@ -239,15 +239,15 @@ export default function Dashboard() {
             ) : (
                <div className="text-center py-10 opacity-20 flex flex-col items-center">
                  <CalendarIcon size={40} strokeWidth={1} />
-                 <span className="text-xs font-bold uppercase mt-3 tracking-widest text-[9px]">Frei</span>
+                 <span className="text-xs font-bold uppercase mt-3 tracking-widest text-xs">Frei</span>
                </div>
             )}
             {nextHoliday && (
               <div className="mt-auto pt-6 border-t border-black/5 dark:border-white/5 flex justify-between items-center -mx-6 -mb-6 p-6">
-                 <span className="text-[11px] font-bold text-[#86868B] uppercase tracking-wider">Feiertag</span>
+                 <span className="text-xs font-bold text-[#86868B] uppercase tracking-wider">Feiertag</span>
                  <div className="text-right">
                     <div className="text-sm font-bold text-brand dark:text-white">{nextHoliday.name}</div>
-                    <div className="text-[11px] font-medium text-[#86868B]">{format(nextHoliday.date, 'dd.MM')}</div>
+                    <div className="text-xs font-medium text-[#86868B]">{format(nextHoliday.date, 'dd.MM')}</div>
                  </div>
               </div>
             )}
@@ -255,10 +255,11 @@ export default function Dashboard() {
 
           <DashboardCard title="Aufgaben" icon={CheckSquare} to="/tasks" color="#60A5FA">
             {todos.length > 0 ? (
-               <div className="flex flex-col -mx-6 -mb-6 h-[220px] md:h-[280px] overflow-y-auto custom-scrollbar pb-2">
+               <div className="flex flex-col -mx-6 -mb-6 max-h-[222px] md:max-h-[296px] overflow-y-auto custom-scrollbar">
                   {todos.map(todo => (
-                    <div key={todo.id} className="refined-list-item flex items-center gap-4 px-6 py-2.5 relative group border-l-[3px] rounded-none"
+                    <div key={todo.id} className="refined-list-item flex items-center gap-4 px-6 relative group border-l-[3px] rounded-none shrink-0"
                       style={{ 
+                        height: todo.dueDate ? '74px' : '37px',
                         borderLeftColor: 
                           todo.priority === 'high' ? '#FF3B30' : 
                           todo.priority === 'medium' ? '#FF9500' : 
@@ -284,7 +285,7 @@ export default function Dashboard() {
                         </div>
                         {todo.dueDate && (
                           <div className="flex items-center gap-1 mt-0.5">
-                            <span className="text-[9px] font-bold text-brand-muted uppercase tracking-tighter">
+                            <span className="text-xs font-bold text-brand-muted uppercase tracking-tighter">
                               {format(new Date(todo.dueDate), 'dd. MMM', { locale: de })} • {format(new Date(todo.dueDate), 'HH:mm')} Uhr
                             </span>
                           </div>
@@ -300,20 +301,20 @@ export default function Dashboard() {
             ) : (
                <div className="text-center py-10 opacity-20 flex flex-col items-center">
                  <CheckSquare size={40} strokeWidth={1} />
-                 <span className="text-xs font-bold uppercase mt-3 tracking-widest text-[9px]">Gute Arbeit</span>
+                 <span className="text-xs font-bold uppercase mt-3 tracking-widest text-xs">Gute Arbeit</span>
                </div>
             )}
           </DashboardCard>
 
           <DashboardCard title="Notizen" icon={FileText} to="/notes" color="#AF52DE">
             {notes.length > 0 ? (
-               <div className="flex flex-col -mx-6 -mb-6 h-[280px] overflow-y-auto custom-scrollbar pb-4">
+               <div className="flex flex-col -mx-6 -mb-6 max-h-[222px] md:max-h-[296px] overflow-y-auto custom-scrollbar">
                 {notes.map(note => (
-                  <div key={note.id} className="refined-list-item flex items-center justify-between gap-3 px-6 py-4 relative group border-l-[3px] rounded-none" style={{ borderLeftColor: note.color || '#AF52DE' }}>
+                  <div key={note.id} className="refined-list-item h-[74px] shrink-0 flex items-center justify-between gap-3 px-6 relative group border-l-[3px] rounded-none" style={{ borderLeftColor: note.color || '#AF52DE' }}>
                     <div className="flex items-center gap-3 overflow-hidden ml-1">
                       <div className="min-w-0">
                         <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate tracking-tight">{note.title || 'Ohne Titel'}</h4>
-                        <span className="text-[9px] font-bold text-brand-muted/70 block mt-0.5 uppercase tracking-tighter">{format(note.updatedAt?.toDate() || new Date(), 'dd. MMM', { locale: de })}</span>
+                        <span className="text-xs font-bold text-brand-muted/70 block mt-0.5 uppercase tracking-tighter">{format(note.updatedAt?.toDate() || new Date(), 'dd. MMM', { locale: de })}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -326,7 +327,7 @@ export default function Dashboard() {
             ) : (
                <div className="text-center py-10 opacity-20 flex flex-col items-center">
                  <FileText size={40} strokeWidth={1} />
-                 <span className="text-xs font-bold uppercase mt-3 tracking-widest text-[9px]">Leer</span>
+                 <span className="text-xs font-bold uppercase mt-3 tracking-widest text-xs">Leer</span>
                </div>
             )}
           </DashboardCard>
@@ -335,27 +336,27 @@ export default function Dashboard() {
             <div className="grid grid-cols-3 gap-2 mb-2 p-3">
               <div className="text-center">
                 <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Plus</div>
-                <div className="text-[11px] font-black text-slate-900 dark:text-white">{formatEuro(stats.income || 0)}€</div>
+                <div className="text-xs font-black text-slate-900 dark:text-white">{formatEuro(stats.income || 0)}€</div>
               </div>
               <div className="text-center border-x border-black/5 dark:border-white/5">
                 <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Minus</div>
-                <div className="text-[11px] font-black text-slate-900 dark:text-white">{formatEuro(stats.expenses || 0)}€</div>
+                <div className="text-xs font-black text-slate-900 dark:text-white">{formatEuro(stats.expenses || 0)}€</div>
               </div>
               <div className="text-center">
                 <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Bilanz</div>
-                <div className="text-[11px] font-black text-slate-900 dark:text-white">{formatEuro(balance || 0)}€</div>
+                <div className="text-xs font-black text-slate-900 dark:text-white">{formatEuro(balance || 0)}€</div>
               </div>
             </div>
             {transactions.length > 0 ? (
-               <div className="flex flex-col -mx-6 -mb-6 h-[220px] overflow-y-auto">
+               <div className="flex flex-col -mx-6 -mb-6 max-h-[168px] md:max-h-[224px] overflow-y-auto custom-scrollbar">
                  {transactions.map(t => (
-                   <div key={t.id} className="flex items-center gap-3 px-6 py-4 refined-list-item rounded-none">
+                   <div key={t.id} className="flex items-center gap-3 px-6 h-[56px] shrink-0 refined-list-item rounded-none">
                      <div className={cn("w-8 h-8 flex items-center justify-center shrink-0 ml-1", t.type === 'income' ? "text-green-500" : "text-red-500")}>
                        {t.type === 'income' ? <ArrowUpCircle size={20} /> : <ArrowDownCircle size={20} />}
                      </div>
                      <div className="flex-1 min-w-0">
                        <div className="text-xs font-bold text-[#1D1D1F] dark:text-[#F5F5F7]"> {t.description}</div>
-                       <div className="text-[10px] font-medium text-[#86868B]">{format(t.date?.toDate() || new Date(), 'dd.MM')}</div>
+                       <div className="text-xs font-medium text-[#86868B]">{format(t.date?.toDate() || new Date(), 'dd.MM')}</div>
                      </div>
                      <div className="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1">
                        <span className={t.type === 'income' ? "text-green-500" : "text-red-500"}>
@@ -369,20 +370,20 @@ export default function Dashboard() {
             ) : (
                <div className="text-center py-10 opacity-20 flex flex-col items-center">
                  <Wallet size={40} strokeWidth={1} />
-                 <span className="text-xs font-bold uppercase mt-3 tracking-widest text-[9px]">Keine Einträge</span>
+                 <span className="text-xs font-bold uppercase mt-3 tracking-widest text-xs">Keine Einträge</span>
                </div>
             )}
           </DashboardCard>
 
           <DashboardCard title="Prompts" icon={MessageSquare} to="/prompts" color="#FF9500">
             {prompts.length > 0 ? (
-               <div className="flex flex-col -mx-6 -mb-6 h-[220px] md:h-[280px] overflow-y-auto custom-scrollbar">
+               <div className="flex flex-col -mx-6 -mb-6 max-h-[222px] md:max-h-[296px] overflow-y-auto custom-scrollbar">
                 {prompts.map(prompt => (
-                  <div key={prompt.id} className="refined-list-item flex items-center justify-between gap-3 px-6 py-4 relative group border-l-[3px] rounded-none" style={{ borderLeftColor: prompt.color || '#FF9500' }}>
+                  <div key={prompt.id} className="refined-list-item h-[74px] shrink-0 flex items-center justify-between gap-3 px-6 relative group border-l-[3px] rounded-none" style={{ borderLeftColor: prompt.color || '#FF9500' }}>
                     <div className="flex items-center gap-3 overflow-hidden ml-1">
                       <div className="min-w-0">
                         <h4 className="text-xs font-bold text-brand truncate tracking-tight">{prompt.title || 'Ohne Titel'}</h4>
-                        <p className="text-[10px] font-medium text-brand-muted line-clamp-1 mt-0.5">{prompt.content}</p>
+                        <p className="text-xs font-medium text-brand-muted line-clamp-1 mt-0.5">{prompt.content}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -395,26 +396,26 @@ export default function Dashboard() {
             ) : (
                <div className="text-center py-10 opacity-20 flex flex-col items-center">
                  <MessageSquare size={40} strokeWidth={1} />
-                 <span className="text-xs font-bold uppercase mt-3 tracking-widest text-[9px]">Keine</span>
+                 <span className="text-xs font-bold uppercase mt-3 tracking-widest text-xs">Keine</span>
                </div>
             )}
           </DashboardCard>
 
           <DashboardCard title="Links" icon={LinkIcon} to="/links" color="#5856D6">
             {links.length > 0 ? (
-               <div className="flex flex-col -mx-6 -mb-6 h-[220px] md:h-[280px] overflow-y-auto custom-scrollbar">
+               <div className="flex flex-col -mx-6 -mb-6 max-h-[222px] md:max-h-[296px] overflow-y-auto custom-scrollbar">
                 {links.map(link => {
                   const domain = link.url.replace(/^https?:\/\//i, '').replace(/^www\./i, '').split('/')[0];
                   return (
-                  <div key={link.id} className="relative group overflow-hidden border-l-[3px] rounded-none shrink-0" style={{ borderLeftColor: link.color || '#5856D6' }}>
-                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="refined-list-item flex items-center gap-3 px-6 py-4 pr-10 ml-1 h-full min-h-[72px]">
+                  <div key={link.id} className="refined-list-item relative group overflow-hidden border-l-[3px] rounded-none shrink-0 h-[74px]" style={{ borderLeftColor: link.color || '#5856D6' }}>
+                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-6 pr-10 ml-1 h-full w-full">
                       <div className="w-10 h-10 flex items-center justify-center shrink-0 overflow-hidden relative">
                         <img src={`https://www.google.com/s2/favicons?sz=64&domain=${domain}`} alt="" className="w-6 h-6 object-contain shadow-sm" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2386868B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>'; }} />
                         {link.isPinned && <div className="absolute top-0 right-0 p-0.5 bg-accent rounded-bl-lg"><Pin size={6} className="text-white fill-white" /></div>}
                       </div>
                       <div className="min-w-0 flex-1">
                         <span className="text-xs font-bold text-brand block truncate tracking-tight">{link.title}</span>
-                        <span className="text-[10px] text-brand-muted block font-medium uppercase tracking-tighter opacity-70 leading-normal mt-0.5 break-all line-clamp-1">{domain}</span>
+                        <span className="text-xs text-brand-muted block font-medium uppercase tracking-tighter opacity-70 leading-normal mt-0.5 break-all line-clamp-1">{domain}</span>
                       </div>
                     </a>
                   </div>
@@ -423,24 +424,24 @@ export default function Dashboard() {
             ) : (
                <div className="text-center py-10 opacity-20 flex flex-col items-center">
                  <LinkIcon size={40} strokeWidth={1} />
-                 <span className="text-xs font-bold uppercase mt-3 tracking-widest text-[9px]">Keine</span>
+                 <span className="text-xs font-bold uppercase mt-3 tracking-widest text-xs">Keine</span>
                </div>
             )}
           </DashboardCard>
 
           <DashboardCard title="Kontakte" icon={Users} to="/contacts" color="#FF2D55">
             {contacts.length > 0 ? (
-              <div className="flex flex-col -mx-6 -mb-6 h-[200px] overflow-y-auto custom-scrollbar">
+              <div className="flex flex-col -mx-6 -mb-6 max-h-[222px] md:max-h-[296px] overflow-y-auto custom-scrollbar">
                 {contacts.map(contact => (
-                    <Link 
+                  <Link 
                     key={contact.id} 
                     to={`/contacts?id=${contact.id}`} 
-                    className="refined-list-item flex flex-col items-center justify-center gap-1 px-6 py-4 cursor-pointer border-l-[3px] rounded-none text-center"
+                    className="refined-list-item h-[74px] shrink-0 flex flex-col items-center justify-center gap-0.5 px-6 cursor-pointer border-l-[3px] rounded-none text-center"
                     style={{ borderLeftColor: '#FFFFFF' }}
                   >
-                    <div className="flex-1 min-w-0">
-                      <span className="text-xs font-bold text-slate-900 dark:text-white block truncate tracking-tight">{contact.name}</span>
-                      {contact.phone && <span className="text-[10px] text-brand-muted block truncate font-medium uppercase tracking-tighter opacity-70 leading-tight">{contact.phone}</span>}
+                    <div className="min-w-0 w-full flex flex-col items-center justify-center">
+                      <span className="text-base font-bold text-slate-900 dark:text-white block truncate tracking-tight w-full">{contact.name}</span>
+                      {contact.phone && <span className="text-sm text-brand-muted block truncate font-medium uppercase tracking-tighter opacity-70 leading-tight w-full">{contact.phone}</span>}
                     </div>
                   </Link>
                 ))}
@@ -448,7 +449,7 @@ export default function Dashboard() {
             ) : (
               <div className="text-center py-10 opacity-20 flex flex-col items-center">
                 <Users size={40} strokeWidth={1} />
-                <span className="text-xs font-bold uppercase mt-3 tracking-widest text-[9px]">Keine Kontakte</span>
+                <span className="text-xs font-bold uppercase mt-3 tracking-widest text-xs">Keine Kontakte</span>
               </div>
             )}
           </DashboardCard>

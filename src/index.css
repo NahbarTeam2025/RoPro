@@ -63,11 +63,11 @@ body {
 
   /* Refined List Items */
   .refined-list-item {
-    @apply bg-transparent border-b border-black/[0.02] dark:border-white/[0.04] transition-all duration-200 rounded-none;
+    @apply bg-transparent border-b border-black/5 dark:border-white/5 transition-all duration-200 rounded-none;
   }
   
   .refined-list-item:hover {
-    @apply bg-black/[0.02] dark:bg-white/[0.03];
+    @apply bg-black/5 dark:bg-white/5;
   }
 
   .refined-list-item:last-child {
@@ -76,7 +76,7 @@ body {
 
   /* Pro Section Heading */
   .pro-heading {
-    @apply font-sans text-[9px] sm:text-[10px] font-black uppercase tracking-tight text-brand-muted;
+    @apply font-sans text-xs sm:text-sm font-black uppercase tracking-wider text-brand-muted;
   }
 
   /* Specific Green Icons globally - making them more subtle */
@@ -98,7 +98,7 @@ body {
   
   /* Custom Inputs for Premium UI */
   .glass-input {
-    @apply w-full px-4 py-2.5 bg-[#F5F5F7] border border-transparent rounded-xl text-xs text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-accent/20 focus:bg-white transition-all duration-200 placeholder-[#86868B];
+    @apply w-full px-4 py-3 bg-[#F5F5F7] border border-transparent rounded-xl text-sm text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-accent/20 focus:bg-white transition-all duration-200 placeholder-[#86868B];
   }
   .dark .glass-input {
     @apply bg-[#2C2C2E] border-transparent text-[#F5F5F7] focus:ring-accent/30 focus:bg-[#3A3A3C] placeholder-[#86868B];
@@ -110,7 +110,7 @@ body {
   .btn-save,
   .btn-cancel,
   .btn-action {
-    @apply font-sans h-14 rounded-[1.25rem] font-black uppercase tracking-normal text-[9px] sm:text-[10px] transition-all duration-200 active:scale-95 flex items-center justify-center gap-2;
+    @apply font-sans h-14 rounded-[1.25rem] font-black uppercase tracking-normal text-xs sm:text-xs transition-all duration-200 active:scale-95 flex items-center justify-center gap-2;
   }
 
   .glass-button-primary {
@@ -137,7 +137,7 @@ body {
   }
 
   .btn-briefing-glow {
-    @apply font-sans h-14 rounded-[1.25rem] font-black uppercase tracking-normal text-[9px] sm:text-[10px] transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
+    @apply font-sans h-14 rounded-[1.25rem] font-black uppercase tracking-normal text-xs sm:text-xs transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
     @apply bg-zinc-950 text-white border border-white/5;
     @apply shadow-[0_15px_30px_-12px_rgba(37,99,235,0.3)];
     @apply hover:shadow-[0_20px_40px_-12px_rgba(37,99,235,0.4)] hover:bg-black;
@@ -183,7 +183,7 @@ body {
   }
 
   .sidebar-item {
-    @apply flex items-center gap-3 px-4 py-2.5 text-[11px] font-sans font-bold transition-all hover:bg-black/5 dark:hover:bg-white/5 text-[#424245] dark:text-[#A1A1A6] mr-4 rounded-r-xl uppercase;
+    @apply flex items-center gap-3 px-4 py-3 text-xs font-sans font-bold transition-all hover:bg-black/5 dark:hover:bg-white/5 text-[#424245] dark:text-[#A1A1A6] mr-4 rounded-r-xl uppercase;
   }
 
   .sidebar-item-active {

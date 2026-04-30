@@ -111,14 +111,14 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
                     <div className="flex items-center gap-3 p-3">
                       <Wind size={24} className="text-brand dark:text-white" />
                       <div>
-                        <div className="text-[10px] font-black uppercase text-brand-muted tracking-wider">Wind</div>
+                        <div className="text-xs font-black uppercase text-brand-muted tracking-wider">Wind</div>
                         <div className="text-sm font-bold text-slate-900 dark:text-white">{data.current.windSpeed} km/h</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3">
                       <Droplets size={24} className="text-brand dark:text-white" />
                       <div>
-                        <div className="text-[10px] font-black uppercase text-brand-muted tracking-wider">Feuchte</div>
+                        <div className="text-xs font-black uppercase text-brand-muted tracking-wider">Feuchte</div>
                         <div className="text-sm font-bold text-slate-900 dark:text-white">{data.current.humidity}%</div>
                       </div>
                     </div>
@@ -128,19 +128,19 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
 
               {/* 8-Day Forecast */}
               <div className="mb-8">
-                <h3 className="text-[11px] font-black text-brand uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                <h3 className="text-xs font-black text-brand uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                   <Calendar size={14} /> 8-Tage Vorhersage
                 </h3>
                 <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
                   {data.daily.time.map((time, i) => (
                     <div key={time} className="p-3 flex flex-col items-center gap-1.5 text-center transition-all">
-                      <span className="text-[9px] font-black uppercase text-brand-muted truncate w-full">
+                      <span className="text-xs font-black uppercase text-brand-muted truncate w-full">
                         {i === 0 ? 'Heute' : format(new Date(time), 'EEE', { locale: de })}
                       </span>
                       <WeatherIcon code={data.daily.weatherCode[i]} size={20} className="my-1" />
                       <div className="flex flex-col gap-0.5">
                         <span className="text-xs font-black text-brand leading-none">{Math.round(data.daily.tempMax[i])}°</span>
-                        <span className="text-[9px] font-bold text-brand-muted leading-none">{Math.round(data.daily.tempMin[i])}°</span>
+                        <span className="text-xs font-bold text-brand-muted leading-none">{Math.round(data.daily.tempMin[i])}°</span>
                       </div>
                     </div>
                   ))}
@@ -149,7 +149,7 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
 
               {/* 2-Week Trend */}
               <div>
-                <h3 className="text-[11px] font-black text-brand uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                <h3 className="text-xs font-black text-brand uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                   <TrendingUp size={14} /> 2-Wochen Trend
                 </h3>
                 <div className="h-64 w-full relative">

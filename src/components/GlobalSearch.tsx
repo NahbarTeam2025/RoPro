@@ -263,7 +263,7 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                 className="w-full pl-16 pr-6 h-14 sm:h-16 bg-transparent text-lg font-medium text-slate-900 dark:text-white placeholder:text-brand-muted outline-none"
               />
               <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                <span className="text-[10px] font-bold text-brand-muted bg-accent/5 px-2 py-1 rounded-lg uppercase tracking-widest hidden sm:block">ESC zum Schließen</span>
+                <span className="text-xs font-bold text-brand-muted bg-accent/5 px-2 py-1 rounded-lg uppercase tracking-widest hidden sm:block">ESC zum Schließen</span>
                 <button onClick={onClose} className="p-1 hover:bg-accent/10 rounded-lg text-brand-muted transition-colors">
                   <X size={18} />
                 </button>
@@ -279,7 +279,7 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                     return (
                       <React.Fragment key={`${result.module}-${result.id}`}>
                         {isFirstInModule && (
-                          <div className="px-4 pt-4 pb-2 text-[10px] font-black text-brand-muted uppercase tracking-[0.2em]">
+                          <div className="px-4 pt-4 pb-2 text-xs font-black text-brand-muted uppercase tracking-[0.2em]">
                             {getModuleName(result.module)}
                           </div>
                         )}
@@ -305,7 +305,7 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                               </h4>
                               {result.metadata?.priority === 'high' && <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]" />}
                             </div>
-                            <p className="text-[10px] font-medium text-brand-muted truncate uppercase tracking-wide opacity-70">
+                            <p className="text-xs font-medium text-brand-muted truncate uppercase tracking-wide opacity-70">
                               {result.subtitle}
                             </p>
                           </div>
@@ -337,16 +337,16 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
             
             <div className="p-4 border-t border-black/5 dark:border-white/5 bg-black/[0.02] flex items-center justify-center gap-6">
               <div className="flex items-center gap-2">
-                <kbd className="px-1.5 py-1 rounded bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[9px] font-black font-mono">↑↓</kbd>
-                <span className="text-[9px] font-bold text-brand-muted uppercase tracking-wider">Navigieren</span>
+                <kbd className="px-1.5 py-1 rounded bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-xs font-black font-mono">↑↓</kbd>
+                <span className="text-xs font-bold text-brand-muted uppercase tracking-wider">Navigieren</span>
               </div>
               <div className="flex items-center gap-2">
-                <kbd className="px-1.5 py-1 rounded bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[9px] font-black font-mono">ENTER</kbd>
-                <span className="text-[9px] font-bold text-brand-muted uppercase tracking-wider">Öffnen</span>
+                <kbd className="px-1.5 py-1 rounded bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-xs font-black font-mono">ENTER</kbd>
+                <span className="text-xs font-bold text-brand-muted uppercase tracking-wider">Öffnen</span>
               </div>
               <div className="flex items-center gap-2">
-                <kbd className="px-1.5 py-1 rounded bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-[9px] font-black font-mono">ESC</kbd>
-                <span className="text-[9px] font-bold text-brand-muted uppercase tracking-wider">Schließen</span>
+                <kbd className="px-1.5 py-1 rounded bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-xs font-black font-mono">ESC</kbd>
+                <span className="text-xs font-bold text-brand-muted uppercase tracking-wider">Schließen</span>
               </div>
             </div>
           </motion.div>

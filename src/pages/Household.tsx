@@ -392,13 +392,13 @@ export default function Household() {
         <form onSubmit={handleSave} className="glass-card p-6 sm:p-8 rounded-[2.5rem] mb-10 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             <div className="space-y-1.5 lg:col-span-1">
-              <label className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] px-1">Typ</label>
+              <label className="text-xs font-black text-brand-muted uppercase tracking-[0.2em] px-1">Typ</label>
               <div className="flex gap-2 p-1.5 bg-accent/[0.03] dark:bg-white/[0.03] rounded-2xl h-12">
                 <button 
                   type="button"
                   onClick={() => setType('expense')}
                   className={cn(
-                    "flex-1 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all",
+                    "flex-1 rounded-xl font-black text-xs uppercase tracking-wider transition-all",
                     type === 'expense' ? "bg-red-500 text-white shadow-lg shadow-red-500/20" : "text-brand-muted hover:text-slate-900 dark:hover:text-white"
                   )}
                 >
@@ -408,7 +408,7 @@ export default function Household() {
                   type="button"
                   onClick={() => setType('income')}
                   className={cn(
-                    "flex-1 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all",
+                    "flex-1 rounded-xl font-black text-xs uppercase tracking-wider transition-all",
                     type === 'income' ? "bg-green-500 text-white shadow-lg shadow-green-500/20" : "text-brand-muted hover:text-slate-900 dark:hover:text-white"
                   )}
                 >
@@ -418,7 +418,7 @@ export default function Household() {
             </div>
 
             <div className="space-y-1.5 lg:col-span-1">
-              <label className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em] px-1">Betrag (€)</label>
+              <label className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-[0.2em] px-1">Betrag (€)</label>
               <input 
                 type="number" step="0.01" 
                 value={amount} onChange={(e) => setAmount(e.target.value)}
@@ -428,7 +428,7 @@ export default function Household() {
             </div>
 
             <div className="space-y-1.5 lg:col-span-1">
-              <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Beschreibung</label>
+              <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Beschreibung</label>
               <input 
                 type="text" value={description} onChange={(e) => setDescription(e.target.value)}
                 placeholder="z.B. Miete"
@@ -437,7 +437,7 @@ export default function Household() {
             </div>
 
             <div className="space-y-1.5 lg:col-span-1">
-              <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Datum</label>
+              <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Datum</label>
               <input 
                 type="date" value={date} onChange={(e) => setDate(e.target.value)}
                 className="glass-input h-12 bg-brand/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold" required
@@ -445,13 +445,13 @@ export default function Household() {
             </div>
 
             <div className="space-y-1.5 lg:col-span-1">
-              <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1 mb-1">Wiederholen</label>
+              <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1 mb-1">Wiederholen</label>
               <div className="flex gap-2 h-12">
                 <button
                   type="button"
                   onClick={() => setIsRecurring(!isRecurring)}
                   className={cn(
-                    "flex-1 h-12 rounded-2xl border flex items-center justify-center gap-2 transition-all font-black text-[9px] uppercase tracking-widest",
+                    "flex-1 h-12 rounded-2xl border flex items-center justify-center gap-2 transition-all font-black text-xs uppercase tracking-widest",
                     isRecurring ? "bg-brand text-white shadow-lg shadow-accent/20" : "bg-brand/[0.03] dark:bg-white/[0.03] border-transparent text-brand-muted"
                   )}
                 >
@@ -462,7 +462,7 @@ export default function Household() {
                   <select
                     value={interval}
                     onChange={(e) => setInterval(e.target.value as any)}
-                    className="flex-1 h-12 bg-brand/10 border-none rounded-2xl px-2 text-[9px] font-black uppercase tracking-widest text-brand dark:text-white"
+                    className="flex-1 h-12 bg-brand/10 border-none rounded-2xl px-2 text-xs font-black uppercase tracking-widest text-brand dark:text-white"
                   >
                     <option value="monthly" className="bg-[#1C1C1E]">Monatlich</option>
                     <option value="yearly" className="bg-[#1C1C1E]">Jährlich</option>
@@ -492,7 +492,7 @@ export default function Household() {
             <TrendingUp size={24} />
           </div>
           <div>
-            <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-0.5">Einnahmen</div>
+            <div className="text-xs font-bold text-brand-muted uppercase tracking-widest mb-0.5">Einnahmen</div>
             <div className="text-lg font-black text-slate-900 dark:text-white tracking-tight">
               {formatEuro(income)}
             </div>
@@ -507,7 +507,7 @@ export default function Household() {
             <TrendingDown size={24} />
           </div>
           <div>
-            <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-0.5">Ausgaben</div>
+            <div className="text-xs font-bold text-brand-muted uppercase tracking-widest mb-0.5">Ausgaben</div>
             <div className="text-lg font-black text-slate-900 dark:text-white tracking-tight">
               {formatEuro(expenses)}
             </div>
@@ -522,7 +522,7 @@ export default function Household() {
             <PiggyBank size={24} />
           </div>
           <div>
-            <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-0.5">Bilanz</div>
+            <div className="text-xs font-bold text-brand-muted uppercase tracking-widest mb-0.5">Bilanz</div>
             <div className="text-lg font-black tracking-tight text-slate-900 dark:text-white">
               {formatEuro(balance)}
             </div>
@@ -536,7 +536,7 @@ export default function Household() {
               <PiggyBank size={24} />
             </div>
             <div className="flex-1">
-              <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-0.5">Gespartes Geld</div>
+              <div className="text-xs font-bold text-brand-muted uppercase tracking-widest mb-0.5">Gespartes Geld</div>
             <div className="text-lg font-black text-slate-900 dark:text-white tracking-tight">
               {savings ? formatEuro(savings.amount) : formatEuro(0)}
             </div>
@@ -549,7 +549,7 @@ export default function Household() {
               value={savingsInput}
               onChange={(e) => setSavingsInput(e.target.value)}
               placeholder="Betrag"
-              className="h-8 text-[10px] w-full px-2 bg-slate-900 dark:bg-black/40 text-white placeholder:text-white/40 rounded-lg border border-white/10"
+              className="h-8 text-xs w-full px-2 bg-slate-900 dark:bg-black/40 text-white placeholder:text-white/40 rounded-lg border border-white/10"
             />
             <button 
               type="button"
@@ -576,7 +576,7 @@ export default function Household() {
         {/* Trend Chart */}
         <div className="glass-card p-6 rounded-[2rem] lg:col-span-3 border border-white/[0.06] overflow-hidden select-none outline-none">
           <div className="flex items-center justify-between mb-6 outline-none">
-            <h3 className="text-[10px] font-black text-brand uppercase tracking-widest flex items-center gap-2">
+            <h3 className="text-xs font-black text-brand uppercase tracking-widest flex items-center gap-2">
               <BarChart3 size={14} /> Trend {format(currentMonthDate, 'MMMM', { locale: de })}
             </h3>
             <div className="flex items-center gap-3">
@@ -695,19 +695,19 @@ export default function Household() {
             {/* Abo Summary Cards */}
             <div className="p-6 grid grid-cols-1 sm:grid-cols-3 gap-6 border-b border-slate-200/50 dark:border-white/10 shrink-0">
               <div className="p-2">
-                <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-1">Monatlich gesamt</div>
+                <div className="text-xs font-bold text-brand-muted uppercase tracking-widest mb-1">Monatlich gesamt</div>
                 <div className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
                   {formatEuro(monthlyRecurringSum || 0)}
                 </div>
               </div>
               <div className="p-2">
-                <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest mb-1">Jährl. Abos</div>
+                <div className="text-xs font-bold text-brand-muted uppercase tracking-widest mb-1">Jährl. Abos</div>
                 <div className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
                   {formatEuro(yearlyRecurringSum || 0)}
                 </div>
               </div>
               <div className="p-2">
-                <div className="text-[9px] font-bold text-brand uppercase tracking-widest mb-1">Pro Jahr total</div>
+                <div className="text-xs font-bold text-brand uppercase tracking-widest mb-1">Pro Jahr total</div>
                 <div className="text-xl font-black text-brand dark:text-white tracking-tight">
                   {formatEuro(totalPerYearSum || 0)}
                 </div>
@@ -729,7 +729,7 @@ export default function Household() {
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-col gap-1">
                           <h4 className="font-bold text-slate-900 dark:text-white truncate">{abo.description}</h4>
-                          <span className="text-[9px] sm:text-[10px] font-bold text-brand-muted uppercase tracking-wider italic">
+                          <span className="text-xs sm:text-xs font-bold text-brand-muted uppercase tracking-wider italic">
                             {abo.date?.toDate ? format(abo.date.toDate(), 'dd.MM.yyyy', { locale: de }) : '--'}
                           </span>
                         </div>
@@ -738,7 +738,7 @@ export default function Household() {
                         <div className="text-base sm:text-lg font-black tracking-tighter text-slate-900 dark:text-white">
                           {formatEuro(abo.amount)}
                         </div>
-                        <div className="text-[9px] font-bold text-blue-500 uppercase tracking-widest">
+                        <div className="text-xs font-bold text-blue-500 uppercase tracking-widest">
                           {abo.interval === 'yearly' ? 'pro Jahr' : 'pro Monat'}
                         </div>
                       </div>
@@ -773,10 +773,10 @@ export default function Household() {
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-col gap-1">
                           <h4 className="font-bold text-slate-900 dark:text-white whitespace-nowrap truncate">{t.description}</h4>
-                          <span className="text-[9px] font-black text-accent uppercase tracking-tighter w-fit">
+                          <span className="text-xs font-black text-accent uppercase tracking-tighter w-fit">
                             {t.isRecurring ? (t.interval === 'yearly' ? 'Jährlich' : 'Monatlich') : 'Einmalig'}
                           </span>
-                          <span className="text-[9px] sm:text-[10px] font-bold text-brand-muted uppercase tracking-wider flex items-center gap-1 italic">
+                          <span className="text-xs sm:text-xs font-bold text-brand-muted uppercase tracking-wider flex items-center gap-1 italic">
                             {t.date?.toDate ? format(t.date.toDate(), 'dd.MM.yyyy', { locale: de }) : '--'}
                           </span>
                         </div>
@@ -876,7 +876,7 @@ export default function Household() {
                                   {t.interval === 'yearly' ? 'Jährlich' : 'Monatlich'}
                                 </span>
                               )}
-                              <div className="text-[9px] font-bold text-brand-muted uppercase tracking-tight whitespace-nowrap">
+                              <div className="text-xs font-bold text-brand-muted uppercase tracking-tight whitespace-nowrap">
                                 {categories.find(c => c.id === t.category)?.name ? `${categories.find(c => c.id === t.category)?.name} • ` : ''}
                                 {t.date?.toDate ? format(t.date.toDate(), 'dd.MM.yyyy') : ''}
                               </div>

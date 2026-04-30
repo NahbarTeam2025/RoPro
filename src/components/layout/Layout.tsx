@@ -249,11 +249,11 @@ export default function Layout() {
       >
         <div className={cn("h-16 px-6 lg:h-auto lg:p-8 flex items-center shrink-0", isSidebarCollapsed ? "flex-col gap-4 px-0" : "gap-3")}>
           <div className="w-8 h-8 flex items-center justify-center text-blue-500 shrink-0">
-            <Zap size={24} fill="currentColor" />
+            <Zap size={26} fill="currentColor" />
           </div>
           {!isSidebarCollapsed ? (
             <div className="flex-1 flex items-center justify-between overflow-hidden">
-              <span className="font-brand font-bold text-sm tracking-tighter text-[#1D1D1F] dark:text-[#F5F5F7] truncate uppercase">ROPRO</span>
+              <span className="font-brand font-bold text-base tracking-tighter text-[#1D1D1F] dark:text-[#F5F5F7] truncate uppercase">ROPRO</span>
               <WeatherSummaryIcon className="ml-2 hidden lg:flex" />
             </div>
           ) : (
@@ -271,12 +271,12 @@ export default function Layout() {
 
         <nav className="flex-1 py-2 overflow-y-auto flex flex-col gap-6">
           <div className="space-y-1">
-            {!isSidebarCollapsed && <h3 className="px-4 text-[11px] font-bold text-[#86868B] uppercase tracking-wider mb-2">Hauptmenü</h3>}
+            {!isSidebarCollapsed && <h3 className="px-4 text-xs font-bold text-[#86868B] uppercase tracking-wider mb-2">Hauptmenü</h3>}
             {navItems.map((item) => {
               const Icon = item.icon;
               const content = (
                 <>
-                  <Icon size={18} className="shrink-0" />
+                  <Icon size={20} className="shrink-0" />
                   {!isSidebarCollapsed && <span>{item.name}</span>}
                 </>
               );
@@ -324,16 +324,16 @@ export default function Layout() {
                   type="button"
                   onClick={() => !isSidebarCollapsed && toggleCategory(cat.id)}
                   className={cn(
-                    "w-full flex items-center text-[11px] font-bold text-[#86868B] uppercase tracking-wider hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors focus:outline-none",
-                    isSidebarCollapsed ? "justify-center px-0" : "justify-between px-4 py-2"
+                    "w-full flex items-center text-xs font-bold text-[#86868B] uppercase tracking-wider hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors focus:outline-none",
+                    isSidebarCollapsed ? "justify-center px-0" : "justify-between px-4 py-3"
                   )}
                   title={isSidebarCollapsed ? cat.name : undefined}
                 >
-                  <div className="flex items-center gap-2">
-                    <cat.icon size={14} className="shrink-0" />
+                  <div className="flex items-center gap-3">
+                    <cat.icon size={18} className="shrink-0" />
                     {!isSidebarCollapsed && cat.name}
                   </div>
-                  {!isSidebarCollapsed && (openCategories[cat.id] ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
+                  {!isSidebarCollapsed && (openCategories[cat.id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />)}
                 </button>
                 
                 <AnimatePresence initial={false}>
@@ -351,9 +351,9 @@ export default function Layout() {
                           href={link.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 text-[#424245] dark:text-[#A1A1A6] hover:bg-[#FBFBFD] dark:hover:bg-[#1C1C1E] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]"
+                          className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-[15px] font-medium transition-all duration-200 text-[#424245] dark:text-[#A1A1A6] hover:bg-[#FBFBFD] dark:hover:bg-[#1C1C1E] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]"
                         >
-                          <link.icon size={16} className="shrink-0 opacity-70" />
+                          <link.icon size={18} className="shrink-0 opacity-70" />
                           <span className="truncate">{link.name}</span>
                         </a>
                       ))}
@@ -376,7 +376,7 @@ export default function Layout() {
              )}
              title={isSidebarCollapsed ? "Zufall" : undefined}
            >
-             <Dices size={18} className={cn("shrink-0", isRolling && "animate-spin")} />
+             <Dices size={20} className={cn("shrink-0", isRolling && "animate-spin")} />
              {!isSidebarCollapsed && (
                <>
                  <span className="flex-1 text-left">Zufallsgenerator</span>
@@ -412,11 +412,11 @@ export default function Layout() {
                  <img 
                    src={user.photoURL} 
                    alt={user.displayName || 'Avatar'} 
-                   className="w-[18px] h-[18px] rounded-full border border-black/5 dark:border-white/10 shrink-0"
+                   className="w-5 h-5 rounded-full border border-black/5 dark:border-white/10 shrink-0"
                    referrerPolicy="no-referrer"
                  />
                ) : (
-                 <LogOut size={18} className="shrink-0" />
+                 <LogOut size={20} className="shrink-0" />
                )}
                {!isSidebarCollapsed && (
                  <span>Abmelden</span>
@@ -427,10 +427,10 @@ export default function Layout() {
            <button 
              type="button"
              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-             className="hidden lg:flex w-full items-center justify-center h-7 rounded-xl bg-white/50 dark:bg-white/5 border border-black/5 dark:border-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-all text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white focus:outline-none"
+             className="hidden lg:flex w-full items-center justify-center h-8 rounded-xl bg-white/50 dark:bg-white/5 border border-black/5 dark:border-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-all text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white focus:outline-none"
              aria-label={isSidebarCollapsed ? "Menü ausklappen" : "Menü einklappen"}
            >
-             {isSidebarCollapsed ? <p className="text-[10px] font-bold">»</p> : <p className="text-[10px] font-bold">«</p>}
+             {isSidebarCollapsed ? <p className="text-xs font-bold">»</p> : <p className="text-xs font-bold">«</p>}
            </button>
         </div>
       </aside>

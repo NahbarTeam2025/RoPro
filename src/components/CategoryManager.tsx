@@ -92,17 +92,17 @@ export function CategoryManager({ type, onClose }: CategoryManagerProps) {
                   </div>
                 ) : confirmDeleteId === cat.id ? (
                   <div className="flex-1 flex items-center justify-between animate-in fade-in slide-in-from-right-2 duration-200">
-                    <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Löschen bestätigen?</span>
+                    <span className="text-xs font-black text-red-500 uppercase tracking-widest">Löschen bestätigen?</span>
                     <div className="flex items-center gap-1">
                       <button 
                         onClick={() => { deleteCategory(cat.id); setConfirmDeleteId(null); }}
-                        className="px-4 h-8 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-600 transition-all active:scale-95 shadow-lg shadow-red-500/20"
+                        className="px-4 h-8 bg-red-500 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-red-600 transition-all active:scale-95 shadow-lg shadow-red-500/20"
                       >
                         Ja
                       </button>
                       <button 
                         onClick={() => setConfirmDeleteId(null)}
-                        className="px-4 h-8 bg-slate-200 dark:bg-white/10 text-brand-muted text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-300 dark:hover:bg-white/20 transition-all active:scale-95"
+                        className="px-4 h-8 bg-slate-200 dark:bg-white/10 text-brand-muted text-xs font-black uppercase tracking-widest rounded-xl hover:bg-slate-300 dark:hover:bg-white/20 transition-all active:scale-95"
                       >
                         Nein
                       </button>
@@ -138,7 +138,7 @@ export function CategoryManager({ type, onClose }: CategoryManagerProps) {
         </div>
 
         <div className="p-8 pt-4 border-t border-slate-200/50 dark:border-white/10 shrink-0">
-          <button onClick={onClose} className="w-full h-14 btn-red-glow font-black uppercase tracking-[0.2em] text-[10px]">
+          <button onClick={onClose} className="w-full h-14 btn-red-glow font-black uppercase tracking-[0.2em] text-xs">
             Schließen
           </button>
         </div>

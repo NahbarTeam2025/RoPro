@@ -170,7 +170,7 @@ export function PromptEditor({ prompt, onBack, onSave }: { prompt: Prompt, onBac
             className="flex-1 max-w-sm"
           />
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold text-brand-muted uppercase tracking-wider">Farbe:</span>
+            <span className="text-xs font-bold text-brand-muted uppercase tracking-wider">Farbe:</span>
             <div className="flex items-center gap-1.5">
                {colors.map(c => (
                  <button

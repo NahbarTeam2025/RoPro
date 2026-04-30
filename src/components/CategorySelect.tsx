@@ -60,7 +60,7 @@ export function CategorySelect({ type, value, defaultValue, id, onChange, classN
           <button 
             type="button" 
             onClick={handleAdd} 
-            className="p-1 text-green-500 hover:bg-green-500/10 rounded shrink-0 cursor-pointer font-bold text-[10px] px-2 uppercase" 
+            className="p-1 text-green-500 hover:bg-green-500/10 rounded shrink-0 cursor-pointer font-bold text-xs px-2 uppercase" 
             aria-label="Hinzufügen"
           >
             Hinzufügen
@@ -68,7 +68,7 @@ export function CategorySelect({ type, value, defaultValue, id, onChange, classN
           <button 
             type="button" 
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsAdding(false); }} 
-            className="p-1 text-red-500 hover:bg-red-500/10 rounded shrink-0 cursor-pointer font-bold text-[10px] px-2 uppercase" 
+            className="p-1 text-red-500 hover:bg-red-500/10 rounded shrink-0 cursor-pointer font-bold text-xs px-2 uppercase" 
             aria-label="Abbrechen"
           >
             Abbrechen

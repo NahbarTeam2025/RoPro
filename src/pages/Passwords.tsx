@@ -468,7 +468,7 @@ export default function Passwords() {
 
           <div className="w-full max-w-sm space-y-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] px-2">Master-Passwort</label>
+              <label className="text-xs font-black text-brand-muted uppercase tracking-[0.2em] px-2">Master-Passwort</label>
               <div className="relative group">
                 <input
                   type="password"
@@ -510,7 +510,7 @@ export default function Passwords() {
             </button>
           </div>
 
-          <div className="flex items-center gap-3 text-[10px] font-black text-brand-muted/40 uppercase tracking-[0.3em] pt-6 group">
+          <div className="flex items-center gap-3 text-xs font-black text-brand-muted/40 uppercase tracking-[0.3em] pt-6 group">
             <Shield size={14} className="group-hover:text-brand transition-colors" />
             <span>AES-256-GCM Verschlüsselt</span>
           </div>
@@ -561,7 +561,7 @@ export default function Passwords() {
           {filteredPasswords.length === 0 ? (
             <div className="text-center py-10 px-4">
               <Shield className="mx-auto mb-3 opacity-10" size={40} />
-              <div className="text-brand-muted font-bold tracking-tight uppercase text-[10px]">Keine Einträge</div>
+              <div className="text-brand-muted font-bold tracking-tight uppercase text-xs">Keine Einträge</div>
             </div>
           ) : (
             <div className="flex flex-col">
@@ -592,7 +592,7 @@ export default function Passwords() {
                     <div className={cn("font-bold truncate tracking-tight text-xs", selectedEntry?.id === entry.id ? "text-brand" : "text-slate-900 dark:text-white")}>
                       {entry.name || entry.url}
                     </div>
-                    <div className="text-[9px] truncate font-medium uppercase tracking-tighter text-brand-muted opacity-70">
+                    <div className="text-xs truncate font-medium uppercase tracking-tighter text-brand-muted opacity-70">
                       {entry.category || 'Allgemein'}
                     </div>
                   </div>
@@ -630,7 +630,7 @@ export default function Passwords() {
               <div className="space-y-6 text-slate-900 dark:text-white">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-1.5 text-slate-900 dark:text-white">
-                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Website / URL *</label>
+                    <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Website / URL *</label>
                     <input 
                       type="text" 
                       placeholder="google.com" 
@@ -640,7 +640,7 @@ export default function Passwords() {
                     />
                   </div>
                   <div className="space-y-1.5 text-slate-900 dark:text-white">
-                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Bezeichnung</label>
+                    <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Bezeichnung</label>
                     <input 
                       type="text" 
                       placeholder="z.B. Google Account" 
@@ -653,7 +653,7 @@ export default function Passwords() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-1.5 text-slate-900 dark:text-white">
-                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Kategorie</label>
+                    <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Kategorie</label>
                     <input 
                       type="text" 
                       placeholder="Arbeit, Social..." 
@@ -663,7 +663,7 @@ export default function Passwords() {
                     />
                   </div>
                   <div className="space-y-1.5 text-slate-900 dark:text-white">
-                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Benutzername *</label>
+                    <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Benutzername *</label>
                     <input 
                       type="text" 
                       placeholder="Nutzer oder Email" 
@@ -675,7 +675,7 @@ export default function Passwords() {
                 </div>
 
                 <div className="space-y-1.5 text-slate-900 dark:text-white">
-                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Passwort *</label>
+                  <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Passwort *</label>
                   <div className="relative">
                     <input 
                       type="text" 
@@ -694,7 +694,7 @@ export default function Passwords() {
                 </div>
 
                 <div className="space-y-1.5 text-slate-900 dark:text-white">
-                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Notiz</label>
+                  <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Notiz</label>
                   <textarea 
                     rows={4} 
                     value={formData.note} 
@@ -758,7 +758,7 @@ export default function Passwords() {
                 </div>
                 <div className="min-w-0">
                   <h2 className="text-3xl font-black text-brand tracking-tight truncate">{selectedEntry.name || selectedEntry.url}</h2>
-                  <div className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em]">{selectedEntry.category || 'Allgemein'}</div>
+                  <div className="text-xs font-black text-brand-muted uppercase tracking-[0.2em]">{selectedEntry.category || 'Allgemein'}</div>
                 </div>
               </div>
 
@@ -767,10 +767,10 @@ export default function Passwords() {
                   <div className="p-6 bg-accent/[0.03] dark:bg-white/[0.03] rounded-3xl border border-white/5 space-y-6">
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                         <label className="text-[10px] font-black text-brand-muted uppercase tracking-[0.1em]">Benutzername</label>
+                         <label className="text-xs font-black text-brand-muted uppercase tracking-[0.1em]">Benutzername</label>
                          <button 
                             onClick={() => handleCopy(selectedEntry.username, selectedEntry.id + 'user')}
-                            className="text-accent text-[10px] font-black uppercase hover:underline"
+                            className="text-accent text-xs font-black uppercase hover:underline"
                           >
                             {copiedId === selectedEntry.id + 'user' ? 'Kopiert!' : 'Kopieren'}
                           </button>
@@ -780,7 +780,7 @@ export default function Passwords() {
 
                     <div className="space-y-2 pt-6 border-t border-white/5">
                       <div className="flex items-center justify-between">
-                         <label className="text-[10px] font-black text-brand-muted uppercase tracking-[0.1em]">Passwort</label>
+                         <label className="text-xs font-black text-brand-muted uppercase tracking-[0.1em]">Passwort</label>
                          <div className="flex items-center gap-4">
                            <button 
                               onClick={() => setVisiblePasswords(prev => ({ ...prev, [selectedEntry.id]: !prev[selectedEntry.id] }))}
@@ -790,7 +790,7 @@ export default function Passwords() {
                             </button>
                            <button 
                               onClick={() => handleCopy(selectedEntry.password, selectedEntry.id + 'pass')}
-                              className="text-accent text-[10px] font-black uppercase hover:underline"
+                              className="text-accent text-xs font-black uppercase hover:underline"
                             >
                               {copiedId === selectedEntry.id + 'pass' ? 'Kopiert!' : 'Kopieren'}
                             </button>
@@ -804,7 +804,7 @@ export default function Passwords() {
 
                   {selectedEntry.url && (
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black text-brand-muted uppercase tracking-[0.1em] px-1 text-brand">Website</label>
+                       <label className="text-xs font-black text-brand-muted uppercase tracking-[0.1em] px-1 text-brand">Website</label>
                        <a 
                         href={selectedEntry.url.startsWith('http') ? selectedEntry.url : `https://${selectedEntry.url}`}
                         target="_blank"
@@ -819,7 +819,7 @@ export default function Passwords() {
 
                   {selectedEntry.note && (
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black text-brand-muted uppercase tracking-[0.1em] px-1 text-brand">Notizen</label>
+                       <label className="text-xs font-black text-brand-muted uppercase tracking-[0.1em] px-1 text-brand">Notizen</label>
                        <div className="p-4 bg-white/5 rounded-2xl border border-white/5 text-sm font-medium whitespace-pre-wrap leading-relaxed text-brand opacity-80">
                          {selectedEntry.note}
                        </div>

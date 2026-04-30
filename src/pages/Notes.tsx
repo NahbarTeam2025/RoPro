@@ -159,7 +159,7 @@ export default function Notes() {
              <select 
                 value={filterCategory} 
                 onChange={(e) => setFilterCategory(e.target.value)}
-                className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider px-2"
+                className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-xs font-bold uppercase tracking-wider px-2"
              >
                <option value="all">Alle</option>
                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -167,7 +167,7 @@ export default function Notes() {
              <select 
                 value={filterMonth} 
                 onChange={(e) => setFilterMonth(e.target.value)}
-                className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider px-2"
+                className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-xs font-bold uppercase tracking-wider px-2"
              >
                <option value="all">Datum</option>
                {availableMonths.map(m => (
@@ -188,8 +188,8 @@ export default function Notes() {
                     <div
                       key={note.id}
                       className={cn(
-                        "w-full text-left p-5 refined-list-item transition-all focus:outline-none cursor-pointer group relative border-l-2 rounded-none",
-                        activeNote?.id === note.id ? "bg-black/[0.03] dark:bg-white/[0.05]" : "bg-transparent border-transparent"
+                        "w-full text-left p-5 refined-list-item transition-all focus:outline-none cursor-pointer group relative border-l-[3px] rounded-none",
+                        activeNote?.id === note.id ? "bg-black/[0.03] dark:bg-white/[0.05]" : "bg-transparent"
                       )}
                       style={{ borderLeftColor: note.color ? `${note.color}99` : 'rgba(37, 99, 235, 0.6)' }}
                       onClick={() => setActiveNote(note)}
@@ -224,7 +224,7 @@ export default function Notes() {
                         {note.isDraft && (
                           <span className="text-[8px] font-black text-brand uppercase tracking-tighter ml-auto">Neu</span>
                         )}
-                        <span className="text-[9px] font-bold text-brand-muted/50 truncate ml-auto uppercase tracking-tighter">
+                        <span className="text-xs font-bold text-brand-muted/50 truncate ml-auto uppercase tracking-tighter">
                           {note.updatedAt?.toDate ? format(note.updatedAt.toDate(), 'd. MMM yyyy') : 'Gerade eben'}
                         </span>
                       </div>

@@ -220,7 +220,7 @@ export default function Tasks() {
                <select 
                   value={filterCategory} 
                   onChange={(e) => setFilterCategory(e.target.value)}
-                  className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider px-2"
+                  className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-xs font-bold uppercase tracking-wider px-2"
                >
                  <option value="all">Kategorie</option>
                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -228,7 +228,7 @@ export default function Tasks() {
                <select 
                   value={filterMonth} 
                   onChange={(e) => setFilterMonth(e.target.value)}
-                  className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider px-2"
+                  className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-xs font-bold uppercase tracking-wider px-2"
                >
                  <option value="all">Zeitraum</option>
                  {availableMonths.map(m => (
@@ -240,13 +240,13 @@ export default function Tasks() {
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             <div className="space-y-1">
               <div className="px-4 py-2 flex items-center justify-between sticky top-0 z-10 bg-white/10 dark:bg-black/20 backdrop-blur-md">
-                <span className="text-[10px] font-black text-brand-muted uppercase tracking-widest">Aktiv</span>
-                <span className="text-[10px] font-black text-brand-muted px-2 py-0.5 rounded-full bg-slate-500/10">
+                <span className="text-xs font-black text-brand-muted uppercase tracking-widest">Aktiv</span>
+                <span className="text-xs font-black text-brand-muted px-2 py-0.5 rounded-full bg-slate-500/10">
                   {activeTodos.length}
                 </span>
               </div>
               {activeTodos.length === 0 ? (
-                <div className="p-8 text-center text-[10px] uppercase font-bold text-brand-muted tracking-widest">Keine Aufgaben</div>
+                <div className="p-8 text-center text-xs uppercase font-bold text-brand-muted tracking-widest">Keine Aufgaben</div>
               ) : (
                 <div className="flex flex-col">
                   {activeTodos.map(todo => (
@@ -270,8 +270,8 @@ export default function Tasks() {
         {completedTodos.length > 0 && (
           <div className="max-h-[33%] min-h-[150px] flex flex-col glass-card rounded-3xl overflow-hidden flex-shrink-0">
             <div className="px-4 py-3 border-b border-slate-200/50 dark:border-white/10 flex items-center justify-between sticky top-0 z-10 bg-white/50 dark:bg-black/20 backdrop-blur-md">
-              <span className="text-[10px] font-black text-brand uppercase tracking-widest">Erledigt</span>
-              <span className="text-[10px] font-black text-brand-muted px-2 py-0.5 rounded-full bg-slate-500/10">
+              <span className="text-xs font-black text-brand uppercase tracking-widest">Erledigt</span>
+              <span className="text-xs font-black text-brand-muted px-2 py-0.5 rounded-full bg-slate-500/10">
                 {completedTodos.length}
               </span>
             </div>
@@ -310,7 +310,7 @@ export default function Tasks() {
               
               <div className="max-w-xl mx-auto w-full space-y-6">
                 <div className="space-y-2 flex flex-col">
-                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Aufgabe</label>
+                  <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Aufgabe</label>
                   <input
                     type="text"
                     defaultValue={editTask.task}
@@ -323,7 +323,7 @@ export default function Tasks() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Priorität</label>
+                      <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Priorität</label>
                       <div className="relative">
                         <select
                           id="edit-priority-select"
@@ -338,7 +338,7 @@ export default function Tasks() {
                       </div>
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Kategorie</label>
+                      <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Kategorie</label>
                       <CategorySelect 
                         type="task" 
                         defaultValue={editTask.categoryId}
@@ -351,7 +351,7 @@ export default function Tasks() {
                   </div>
                   <div className="space-y-4">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Datum</label>
+                      <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Datum</label>
                       <input
                         type="date"
                         id="edit-date-input"
@@ -360,7 +360,7 @@ export default function Tasks() {
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Uhrzeit</label>
+                      <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Uhrzeit</label>
                       <input
                         type="time"
                         id="edit-time-input"
@@ -418,7 +418,7 @@ export default function Tasks() {
 
             <form onSubmit={addTask} className="max-w-xl mx-auto w-full space-y-8">
               <div className="space-y-6 flex flex-col">
-                <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Was steht an?</label>
+                <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Was steht an?</label>
                 <input
                   type="text"
                   value={newTask}
@@ -432,7 +432,7 @@ export default function Tasks() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                 <div className="space-y-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Priorität</label>
+                    <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Priorität</label>
                     <div className="relative">
                       <select
                         value={priority}
@@ -447,12 +447,12 @@ export default function Tasks() {
                     </div>
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Kategorie</label>
+                    <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Kategorie</label>
                     <CategorySelect 
                       type="task" 
                       value={categoryId} 
                       onChange={setCategoryId}
-                      className="w-full px-4 h-12 rounded-xl text-[10px] sm:text-xs text-[#1D1D1F] dark:text-[#F5F5F7] bg-accent/[0.03] dark:bg-white/[0.03] border-none focus-within:ring-2 focus-within:ring-accent/50 font-bold uppercase transition-all duration-200"
+                      className="w-full px-4 h-12 rounded-xl text-xs sm:text-xs text-[#1D1D1F] dark:text-[#F5F5F7] bg-accent/[0.03] dark:bg-white/[0.03] border-none focus-within:ring-2 focus-within:ring-accent/50 font-bold uppercase transition-all duration-200"
                       readOnly
                       hideIcon
                     />
@@ -460,7 +460,7 @@ export default function Tasks() {
                 </div>
                 <div className="space-y-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Datum</label>
+                    <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Datum</label>
                     <input
                       type="date"
                       value={date}
@@ -469,7 +469,7 @@ export default function Tasks() {
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Uhrzeit</label>
+                    <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Uhrzeit</label>
                     <input
                       type="time"
                       value={time}
@@ -481,13 +481,13 @@ export default function Tasks() {
               </div>
 
               <div className="space-y-4">
-                <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Wiederholung</label>
+                <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Wiederholung</label>
                 <div className="flex gap-2">
                     <button
                       type="button"
                       onClick={() => setIsRecurring(!isRecurring)}
                       className={cn(
-                        "flex-1 h-12 rounded-2xl border flex items-center justify-center gap-2 transition-all font-black text-[10px] uppercase tracking-wider",
+                        "flex-1 h-12 rounded-2xl border flex items-center justify-center gap-2 transition-all font-black text-xs uppercase tracking-wider",
                         isRecurring ? "bg-accent/20 text-accent border-accent/30" : "bg-accent/[0.03] dark:bg-white/[0.03] border-none text-brand-muted"
                       )}
                     >
@@ -498,7 +498,7 @@ export default function Tasks() {
                       <select
                         value={recurrenceInterval}
                         onChange={(e) => setRecurrenceInterval(e.target.value as any)}
-                        className="flex-1 h-12 glass-input px-4 text-[10px] font-black uppercase tracking-wider bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50"
+                        className="flex-1 h-12 glass-input px-4 text-xs font-black uppercase tracking-wider bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50"
                       >
                         <option value="daily">Täglich</option>
                         <option value="weekly">Wöchentlich</option>
@@ -565,8 +565,8 @@ function TaskItem({ todo, isActive, onToggle, onDelete, onEdit, categories }: { 
   
   return (
     <div className={cn(
-      "w-full text-left p-4 refined-list-item transition-all focus:outline-none cursor-pointer group relative border-l-2 rounded-none",
-      isActive ? "bg-black/[0.03] dark:bg-white/[0.05]" : "bg-transparent border-transparent",
+      "w-full text-left p-4 refined-list-item transition-all focus:outline-none cursor-pointer group relative border-l-[3px] rounded-none",
+      isActive ? "bg-black/[0.03] dark:bg-white/[0.05]" : "bg-transparent",
       todo.completed && "opacity-60"
     )}
     style={{ borderLeftColor: todo.completed ? 'transparent' : (
