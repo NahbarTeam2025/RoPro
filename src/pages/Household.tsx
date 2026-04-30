@@ -330,6 +330,9 @@ export default function Household() {
     end: endOfMonth(currentMonthDate)
   });
 
+  let cumulativeBilanz = 0;
+  let cumulativeExpenses = 0;
+  let cumulativeIncome = 0;
   const trendData = daysInMonth.map(day => {
     const dayStr = format(day, 'yyyy-MM-dd');
     const dayTransactions = filteredTransactions.filter(t => {
@@ -340,11 +343,15 @@ export default function Household() {
     const dIncome = dayTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
     const dExpenses = dayTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
 
+    cumulativeBilanz += (dIncome - dExpenses);
+    cumulativeExpenses += dExpenses;
+    cumulativeIncome += dIncome;
+
     return {
       name: format(day, 'd.'),
-      Einnahmen: dIncome,
-      Ausgaben: dExpenses,
-      Bilanz: dIncome - dExpenses
+      Einnahmen: cumulativeIncome,
+      Ausgaben: cumulativeExpenses,
+      Bilanz: cumulativeBilanz
     };
   });
 
@@ -465,10 +472,10 @@ export default function Household() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row justify-end gap-3 mt-8 pt-6 border-t border-slate-200/50 dark:border-white/10">
-            <button type="submit" className="btn-green-glow px-10">
+            <button type="submit" className="btn-green-glow h-14 px-10">
               {editingId ? 'Aktualisieren' : 'Eintrag speichern'}
             </button>
-            <button type="button" onClick={() => { setShowAdd(false); resetForm(); }} className="btn-red-glow px-8">
+            <button type="button" onClick={() => { setShowAdd(false); resetForm(); }} className="btn-red-glow h-14 px-8">
               Abbrechen
             </button>
           </div>
@@ -567,19 +574,23 @@ export default function Household() {
       {/* Visualizations Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Trend Chart */}
-        <div className="glass-card p-6 rounded-[2rem] lg:col-span-2 border border-white/[0.06] overflow-hidden select-none outline-none">
+        <div className="glass-card p-6 rounded-[2rem] lg:col-span-3 border border-white/[0.06] overflow-hidden select-none outline-none">
           <div className="flex items-center justify-between mb-6 outline-none">
             <h3 className="text-[10px] font-black text-brand uppercase tracking-widest flex items-center gap-2">
               <BarChart3 size={14} /> Trend {format(currentMonthDate, 'MMMM', { locale: de })}
             </h3>
             <div className="flex items-center gap-3">
-               <div className="flex items-center gap-1.5 outline-none">
+               <div className="flex items-center gap-1.5 outline-none" title="Der aktuelle Kontostand im Zeitverlauf">
                   <div className="w-2 h-2 rounded-full bg-blue-500" />
-                  <span className="text-[8px] font-bold text-brand-muted uppercase">Bilanz</span>
+                  <span className="text-[8px] font-bold text-brand-muted uppercase">Netto-Bilanz</span>
                </div>
-               <div className="flex items-center gap-1.5 outline-none">
+               <div className="flex items-center gap-1.5 outline-none" title="Alle Einnahmen aufsummiert">
+                  <div className="w-2 h-2 rounded-full bg-green-500/40" />
+                  <span className="text-[8px] font-bold text-brand-muted uppercase">Einnahmen (kum.)</span>
+               </div>
+               <div className="flex items-center gap-1.5 outline-none" title="Alle Ausgaben aufsummiert">
                   <div className="w-2 h-2 rounded-full bg-red-500/40" />
-                  <span className="text-[8px] font-bold text-brand-muted uppercase">Ausgaben</span>
+                  <span className="text-[8px] font-bold text-brand-muted uppercase">Ausgaben (kum.)</span>
                </div>
             </div>
           </div>
@@ -589,10 +600,10 @@ export default function Household() {
                 <AreaChart data={trendData} accessibilityLayer>
                   <defs>
                     <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
+                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.1}/>
+                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                 <XAxis 
                   dataKey="name" 
@@ -604,20 +615,26 @@ export default function Household() {
                 <YAxis hide />
                 <RechartsTooltip 
                   contentStyle={{ 
-                    backgroundColor: 'rgba(5,5,5,0.9)', 
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)', 
                     border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: '12px',
-                    fontSize: '10px'
+                    borderRadius: '16px',
+                    fontSize: '11px',
+                    color: '#fff',
+                    backdropFilter: 'blur(12px)',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
                   }}
                   itemStyle={{ fontWeight: 'bold' }}
+                  labelFormatter={(name) => `${name} ${format(currentMonthDate, 'MMMM', { locale: de })}`}
+                  formatter={(value: number) => [`${value.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}`, '']}
                 />
                 <Area 
                   type="monotone" 
-                  dataKey="Bilanz" 
-                  stroke="#3B82F6" 
-                  strokeWidth={2}
-                  fillOpacity={1} 
-                  fill="url(#colorBalance)" 
+                  dataKey="Einnahmen" 
+                  stroke="#22C55E" 
+                  strokeWidth={1}
+                  strokeDasharray="4 4"
+                  fillOpacity={0.05} 
+                  fill="#22C55E"
                 />
                 <Area 
                   type="monotone" 
@@ -625,8 +642,16 @@ export default function Household() {
                   stroke="#EF4444" 
                   strokeWidth={1}
                   strokeDasharray="4 4"
-                  fill="transparent"
-                  fillOpacity={0} 
+                  fillOpacity={0.05}
+                  fill="#EF4444"
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="Bilanz" 
+                  stroke="#3B82F6" 
+                  strokeWidth={3}
+                  fillOpacity={0.1} 
+                  fill="url(#colorBalance)" 
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -645,7 +670,7 @@ export default function Household() {
               onClick={() => setActiveView('transactions')}
               className={cn(
                 "flex-1 sm:px-6 py-2 rounded-xl text-xs font-bold transition-all",
-                activeView === 'transactions' ? "bg-white dark:bg-accent text-slate-900 dark:text-white shadow-sm" : "text-brand-muted hover:text-slate-900 dark:hover:text-white"
+                activeView === 'transactions' ? "bg-white dark:bg-accent/40 text-slate-900 dark:text-white shadow-sm" : "text-brand-muted hover:text-slate-900 dark:hover:text-white"
               )}
             >
               Transaktionen
@@ -654,7 +679,7 @@ export default function Household() {
               onClick={() => setActiveView('abos')}
               className={cn(
                 "flex-1 sm:px-6 py-2 rounded-xl text-xs font-bold transition-all",
-                activeView === 'abos' ? "bg-white dark:bg-accent text-slate-900 dark:text-white shadow-sm" : "text-brand-muted hover:text-slate-900 dark:hover:text-white"
+                activeView === 'abos' ? "bg-white dark:bg-accent/40 text-slate-900 dark:text-white shadow-sm" : "text-brand-muted hover:text-slate-900 dark:hover:text-white"
               )}
             >
               Abos

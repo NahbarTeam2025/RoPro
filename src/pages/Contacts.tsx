@@ -354,7 +354,7 @@ export default function Contacts() {
                   <button type="submit" className="btn-green-glow w-full h-14 font-black uppercase tracking-widest">
                     Hinzufügen
                   </button>
-                  <button type="button" onClick={closeModal} className="btn-cancel w-full h-14 font-black uppercase tracking-widest">Abbrechen</button>
+                  <button type="button" onClick={closeModal} className="btn-red-glow w-full h-14 font-black uppercase tracking-widest">Abbrechen</button>
                 </div>
               </div>
             </form>

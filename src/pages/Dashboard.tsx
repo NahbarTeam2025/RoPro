@@ -218,7 +218,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8 mt-4 md:mt-0 flex-1">
           <DashboardCard title="Termine" icon={CalendarIcon} to="/calendar" color="#60A5FA">
             {appointments.length > 0 ? (
-               <div className="flex flex-col -mx-6 h-[220px] overflow-y-auto custom-scrollbar">
+               <div className="flex flex-col -mx-6 -mb-6 h-[220px] overflow-y-auto custom-scrollbar">
                 {appointments.map(app => (
                   <div key={app.id} className="refined-list-item flex items-center gap-4 px-6 py-4 relative group border-l-[3px] rounded-none" style={{ borderLeftColor: app.color || '#60A5FA' }}>
                     <div className="w-10 h-10 flex flex-col items-center justify-center shrink-0 ml-1">
@@ -255,9 +255,9 @@ export default function Dashboard() {
 
           <DashboardCard title="Aufgaben" icon={CheckSquare} to="/tasks" color="#60A5FA">
             {todos.length > 0 ? (
-               <div className="flex flex-col -mx-6 h-[220px] overflow-y-auto custom-scrollbar">
+               <div className="flex flex-col -mx-6 -mb-6 h-[220px] md:h-[280px] overflow-y-auto custom-scrollbar pb-2">
                   {todos.map(todo => (
-                    <div key={todo.id} className="refined-list-item flex items-center gap-4 px-6 py-3.5 relative group border-l-[3px] rounded-none"
+                    <div key={todo.id} className="refined-list-item flex items-center gap-4 px-6 py-2.5 relative group border-l-[3px] rounded-none"
                       style={{ 
                         borderLeftColor: 
                           todo.priority === 'high' ? '#FF3B30' : 
@@ -307,7 +307,7 @@ export default function Dashboard() {
 
           <DashboardCard title="Notizen" icon={FileText} to="/notes" color="#AF52DE">
             {notes.length > 0 ? (
-               <div className="flex flex-col -mx-6 h-[280px] overflow-y-auto custom-scrollbar">
+               <div className="flex flex-col -mx-6 -mb-6 h-[280px] overflow-y-auto custom-scrollbar pb-4">
                 {notes.map(note => (
                   <div key={note.id} className="refined-list-item flex items-center justify-between gap-3 px-6 py-4 relative group border-l-[3px] rounded-none" style={{ borderLeftColor: note.color || '#AF52DE' }}>
                     <div className="flex items-center gap-3 overflow-hidden ml-1">
@@ -376,7 +376,7 @@ export default function Dashboard() {
 
           <DashboardCard title="Prompts" icon={MessageSquare} to="/prompts" color="#FF9500">
             {prompts.length > 0 ? (
-               <div className="flex flex-col -mx-6 h-[220px] overflow-y-auto custom-scrollbar">
+               <div className="flex flex-col -mx-6 -mb-6 h-[220px] md:h-[280px] overflow-y-auto custom-scrollbar">
                 {prompts.map(prompt => (
                   <div key={prompt.id} className="refined-list-item flex items-center justify-between gap-3 px-6 py-4 relative group border-l-[3px] rounded-none" style={{ borderLeftColor: prompt.color || '#FF9500' }}>
                     <div className="flex items-center gap-3 overflow-hidden ml-1">
@@ -402,7 +402,7 @@ export default function Dashboard() {
 
           <DashboardCard title="Links" icon={LinkIcon} to="/links" color="#5856D6">
             {links.length > 0 ? (
-               <div className="flex flex-col -mx-6 h-[220px] overflow-y-auto custom-scrollbar">
+               <div className="flex flex-col -mx-6 -mb-6 h-[220px] md:h-[280px] overflow-y-auto custom-scrollbar">
                 {links.map(link => {
                   const domain = link.url.replace(/^https?:\/\//i, '').replace(/^www\./i, '').split('/')[0];
                   return (
@@ -430,7 +430,7 @@ export default function Dashboard() {
 
           <DashboardCard title="Kontakte" icon={Users} to="/contacts" color="#FF2D55">
             {contacts.length > 0 ? (
-              <div className="flex flex-col -mx-6 h-[200px] overflow-y-auto custom-scrollbar">
+              <div className="flex flex-col -mx-6 -mb-6 h-[200px] overflow-y-auto custom-scrollbar">
                 {contacts.map(contact => (
                     <Link 
                     key={contact.id} 

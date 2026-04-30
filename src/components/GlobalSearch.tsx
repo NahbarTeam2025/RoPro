@@ -84,15 +84,19 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
 
     // 2. NOTES
     const filteredNotes = data.notes.filter(n => {
-      const matchesText = !cleanQ || n.title.toLowerCase().includes(cleanQ) || n.content.toLowerCase().includes(cleanQ);
+      const plainContent = n.content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+      const matchesText = !cleanQ || n.title.toLowerCase().includes(cleanQ) || plainContent.toLowerCase().includes(cleanQ);
       return matchesText;
-    }).slice(0, 3).map(n => ({
-      id: n.id,
-      module: 'notes' as const,
-      title: n.title,
-      subtitle: n.content.substring(0, 40) + '...',
-      path: `/notes?id=${n.id}`
-    }));
+    }).slice(0, 3).map(n => {
+      const plainContent = n.content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+      return {
+        id: n.id,
+        module: 'notes' as const,
+        title: n.title || 'Unbenannte Notiz',
+        subtitle: plainContent.length > 0 ? (plainContent.substring(0, 60) + (plainContent.length > 60 ? '...' : '')) : 'Kein Inhalt',
+        path: `/notes?id=${n.id}`
+      };
+    });
     allResults.push(...filteredNotes);
 
     // 3. LINKS
@@ -116,7 +120,7 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
       id: p.id,
       module: 'prompts' as const,
       title: p.title,
-      subtitle: p.content.substring(0, 40) + '...',
+      subtitle: p.content.length > 0 ? (p.content.substring(0, 60) + (p.content.length > 60 ? '...' : '')) : 'Kein Inhalt',
       path: `/prompts?id=${p.id}`
     }));
     allResults.push(...filteredPrompts);

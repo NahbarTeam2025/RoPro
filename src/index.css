@@ -1,8 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Syncopate:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Inter", sans-serif;
   --font-brand: "Syncopate", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   --color-accent: #0055D4;
@@ -21,7 +23,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 h1, h2, h3, h4, h5, h6 {
-  @apply font-brand;
+  @apply font-display;
 }
 
 body {
@@ -74,7 +76,7 @@ body {
 
   /* Pro Section Heading */
   .pro-heading {
-    @apply font-brand text-[9px] sm:text-[10px] font-black uppercase tracking-tight text-brand-muted;
+    @apply font-sans text-[9px] sm:text-[10px] font-black uppercase tracking-tight text-brand-muted;
   }
 
   /* Specific Green Icons globally - making them more subtle */
@@ -87,7 +89,7 @@ body {
   
   /* Text colors for flexibility */
   .text-brand {
-    @apply text-[#1D1D1F] dark:text-[#e5e5e5] font-brand tracking-tighter;
+    @apply text-[#1D1D1F] dark:text-[#e5e5e5] font-sans tracking-tighter;
   }
 
   .text-brand-muted {
@@ -108,7 +110,7 @@ body {
   .btn-save,
   .btn-cancel,
   .btn-action {
-    @apply font-brand h-14 rounded-[1.25rem] font-black uppercase tracking-normal text-[9px] sm:text-[10px] transition-all duration-200 active:scale-95 flex items-center justify-center gap-2;
+    @apply font-sans h-14 rounded-[1.25rem] font-black uppercase tracking-normal text-[9px] sm:text-[10px] transition-all duration-200 active:scale-95 flex items-center justify-center gap-2;
   }
 
   .glass-button-primary {
@@ -135,28 +137,28 @@ body {
   }
 
   .btn-briefing-glow {
-    @apply font-brand h-14 rounded-[1.25rem] font-black uppercase tracking-normal text-[9px] sm:text-[10px] transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
+    @apply font-sans h-14 rounded-[1.25rem] font-black uppercase tracking-normal text-[9px] sm:text-[10px] transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
     @apply bg-zinc-950 text-white border border-white/5;
     @apply shadow-[0_15px_30px_-12px_rgba(37,99,235,0.3)];
     @apply hover:shadow-[0_20px_40px_-12px_rgba(37,99,235,0.4)] hover:bg-black;
   }
 
   .btn-green-glow {
-    @apply font-brand rounded-[1.25rem] font-bold uppercase tracking-normal transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
+    @apply font-sans rounded-[1.25rem] font-bold uppercase tracking-normal transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
     @apply bg-black text-white border border-white/10;
     @apply shadow-[0_15px_30px_-10px_rgba(34,197,94,0.4)];
     @apply hover:shadow-[0_25px_50px_-12px_rgba(34,197,94,0.6)] hover:scale-[1.02];
   }
 
   .btn-blue-glow {
-    @apply font-brand rounded-[1.25rem] font-bold uppercase tracking-normal transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
+    @apply font-sans rounded-[1.25rem] font-bold uppercase tracking-normal transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
     @apply bg-black text-white border border-white/10;
     @apply shadow-[0_15px_30px_-10px_rgba(0,102,255,0.4)];
     @apply hover:shadow-[0_25px_50px_-12px_rgba(0,102,255,0.6)] hover:scale-[1.02];
   }
 
   .btn-red-glow {
-    @apply font-brand rounded-[1.25rem] font-bold uppercase tracking-normal transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
+    @apply font-sans rounded-[1.25rem] font-bold uppercase tracking-normal transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
     @apply bg-black text-white border border-white/10;
     @apply shadow-[0_15px_30px_-10px_rgba(239,68,68,0.4)];
     @apply hover:shadow-[0_25px_50px_-12px_rgba(239,68,68,0.6)] hover:scale-[1.02];
@@ -181,7 +183,7 @@ body {
   }
 
   .sidebar-item {
-    @apply flex items-center gap-3 px-4 py-2.5 text-[11px] font-brand font-bold transition-all hover:bg-black/5 dark:hover:bg-white/5 text-[#424245] dark:text-[#A1A1A6] mr-4 rounded-r-xl uppercase;
+    @apply flex items-center gap-3 px-4 py-2.5 text-[11px] font-sans font-bold transition-all hover:bg-black/5 dark:hover:bg-white/5 text-[#424245] dark:text-[#A1A1A6] mr-4 rounded-r-xl uppercase;
   }
 
   .sidebar-item-active {

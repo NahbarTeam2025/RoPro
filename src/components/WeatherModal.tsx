@@ -57,7 +57,7 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-[#000000] opacity-90 backdrop-blur-xl"
+            className="absolute inset-0 bg-black/40 backdrop-blur-2xl"
             onClick={onClose}
           />
           
@@ -65,7 +65,7 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            className="relative w-full max-w-[480px] md:max-w-2xl bg-[#1c1c1e]/40 backdrop-blur-lg rounded-[2.5rem] border border-white/5 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+            className="relative w-full max-w-[480px] md:max-w-2xl bg-white/5 dark:bg-black/20 backdrop-blur-3xl rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
           >
             {/* Header */}
             <div className="p-8 pb-4 flex items-center justify-between shrink-0">

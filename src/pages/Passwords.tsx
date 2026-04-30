@@ -707,7 +707,7 @@ export default function Passwords() {
                   <button onClick={saveEntry} className="w-full btn-green-glow h-14 font-black uppercase tracking-widest">
                     {editingEntry ? 'Aktualisieren' : 'Speichern'}
                   </button>
-                  <button onClick={() => setShowAddModal(false)} className="w-full btn-cancel h-14 font-black uppercase tracking-widest">
+                  <button onClick={() => setShowAddModal(false)} className="w-full btn-red-glow h-14 font-black uppercase tracking-widest">
                     Abbrechen
                   </button>
                 </div>

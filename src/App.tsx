@@ -29,7 +29,7 @@ export default function App() {
     <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
-          <Suspense fallback={<div className="min-h-screen bg-slate-50 dark:bg-black text-slate-900 dark:text-white flex items-center justify-center font-brand">Laden...</div>}>
+          <Suspense fallback={<div className="min-h-screen bg-slate-50 dark:bg-black text-slate-900 dark:text-white flex items-center justify-center font-sans">Laden...</div>}>
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route
