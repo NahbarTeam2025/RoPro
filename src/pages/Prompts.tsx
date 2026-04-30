@@ -4,7 +4,7 @@ import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { Plus, Search, Trash2, Tag, Copy, Check, MessageSquare, Settings2, Pin } from 'lucide-react';
+import { Plus, Search, Trash2, Tag, MessageSquare, Settings2, Pin } from 'lucide-react';
 import { PromptEditor } from '../components/PromptEditor';
 import { cn } from '../lib/utils';
 import { CategorySelect } from '../components/CategorySelect';
@@ -28,7 +28,6 @@ export default function Prompts() {
   const { user } = useAuth();
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [activePrompt, setActivePrompt] = useState<Prompt | null>(null);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
   const { categories } = useCategories('prompt');
 
   const [filterCategory, setFilterCategory] = useState<string>('all');
@@ -89,16 +88,6 @@ export default function Prompts() {
       updatedAt: new Date()
     };
     setActivePrompt(newPrompt);
-  };
-
-  const copyToClipboard = async (content: string, id: string) => {
-    try {
-      await navigator.clipboard.writeText(content);
-      setCopiedId(id);
-      setTimeout(() => setCopiedId(null), 2000);
-    } catch (err) {
-      console.error("Failed to copy", err);
-    }
   };
 
   const filteredPrompts = [
@@ -168,7 +157,7 @@ export default function Prompts() {
                             activePrompt?.id === prompt.id ? "text-slate-900 dark:text-white" : "text-slate-900 dark:text-white/80"
                           )}>{prompt.title || 'Unbenannt'}</h3>
                         </div>
-                        <div className="flex items-center gap-1 shrink-0">
+                        <div className="flex items-center gap-4 shrink-0">
                           <button
                             onClick={(e) => togglePin(e, prompt)}
                             disabled={prompt.isDraft}
@@ -181,20 +170,6 @@ export default function Prompts() {
                           >
                             <Pin size={14} className={cn(prompt.isPinned && "fill-brand")} />
                           </button>
-                          <div
-                            onClick={(e) => {
-                              if (prompt.isDraft) return;
-                              e.stopPropagation();
-                              copyToClipboard(prompt.content, prompt.id);
-                            }}
-                            className={cn(
-                              "p-1 rounded-md hover:bg-slate-500/20 text-brand-muted hover:text-brand transition-colors cursor-pointer",
-                              prompt.isDraft && "opacity-0"
-                            )}
-                            title="Kopieren"
-                          >
-                             {copiedId === prompt.id ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
-                          </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 mt-2">

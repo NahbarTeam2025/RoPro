@@ -138,7 +138,7 @@ export function CategoryManager({ type, onClose }: CategoryManagerProps) {
         </div>
 
         <div className="p-8 pt-4 border-t border-slate-200/50 dark:border-white/10 shrink-0">
-          <button onClick={onClose} className="w-full h-12 glass-button-secondary rounded-[1.25rem] font-black uppercase tracking-[0.2em] text-[10px] active:scale-95 transition-all">
+          <button onClick={onClose} className="w-full h-14 btn-red-glow font-black uppercase tracking-[0.2em] text-[10px]">
             Schließen
           </button>
         </div>

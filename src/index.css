@@ -142,24 +142,24 @@ body {
   }
 
   .btn-green-glow {
-    @apply font-brand h-14 px-6 rounded-[1.25rem] font-bold uppercase tracking-normal text-[9px] transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
-    @apply bg-zinc-950 text-white border border-white/5;
-    @apply shadow-[0_10px_20px_-10px_rgba(34,197,94,0.4)];
-    @apply hover:shadow-[0_15px_30px_-8px_rgba(34,197,94,0.6)] hover:bg-black;
+    @apply font-brand rounded-[1.25rem] font-bold uppercase tracking-normal transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
+    @apply bg-black text-white border border-white/10;
+    @apply shadow-[0_15px_30px_-10px_rgba(34,197,94,0.4)];
+    @apply hover:shadow-[0_25px_50px_-12px_rgba(34,197,94,0.6)] hover:scale-[1.02];
   }
 
   .btn-blue-glow {
     @apply font-brand rounded-[1.25rem] font-bold uppercase tracking-normal transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
     @apply bg-black text-white border border-white/10;
-    @apply shadow-[0_25px_50px_-12px_rgba(0,102,255,0.5)];
-    @apply hover:shadow-[0_40px_80px_-15px_rgba(0,102,255,0.7)] hover:scale-[1.02];
+    @apply shadow-[0_15px_30px_-10px_rgba(0,102,255,0.4)];
+    @apply hover:shadow-[0_25px_50px_-12px_rgba(0,102,255,0.6)] hover:scale-[1.02];
   }
 
   .btn-red-glow {
-    @apply font-brand h-14 px-6 rounded-[1.25rem] font-bold uppercase tracking-normal text-[9px] transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
-    @apply bg-zinc-950 text-white border border-white/5;
-    @apply shadow-[0_10px_20px_-10px_rgba(239,68,68,0.4)];
-    @apply hover:shadow-[0_15px_30px_-8px_rgba(239,68,68,0.6)] hover:bg-black;
+    @apply font-brand rounded-[1.25rem] font-bold uppercase tracking-normal transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
+    @apply bg-black text-white border border-white/10;
+    @apply shadow-[0_15px_30px_-10px_rgba(239,68,68,0.4)];
+    @apply hover:shadow-[0_25px_50px_-12px_rgba(239,68,68,0.6)] hover:scale-[1.02];
   }
 
   .custom-scrollbar {

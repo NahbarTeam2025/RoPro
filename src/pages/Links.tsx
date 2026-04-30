@@ -399,7 +399,7 @@ export default function Links() {
                 <button
                    type="button"
                    onClick={() => setEditLink(null)}
-                   className="btn-cancel w-full h-14 font-black uppercase tracking-widest"
+                   className="btn-red-glow w-full h-14 font-black uppercase tracking-widest"
                  >
                    Abbrechen
                  </button>
@@ -481,7 +481,7 @@ export default function Links() {
                 <button
                    type="button"
                    onClick={() => setShowAdd(false)}
-                   className="btn-cancel w-full h-14 font-black uppercase tracking-widest"
+                   className="btn-red-glow w-full h-14 font-black uppercase tracking-widest"
                  >
                    Abbrechen
                  </button>

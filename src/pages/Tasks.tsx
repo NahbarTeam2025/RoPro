@@ -302,12 +302,6 @@ export default function Tasks() {
         {editTask ? (
           <div className="flex-1 flex flex-col h-full bg-transparent p-6 sm:p-10 overflow-y-auto custom-scrollbar">
              <div className="flex items-center justify-between mb-10">
-                <button 
-                  onClick={() => setEditTask(null)}
-                  className="md:hidden p-2 text-brand-muted hover:text-brand"
-                >
-                  <Clock size={24} className="rotate-90" />
-                </button>
                 <h3 className="text-2xl font-black text-brand tracking-tight">Bearbeiten</h3>
                 <button onClick={() => setEditTask(null)} className="p-2 text-brand-muted hover:text-brand transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5">
                   <X size={24} />
@@ -321,7 +315,7 @@ export default function Tasks() {
                     type="text"
                     defaultValue={editTask.task}
                     id="edit-task-input"
-                    className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-accent/[0.03] focus:bg-accent/[0.06] transition-all"
+                    className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-white/[0.03] dark:bg-white/[0.03] focus:bg-white/[0.06] transition-all"
                     required
                   />
                 </div>
@@ -401,7 +395,7 @@ export default function Tasks() {
                   <button 
                     type="button"
                     onClick={() => setEditTask(null)}
-                    className="btn-cancel w-full h-14 font-black uppercase tracking-widest"
+                    className="btn-red-glow w-full h-14 font-black uppercase tracking-widest"
                   >
                     Abbrechen
                   </button>
@@ -425,7 +419,7 @@ export default function Tasks() {
                   value={newTask}
                   onChange={(e) => setNewTask(e.target.value)}
                   placeholder="Aufgabe beschreiben..."
-                  className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-accent/[0.03] focus:bg-accent/[0.06] transition-all"
+                  className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-white/[0.03] dark:bg-white/[0.03] focus:bg-white/[0.06] transition-all"
                   required
                 />
               </div>

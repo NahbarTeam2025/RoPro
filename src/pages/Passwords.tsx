@@ -703,12 +703,12 @@ export default function Passwords() {
                   />
                 </div>
 
-                <div className="flex gap-4 pt-4">
-                  <button onClick={() => setShowAddModal(false)} className="flex-1 btn-cancel h-14 font-black uppercase tracking-widest">
-                    Abbrechen
-                  </button>
-                  <button onClick={saveEntry} className="flex-[2] btn-green-glow h-14 font-black uppercase tracking-widest">
+                <div className="flex flex-col gap-3 pt-4">
+                  <button onClick={saveEntry} className="w-full btn-green-glow h-14 font-black uppercase tracking-widest">
                     {editingEntry ? 'Aktualisieren' : 'Speichern'}
+                  </button>
+                  <button onClick={() => setShowAddModal(false)} className="w-full btn-cancel h-14 font-black uppercase tracking-widest">
+                    Abbrechen
                   </button>
                 </div>
               </div>

@@ -435,15 +435,12 @@ export default function Dashboard() {
                     <Link 
                     key={contact.id} 
                     to={`/contacts?id=${contact.id}`} 
-                    className="refined-list-item flex items-center gap-3 px-6 py-4 cursor-pointer border-l-[3px] rounded-none"
+                    className="refined-list-item flex flex-col items-center justify-center gap-1 px-6 py-4 cursor-pointer border-l-[3px] rounded-none text-center"
                     style={{ borderLeftColor: '#FFFFFF' }}
                   >
-                    <div className="w-8 h-8 flex items-center justify-center font-black text-xs shrink-0 ml-1 lowercase rounded-full text-slate-900 border border-slate-200 dark:border-white/20 bg-white">
-                      {contact.name?.[0] || '?'}
-                    </div>
                     <div className="flex-1 min-w-0">
                       <span className="text-xs font-bold text-slate-900 dark:text-white block truncate tracking-tight">{contact.name}</span>
-                      {contact.phone && <span className="text-[10px] text-brand-muted block truncate font-medium uppercase tracking-tighter opacity-70">{contact.phone}</span>}
+                      {contact.phone && <span className="text-[10px] text-brand-muted block truncate font-medium uppercase tracking-tighter opacity-70 leading-tight">{contact.phone}</span>}
                     </div>
                   </Link>
                 ))}

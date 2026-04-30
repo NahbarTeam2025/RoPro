@@ -82,18 +82,18 @@ export function CategorySelect({ type, value, defaultValue, id, onChange, classN
             defaultValue={defaultValue}
             onChange={(e) => onChange?.(e.target.value)}
             aria-label="Kategorie auswählen"
-            className="flex-1 min-w-0 bg-transparent text-xs font-bold text-slate-900 dark:text-white group-hover:text-accent cursor-pointer outline-none uppercase tracking-wider appearance-none pr-6"
+            className="flex-1 min-w-0 bg-transparent text-xs font-bold text-slate-900 dark:text-white cursor-pointer outline-none focus:ring-0 focus:ring-offset-0 uppercase tracking-wider appearance-none pr-6"
             title={(value || defaultValue) ? categories.find(c => c.id === (value || defaultValue))?.name : "Kategorie wählen..."}
           >
             <option value="" disabled hidden>Wähle Kategorie</option>
-            <option value="" className="bg-white dark:bg-[#050505]">Keine Kategorie</option>
+            <option value="" className="bg-white dark:bg-[#050505] text-slate-900 dark:text-white">Keine Kategorie</option>
             {categories.map((cat) => (
-              <option key={cat.id} value={cat.id} className="bg-white dark:bg-[#050505]">
+              <option key={cat.id} value={cat.id} className="bg-white dark:bg-[#050505] text-slate-900 dark:text-white">
                 {cat.name}
               </option>
             ))}
           </select>
-          <ChevronDown size={14} className="absolute right-8 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none group-hover:text-accent transition-colors" />
+          <ChevronDown size={14} className="absolute right-8 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none transition-colors" />
           <button 
             type="button"
             onClick={(e) => { 

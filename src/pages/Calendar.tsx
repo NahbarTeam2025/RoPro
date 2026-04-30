@@ -482,20 +482,20 @@ export default function Calendar() {
                     </div>
                   </div>
                 </div>
-                <div className="pt-2 flex justify-end gap-2">
-                  <button 
-                    type="button" 
-                    onClick={() => setSelectedDay(null)}
-                    className="btn-red-glow px-6"
-                  >
-                    Schließen
-                  </button>
+                <div className="pt-2 flex flex-col gap-3">
                   <button 
                     type="submit" 
                     disabled={!newTaskText.trim() || isAddingTask}
-                    className="btn-blue-glow px-8 disabled:opacity-50 !h-14"
+                    className="btn-green-glow w-full !h-14 disabled:opacity-50"
                   >
                     {isAddingTask ? 'Speichert...' : (editingAppointment ? 'Speichern' : 'Hinzufügen')}
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => setSelectedDay(null)}
+                    className="btn-red-glow w-full !h-14"
+                  >
+                    Schließen
                   </button>
                 </div>
               </form>

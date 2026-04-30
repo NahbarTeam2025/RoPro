@@ -215,17 +215,6 @@ export default function Notes() {
                           >
                             <Pin size={14} className={cn(note.isPinned && "fill-brand")} />
                           </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              setDeleteModal({ open: true, id: note.id });
-                            }}
-                            className="p-1.5 text-brand-muted hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition-opacity z-20"
-                            title="Notiz löschen"
-                          >
-                            <Trash2 size={14} />
-                          </button>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 mt-2">

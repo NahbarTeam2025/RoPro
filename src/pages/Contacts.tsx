@@ -186,14 +186,14 @@ export default function Contacts() {
                     key={contact.id}
                     onClick={() => setSelectedContact(contact)}
                     className={cn(
-                      "w-full px-6 py-5 refined-list-item flex flex-col items-center justify-center transition-all group relative border-l-2 rounded-none text-center",
+                      "w-full px-6 py-5 refined-list-item flex items-center gap-3 transition-all group relative border-l-2 rounded-none",
                       selectedContact?.id === contact.id 
                         ? "bg-black/[0.03] dark:bg-white/[0.03] border-l-accent" 
                         : "border-l-transparent"
                     )}
                   >
-                    <div className="flex flex-col items-center gap-1">
-                      <div className="flex items-center justify-center gap-2">
+                    <div className="flex-1 min-w-0 text-left ml-2">
+                      <div className="flex items-center gap-2">
                         <div className={cn("font-bold truncate tracking-tight text-xs", selectedContact?.id === contact.id ? "text-brand" : "text-slate-900 dark:text-white")}>
                           {contact.name}
                         </div>
@@ -202,7 +202,7 @@ export default function Contacts() {
                         )}
                       </div>
                       {contact.phone && (
-                        <div className="text-[10px] truncate font-medium uppercase tracking-tighter text-brand-muted opacity-70">
+                        <div className="text-[10px] truncate font-medium uppercase tracking-tighter text-brand-muted opacity-70 mt-0.5">
                           {contact.phone}
                         </div>
                       )}
@@ -389,14 +389,14 @@ export default function Contacts() {
             </div>
 
             <div className="max-w-xl mx-auto w-full space-y-12">
-                <div className="flex flex-col items-center text-center gap-4 pb-8 border-b border-slate-200/30 dark:border-white/5">
-                  <div className="flex items-center justify-center gap-3">
+                <div className="flex flex-col items-start gap-4 pb-8 border-b border-slate-200/30 dark:border-white/5">
+                  <div className="flex items-start justify-start gap-3">
                     <h2 className="text-3xl font-black text-brand tracking-tight uppercase break-words">{selectedContact.name}</h2>
                     {selectedContact.isFavorite && (
-                      <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_10px_rgba(255,149,0,0.6)]" />
+                      <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_10px_rgba(255,149,0,0.6)] mt-2" />
                     )}
                   </div>
-                  <div className="flex flex-wrap justify-center gap-2 text-[10px] font-black text-brand-muted uppercase tracking-widest">
+                  <div className="flex flex-wrap justify-start gap-2 text-[10px] font-black text-brand-muted uppercase tracking-widest">
                      {selectedContact.birthday && (
                         <span className="px-3 py-1.5 rounded-full border border-slate-200/30 dark:border-white/5">
                           🎂 {format(parseISO(selectedContact.birthday), 'd. MMMM', { locale: de })}
@@ -408,7 +408,7 @@ export default function Contacts() {
                   </div>
                 </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-center">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div className="space-y-6">
                   <section>
                     <h4 className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] mb-4">Kontaktinfo</h4>
@@ -431,7 +431,7 @@ export default function Contacts() {
                 <div className="space-y-6">
                   <section>
                     <h4 className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] mb-4">Adresse</h4>
-                    <div className="text-sm font-black text-brand whitespace-pre-wrap leading-relaxed text-center">
+                    <div className="text-sm font-black text-brand whitespace-pre-wrap leading-relaxed text-left">
                       {selectedContact.address || '--'}
                     </div>
                   </section>
@@ -439,9 +439,9 @@ export default function Contacts() {
               </div>
 
               {selectedContact.notes && (
-                <section className="text-center">
+                <section className="text-left">
                   <h4 className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] mb-4">Notizen</h4>
-                  <div className="text-sm font-black text-brand whitespace-pre-wrap leading-relaxed bg-accent/[0.03] p-4 rounded-2xl text-center">
+                  <div className="text-sm font-black text-brand whitespace-pre-wrap leading-relaxed bg-accent/[0.03] p-4 rounded-2xl text-left">
                     {selectedContact.notes}
                   </div>
                 </section>
