@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Lock, Unlock, Key, Eye, EyeOff, Copy, Search, Plus, 
   Trash2, Globe, Shield, RefreshCw, Check, X, AlertTriangle, ExternalLink,
-  Save, Edit2
+  Save, Edit2, ChevronRight
 } from 'lucide-react';
 import { 
   collection, query, where, onSnapshot, addDoc, updateDoc, 
@@ -129,6 +129,7 @@ export default function Passwords() {
   // UI state
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingEntry, setEditingEntry] = useState<DecryptedEntry | null>(null);
+  const [selectedEntry, setSelectedEntry] = useState<DecryptedEntry | null>(null);
   const [visiblePasswords, setVisiblePasswords] = useState<Record<string, boolean>>({});
   const [copiedId, setCopiedId] = useState<string | null>(null);
   
@@ -442,61 +443,75 @@ export default function Passwords() {
 
   if (isLocked) {
     return (
-      <div className="max-w-md mx-auto px-6 pt-12 sm:pt-24 flex items-start justify-center">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-slate-50/50 dark:bg-black/50 backdrop-blur-xl p-4 sm:p-10">
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="glass-card p-10 rounded-[2.5rem] flex flex-col items-center gap-8 relative overflow-hidden w-full"
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          className="glass-card w-full max-w-xl h-fit rounded-[3rem] sm:rounded-[4rem] flex flex-col items-center gap-8 sm:gap-12 relative p-10 sm:p-20 shadow-2xl"
         >
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand to-transparent opacity-20" />
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-brand to-transparent opacity-30" />
           
-          <div className="w-20 h-20 flex items-center justify-center text-slate-900 dark:text-white">
-            <Lock size={48} strokeWidth={1.5} />
+          <div className="w-24 h-24 flex items-center justify-center text-brand dark:text-white bg-brand/5 rounded-full ring-8 ring-brand/5">
+            <Lock size={56} strokeWidth={1} className="drop-shadow-glow" />
           </div>
 
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
-              {config ? 'Safe entsperren' : 'Safe einrichten'}
+          <div className="text-center space-y-4">
+            <h1 className="text-4xl sm:text-5xl font-black text-brand tracking-tighter leading-none">
+              {config ? 'SAFE ENTSPERREN' : 'SAFE EINRICHTEN'}
             </h1>
-            <p className="text-sm text-brand-muted font-medium px-4">
+            <p className="text-sm sm:text-base text-brand-muted font-medium px-4 max-w-sm mx-auto leading-relaxed">
               {config 
                 ? 'Gib dein Master-Passwort ein, um auf deine verschlüsselten Daten zuzugreifen.' 
                 : 'Wähle ein starkes Master-Passwort. Es kann nicht wiederhergestellt werden!'}
             </p>
           </div>
 
-          <div className="w-full space-y-4">
-            <div className="relative group">
-              <input
-                type="password"
-                value={masterPassword}
-                onChange={(e) => setMasterPassword(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (config ? handleUnlock() : handleCreateVault())}
-                placeholder="Master-Passwort"
-                className="glass-input w-full pl-12 h-14"
-                autoFocus
-              />
-              <Key className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted transition-colors group-focus-within:text-brand" size={20} />
+          <div className="w-full max-w-sm space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] px-2">Master-Passwort</label>
+              <div className="relative group">
+                <input
+                  type="password"
+                  value={masterPassword}
+                  onChange={(e) => setMasterPassword(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (config ? handleUnlock() : handleCreateVault())}
+                  placeholder="••••••••••••"
+                  className="glass-input w-full pl-12 h-16 text-lg tracking-widest transition-all focus:ring-4 focus:ring-brand/5"
+                  autoFocus
+                />
+                <Key className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted transition-colors group-focus-within:text-brand" size={24} />
+              </div>
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-xs font-bold animate-shake">
-                <AlertTriangle size={14} />
+              <motion.div 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-xs font-bold"
+              >
+                <AlertTriangle size={16} />
                 <span>{error}</span>
-              </div>
+              </motion.div>
             )}
 
             <button
               onClick={config ? handleUnlock : handleCreateVault}
-              disabled={!masterPassword}
-              className="btn-briefing-glow w-full disabled:opacity-50"
+              disabled={!masterPassword || loading}
+              className="btn-green-glow w-full h-16 text-sm font-black uppercase tracking-[0.2em] disabled:opacity-30 flex items-center justify-center gap-3"
             >
-              {config ? 'Entsperren' : 'Vault Erstellen'}
+              {loading ? (
+                <RefreshCw size={20} className="animate-spin" />
+              ) : (
+                <>
+                  <Unlock size={20} />
+                  <span>{config ? 'Entsperren' : 'Erstellen'}</span>
+                </>
+              )}
             </button>
           </div>
 
-          <div className="flex items-center gap-2 text-[10px] font-black text-brand-muted/40 uppercase tracking-widest pt-4">
-            <Shield size={12} />
+          <div className="flex items-center gap-3 text-[10px] font-black text-brand-muted/40 uppercase tracking-[0.3em] pt-6 group">
+            <Shield size={14} className="group-hover:text-brand transition-colors" />
             <span>AES-256-GCM Verschlüsselt</span>
           </div>
         </motion.div>
@@ -505,286 +520,324 @@ export default function Passwords() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-0 sm:px-0 pb-20">
-      <header className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-8 bg-white/5 p-8 rounded-[3rem] border border-white/5 ">
-        <div className="flex items-center gap-4 sm:gap-6 min-w-0 flex-1">
-          <div className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center text-brand shrink-0">
-            <Shield size={32} className="sm:hidden" />
-            <Shield size={48} className="hidden sm:block" />
-          </div>
-          <div className="min-w-0">
-            <h1 className="text-xl sm:text-4xl font-black text-brand tracking-tighter mb-1 select-none leading-none break-words">Password Safe</h1>
-            <div className="flex items-center gap-2 text-[10px] font-bold text-brand-muted uppercase tracking-widest leading-none">
-              <Check size={12} className="text-green-500" />
-              <span>Vault Entsperrt</span>
+    <div className="h-full flex flex-col md:flex-row gap-6 relative z-10 w-full pb-6">
+      {/* Sidebar: Password List */}
+      <div className={cn(
+        "w-full md:w-80 flex-col glass-card rounded-3xl overflow-hidden flex-shrink-0 transition-all",
+        selectedEntry || showAddModal ? "hidden md:flex" : "flex h-full"
+      )}>
+        <div className="p-4 border-b border-slate-200/50 dark:border-white/10 space-y-4">
+          <div className="flex items-center justify-between px-2">
+            <h2 className="font-bold text-slate-900 dark:text-white text-sm uppercase tracking-tight">Safe</h2>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={lockVault}
+                className="p-2 text-brand-muted hover:text-brand transition-all"
+                title="Safe sperren"
+              >
+                <Lock size={18} />
+              </button>
+              <button 
+                onClick={() => handleOpenAddModal()}
+                className="p-2 bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white rounded-xl transition-all font-bold flex items-center justify-center"
+              >
+                <Plus size={18} />
+              </button>
             </div>
           </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-          {error && (
-            <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-[10px] font-bold animate-shake">
-              <AlertTriangle size={14} />
-              <span>{error}</span>
-              <button onClick={() => setError(null)} className="ml-2 hover:opacity-70"><X size={12} /></button>
-            </div>
-          )}
-          <div className="relative flex-1 md:w-80">
+          <div className="relative">
             <input
               type="text"
               placeholder="Suchen..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="glass-input pl-12 h-14 w-full"
+              className="glass-input pl-10 h-10 w-full text-xs"
             />
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted" size={20} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-muted" size={16} />
           </div>
-          <button 
-            onClick={() => handleOpenAddModal()}
-            className="btn-briefing-glow h-14 w-14 sm:w-auto sm:px-6 flex items-center justify-center gap-2 shrink-0"
-            title="Passwort hinzufügen"
-          >
-            <Plus size={24} />
-            <span className="hidden sm:inline">Hinzufügen</span>
-          </button>
-          <button 
-            onClick={lockVault}
-            className="btn-briefing-glow h-14 px-6 flex items-center justify-center gap-3 transition-all"
-          >
-            <Lock size={16} className="group-hover:animate-bounce" />
-            <span>Sperren</span>
-          </button>
         </div>
-      </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <AnimatePresence>
-          {filteredPasswords.map((entry) => (
-            <motion.div
-              key={entry.id}
-              layout
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="glass-card group flex flex-col p-6 rounded-[2.5rem] relative overflow-hidden h-fit"
-            >
-              <div className="flex justify-between items-start mb-6">
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="w-12 h-12 shrink-0 flex items-center justify-center">
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          {filteredPasswords.length === 0 ? (
+            <div className="text-center py-10 px-4">
+              <Shield className="mx-auto mb-3 opacity-10" size={40} />
+              <div className="text-brand-muted font-bold tracking-tight uppercase text-[10px]">Keine Einträge</div>
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              {filteredPasswords.map(entry => (
+                <button
+                  key={entry.id}
+                  onClick={() => setSelectedEntry(entry)}
+                  className={cn(
+                    "w-full text-left px-6 py-4 refined-list-item flex items-center gap-3 transition-all group relative border-l-2 rounded-none",
+                    selectedEntry?.id === entry.id 
+                      ? "bg-black/[0.03] dark:bg-white/[0.03] border-l-accent" 
+                      : "border-l-transparent"
+                  )}
+                >
+                  <div className="w-8 h-8 shrink-0 flex items-center justify-center">
                     {entry.url ? (
                       <img 
-                        src={`https://www.google.com/s2/favicons?sz=128&domain=${entry.url.replace(/^https?:\/\//, '')}`} 
+                        src={`https://www.google.com/s2/favicons?sz=64&domain=${entry.url.replace(/^https?:\/\//, '')}`} 
                         alt="" 
-                        className="w-10 h-10 object-contain rounded-md"
-                        onError={(e) => (e.currentTarget.src = 'https://www.google.com/s2/favicons?sz=128&domain=lock.com')}
+                        className="w-6 h-6 object-contain rounded-md"
+                        onError={(e) => (e.currentTarget.src = 'https://www.google.com/s2/favicons?sz=64&domain=lock.com')}
                       />
                     ) : (
-                      <Globe size={32} className="text-brand-muted" />
+                      <Key size={18} className="text-brand-muted" />
                     )}
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="font-bold text-brand truncate pr-2">{entry.name || entry.url}</h3>
-                    <div className="text-[10px] font-bold text-brand-muted uppercase tracking-widest truncate">{entry.category || 'Allgemein'}</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                  <button 
-                    onClick={() => handleOpenAddModal(entry)}
-                    className="p-2 text-brand-muted hover:text-accent transition-colors rounded-xl hover:bg-accent/5"
-                  >
-                    <Edit2 size={16} />
-                  </button>
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setDeleteConfirmId(entry.id);
-                    }}
-                    className="p-2 text-brand-muted hover:text-red-500 transition-colors rounded-xl hover:bg-red-500/5"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="p-4 bg-white/40 dark:bg-black/20 rounded-2xl border border-white/5 space-y-4">
-                  <div className="space-y-1">
-                    <div className="text-[9px] font-black text-brand-muted uppercase tracking-tighter">Benutzername</div>
-                    <div className="flex items-center justify-between gap-2 overflow-hidden">
-                      <div className="text-sm font-bold text-brand truncate flex-1">{entry.username}</div>
-                      <button 
-                        onClick={() => handleCopy(entry.username, entry.id + 'user')}
-                        className="shrink-0 p-1.5 text-brand-muted hover:text-brand transition-colors"
-                      >
-                        {copiedId === entry.id + 'user' ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
-                      </button>
+                  <div className="flex-1 min-w-0">
+                    <div className={cn("font-bold truncate tracking-tight text-xs", selectedEntry?.id === entry.id ? "text-brand" : "text-slate-900 dark:text-white")}>
+                      {entry.name || entry.url}
+                    </div>
+                    <div className="text-[9px] truncate font-medium uppercase tracking-tighter text-brand-muted opacity-70">
+                      {entry.category || 'Allgemein'}
                     </div>
                   </div>
-
-                  <div className="space-y-1 pt-3 border-t border-white/5">
-                    <div className="text-[9px] font-black text-brand-muted uppercase tracking-tighter">Passwort</div>
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="text-sm font-mono font-bold text-brand tracking-widest overflow-hidden truncate">
-                        {visiblePasswords[entry.id] ? entry.password : '••••••••••••'}
-                      </div>
-                      <div className="flex items-center gap-1 shrink-0">
-                        <button 
-                          onClick={() => setVisiblePasswords(prev => ({ ...prev, [entry.id]: !prev[entry.id] }))}
-                          className="p-1.5 text-brand-muted hover:text-brand transition-colors"
-                        >
-                          {visiblePasswords[entry.id] ? <EyeOff size={14} /> : <Eye size={14} />}
-                        </button>
-                        <button 
-                          onClick={() => handleCopy(entry.password, entry.id + 'pass')}
-                          className="p-1.5 text-brand-muted hover:text-brand transition-colors"
-                        >
-                          {copiedId === entry.id + 'pass' ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {entry.url && (
-                  <a 
-                    href={entry.url.startsWith('http') ? entry.url : `https://${entry.url}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-3 bg-brand/5 hover:bg-brand/10 text-brand dark:text-white rounded-xl transition-all font-bold text-[10px] uppercase tracking-widest border border-accent/10"
-                  >
-                    <span>Website öffnen</span>
-                    <ExternalLink size={12} />
-                  </a>
-                )}
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-
-        {filteredPasswords.length === 0 && !searchTerm && (
-          <div className="col-span-full py-20 flex flex-col items-center justify-center text-brand-muted opacity-40">
-            <Shield size={64} strokeWidth={1} className="mb-4" />
-            <p className="font-bold tracking-tight">Dein Safe ist leer. Füge dein erstes Passwort hinzu.</p>
-          </div>
-        )}
+                  <ChevronRight size={14} className={cn("shrink-0 transition-opacity", selectedEntry?.id === entry.id ? "text-brand" : "text-brand-muted opacity-0 group-hover:opacity-100")} />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Add/Edit Modal */}
-      <AnimatePresence>
-        {showAddModal && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }}
-              onClick={() => setShowAddModal(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-xl"
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="glass-card w-full max-w-[480px] rounded-[3rem] overflow-hidden relative z-10 flex flex-col h-[90vh]"
-            >
-              <div className="flex justify-between items-center p-8 pb-4 shrink-0">
-                <h2 className="text-3xl font-black text-brand tracking-tighter">{editingEntry ? 'Passwort bearbeiten' : 'Neues Passwort'}</h2>
-                <button onClick={() => setShowAddModal(false)} className="p-2 text-brand-muted hover:text-brand transition-colors"><X size={24} /></button>
-              </div>
+      {/* Main Content: Entry Detail or Add/Edit Form */}
+      <div className={cn(
+        "flex-1 glass-card rounded-3xl overflow-hidden flex-col min-w-0 transition-all h-full",
+        !selectedEntry && !showAddModal ? "hidden md:flex" : "flex"
+      )}>
+        {showAddModal ? (
+          <div className="flex-1 flex flex-col h-full p-6 sm:p-10 overflow-y-auto custom-scrollbar">
+            <div className="flex items-center justify-between mb-10">
+              <button 
+                onClick={() => setShowAddModal(false)}
+                className="md:hidden p-2 text-brand-muted hover:text-brand"
+              >
+                <ChevronRight size={24} className="rotate-180" />
+              </button>
+              <h3 className="text-2xl font-black text-brand tracking-tight">
+                {editingEntry ? 'BEARBEITEN' : 'HINZUFÜGEN'}
+              </h3>
+              <button onClick={() => setShowAddModal(false)} className="p-2 text-brand-muted hover:text-brand transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5">
+                <X size={24} />
+              </button>
+            </div>
 
-              <div className="flex-1 overflow-y-auto px-8 py-4 space-y-6 custom-scrollbar">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Logo URL / Domain *</label>
-                  <input 
-                    type="text" 
-                    placeholder="google.com" 
-                    value={formData.url} 
-                    onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
-                    className="glass-input w-full" 
-                  />
+            <div className="max-w-xl mx-auto w-full space-y-8">
+              <div className="space-y-6 text-slate-900 dark:text-white">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="space-y-1.5 text-slate-900 dark:text-white">
+                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Website / URL *</label>
+                    <input 
+                      type="text" 
+                      placeholder="google.com" 
+                      value={formData.url} 
+                      onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
+                      className="glass-input w-full h-12" 
+                    />
+                  </div>
+                  <div className="space-y-1.5 text-slate-900 dark:text-white">
+                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Bezeichnung</label>
+                    <input 
+                      type="text" 
+                      placeholder="z.B. Google Account" 
+                      value={formData.name} 
+                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      className="glass-input w-full h-12" 
+                    />
+                  </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Bezeichnung</label>
-                  <input 
-                    type="text" 
-                    placeholder="z.B. Google Account" 
-                    value={formData.name} 
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    className="glass-input w-full" 
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="space-y-1.5 text-slate-900 dark:text-white">
+                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Kategorie</label>
+                    <input 
+                      type="text" 
+                      placeholder="Arbeit, Social..." 
+                      value={formData.category} 
+                      onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                      className="glass-input w-full h-12" 
+                    />
+                  </div>
+                  <div className="space-y-1.5 text-slate-900 dark:text-white">
+                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Benutzername *</label>
+                    <input 
+                      type="text" 
+                      placeholder="Nutzer oder Email" 
+                      value={formData.username} 
+                      onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
+                      className="glass-input w-full h-12" 
+                    />
+                  </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Kategorie</label>
-                  <input 
-                    type="text" 
-                    placeholder="Social Media, Arbeit..." 
-                    value={formData.category} 
-                    onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                    className="glass-input w-full" 
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Benutzername *</label>
-                  <input 
-                    type="text" 
-                    placeholder="Email oder Nutzername" 
-                    value={formData.username} 
-                    onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
-                    className="glass-input w-full" 
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Passwort *</label>
-                  <div className="relative group">
+                <div className="space-y-1.5 text-slate-900 dark:text-white">
+                  <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Passwort *</label>
+                  <div className="relative">
                     <input 
                       type="text" 
                       placeholder="Sicheres Passwort" 
                       value={formData.password} 
                       onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                      className="glass-input w-full pr-12 font-mono" 
+                      className="glass-input w-full h-12 pr-12 font-mono text-sm" 
                     />
                     <button 
                       onClick={generatePassword}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-brand/5 rounded-lg text-brand-muted hover:text-brand transition-colors"
-                      title="Generieren"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-brand/5 rounded-lg text-brand-muted hover:text-brand transition-colors"
                     >
-                      <RefreshCw size={18} />
+                      <RefreshCw size={16} />
                     </button>
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Notiz</label>
+                <div className="space-y-1.5 text-slate-900 dark:text-white">
+                  <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Notiz</label>
                   <textarea 
-                    rows={3} 
+                    rows={4} 
                     value={formData.note} 
                     onChange={(e) => setFormData(prev => ({ ...prev, note: e.target.value }))}
-                    className="glass-input w-full resize-none py-3" 
+                    className="glass-input w-full resize-none p-4 text-sm" 
                   />
+                </div>
+
+                <div className="flex gap-4 pt-4">
+                  <button onClick={() => setShowAddModal(false)} className="flex-1 btn-cancel h-14 font-black uppercase tracking-widest">
+                    Abbrechen
+                  </button>
+                  <button onClick={saveEntry} className="flex-[2] btn-green-glow h-14 font-black uppercase tracking-widest">
+                    {editingEntry ? 'Aktualisieren' : 'Speichern'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : selectedEntry ? (
+          <div className="flex-1 flex flex-col h-full p-6 sm:p-10 overflow-y-auto custom-scrollbar">
+            <div className="flex items-center justify-between mb-10">
+              <button 
+                onClick={() => setSelectedEntry(null)}
+                className="md:hidden p-2 text-brand-muted hover:text-brand"
+              >
+                <ChevronRight size={24} className="rotate-180" />
+              </button>
+              <h3 className="text-2xl font-black text-brand tracking-tight">DETAILS</h3>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => handleOpenAddModal(selectedEntry)}
+                  className="p-2.5 rounded-xl text-brand-muted hover:text-accent hover:bg-slate-200 dark:hover:bg-white/5 transition-all"
+                >
+                  <Edit2 size={18} />
+                </button>
+                <button 
+                  onClick={() => setDeleteConfirmId(selectedEntry.id)}
+                  className="p-2.5 rounded-xl text-brand-muted hover:text-red-500 hover:bg-red-500/10 transition-all font-bold"
+                >
+                  <Trash2 size={18} />
+                </button>
+                <button onClick={() => setSelectedEntry(null)} className="p-2 text-brand-muted hover:text-brand transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5">
+                  <X size={24} />
+                </button>
+              </div>
+            </div>
+
+            <div className="max-w-xl mx-auto w-full space-y-10">
+              <div className="flex items-center gap-6">
+                <div className="w-20 h-20 shrink-0 flex items-center justify-center p-2 bg-white/5 rounded-3xl border border-white/10">
+                  {selectedEntry.url ? (
+                    <img 
+                      src={`https://www.google.com/s2/favicons?sz=128&domain=${selectedEntry.url.replace(/^https?:\/\//, '')}`} 
+                      alt="" 
+                      className="w-12 h-12 object-contain"
+                    />
+                  ) : (
+                    <Globe size={40} className="text-brand-muted" />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <h2 className="text-3xl font-black text-brand tracking-tight truncate">{selectedEntry.name || selectedEntry.url}</h2>
+                  <div className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em]">{selectedEntry.category || 'Allgemein'}</div>
                 </div>
               </div>
 
-              <div className="flex gap-3 p-5 shrink-0 bg-white/5  border-t border-white/5">
-                <button 
-                  onClick={() => setShowAddModal(false)}
-                  className="flex-1 btn-red-glow"
-                >
-                  Abbrechen
-                </button>
-                <button 
-                  onClick={saveEntry}
-                  className="flex-[2] btn-green-glow"
-                >
-                  {editingEntry ? 'Aktualisieren' : 'Speichern'}
-                </button>
+              <div className="grid grid-cols-1 gap-6">
+                <div className="space-y-6">
+                  <div className="p-6 bg-accent/[0.03] dark:bg-white/[0.03] rounded-3xl border border-white/5 space-y-6">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                         <label className="text-[10px] font-black text-brand-muted uppercase tracking-[0.1em]">Benutzername</label>
+                         <button 
+                            onClick={() => handleCopy(selectedEntry.username, selectedEntry.id + 'user')}
+                            className="text-accent text-[10px] font-black uppercase hover:underline"
+                          >
+                            {copiedId === selectedEntry.id + 'user' ? 'Kopiert!' : 'Kopieren'}
+                          </button>
+                      </div>
+                      <div className="text-lg font-bold text-brand break-all">{selectedEntry.username}</div>
+                    </div>
+
+                    <div className="space-y-2 pt-6 border-t border-white/5">
+                      <div className="flex items-center justify-between">
+                         <label className="text-[10px] font-black text-brand-muted uppercase tracking-[0.1em]">Passwort</label>
+                         <div className="flex items-center gap-4">
+                           <button 
+                              onClick={() => setVisiblePasswords(prev => ({ ...prev, [selectedEntry.id]: !prev[selectedEntry.id] }))}
+                              className="text-brand-muted hover:text-brand"
+                            >
+                              {visiblePasswords[selectedEntry.id] ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
+                           <button 
+                              onClick={() => handleCopy(selectedEntry.password, selectedEntry.id + 'pass')}
+                              className="text-accent text-[10px] font-black uppercase hover:underline"
+                            >
+                              {copiedId === selectedEntry.id + 'pass' ? 'Kopiert!' : 'Kopieren'}
+                            </button>
+                         </div>
+                      </div>
+                      <div className="text-xl font-mono font-bold text-brand tracking-widest break-all">
+                        {visiblePasswords[selectedEntry.id] ? selectedEntry.password : '••••••••••••'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {selectedEntry.url && (
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black text-brand-muted uppercase tracking-[0.1em] px-1 text-brand">Website</label>
+                       <a 
+                        href={selectedEntry.url.startsWith('http') ? selectedEntry.url : `https://${selectedEntry.url}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/5 transition-all group"
+                      >
+                        <span className="text-sm font-bold text-brand truncate pr-4">{selectedEntry.url}</span>
+                        <ExternalLink size={16} className="text-brand-muted group-hover:text-brand" />
+                      </a>
+                    </div>
+                  )}
+
+                  {selectedEntry.note && (
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black text-brand-muted uppercase tracking-[0.1em] px-1 text-brand">Notizen</label>
+                       <div className="p-4 bg-white/5 rounded-2xl border border-white/5 text-sm font-medium whitespace-pre-wrap leading-relaxed text-brand opacity-80">
+                         {selectedEntry.note}
+                       </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            </motion.div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center text-brand-muted">
+            <div className="w-16 h-16 flex items-center justify-center mb-4 text-brand dark:text-white border-none bg-transparent">
+               <Shield size={48} />
+            </div>
+            <p className="font-medium">Wähle einen Eintrag aus</p>
           </div>
         )}
-      </AnimatePresence>
+      </div>
 
       {/* Delete Confirmation Modal */}
       <AnimatePresence>
@@ -798,30 +851,32 @@ export default function Passwords() {
               className="absolute inset-0 bg-black/80 backdrop-blur-xl"
             />
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="glass-card w-full max-w-[480px] rounded-[2.5rem] overflow-hidden relative z-10 p-8 text-center"
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="glass-card w-full max-w-sm p-10 rounded-[3rem] relative z-10 text-center"
             >
-              <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Trash2 size={32} />
+              <div className="w-20 h-20 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-8">
+                <Trash2 size={40} />
               </div>
-              <h3 className="text-xl font-black text-brand tracking-tight mb-2">Eintrag löschen?</h3>
-              <p className="text-sm text-brand-muted mb-8 font-medium">Diese Aktion kann nicht rückgängig gemacht werden.</p>
-              
-              <div className="flex gap-3">
+              <h3 className="text-2xl font-black text-brand tracking-tight mb-4 uppercase">Eintrag löschen?</h3>
+              <p className="text-sm text-brand-muted font-medium mb-10 px-4">
+                Möchtest du diesen Eintrag wirklich unwiderruflich aus deinem Safe entfernen?
+              </p>
+              <div className="grid grid-cols-2 gap-4">
                 <button 
                   onClick={() => setDeleteConfirmId(null)}
-                  className="flex-1 glass-button-secondary"
+                  className="btn-cancel h-14 font-black uppercase tracking-widest"
                 >
-                  Abbrechen
+                  Abbruch
                 </button>
                 <button 
                   onClick={() => {
                     deleteEntry(deleteConfirmId);
+                    if (selectedEntry?.id === deleteConfirmId) setSelectedEntry(null);
                     setDeleteConfirmId(null);
                   }}
-                  className="flex-1 btn-cancel"
+                  className="btn-red-glow h-14 font-black uppercase tracking-widest"
                 >
                   Löschen
                 </button>

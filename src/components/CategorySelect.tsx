@@ -5,14 +5,16 @@ import { cn } from '../lib/utils';
 
 interface CategorySelectProps {
   type: 'note' | 'task' | 'link' | 'prompt' | 'household';
-  value: string; // The categoryId
-  onChange: (categoryId: string) => void;
+  value?: string; // The categoryId
+  defaultValue?: string;
+  id?: string;
+  onChange?: (categoryId: string) => void;
   className?: string;
   readOnly?: boolean;
   hideIcon?: boolean;
 }
 
-export function CategorySelect({ type, value, onChange, className, readOnly, hideIcon }: CategorySelectProps) {
+export function CategorySelect({ type, value, defaultValue, id, onChange, className, readOnly, hideIcon }: CategorySelectProps) {
   const { categories, addCategory, deleteCategory } = useCategories(type);
   const [isAdding, setIsAdding] = useState(false);
   const [newCatName, setNewCatName] = useState('');
@@ -24,7 +26,7 @@ export function CategorySelect({ type, value, onChange, className, readOnly, hid
     }
     if (newCatName.trim()) {
       const id = await addCategory(newCatName.trim());
-      if (id) {
+      if (id && onChange) {
         onChange(id);
       }
     }
@@ -75,11 +77,13 @@ export function CategorySelect({ type, value, onChange, className, readOnly, hid
       ) : (
         <div className="flex items-center gap-2 flex-1 min-w-0 relative group">
           <select
+            id={id}
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            defaultValue={defaultValue}
+            onChange={(e) => onChange?.(e.target.value)}
             aria-label="Kategorie auswählen"
             className="flex-1 min-w-0 bg-transparent text-xs font-bold text-slate-900 dark:text-white group-hover:text-accent cursor-pointer outline-none uppercase tracking-wider appearance-none pr-6"
-            title={value ? categories.find(c => c.id === value)?.name : "Kategorie wählen..."}
+            title={(value || defaultValue) ? categories.find(c => c.id === (value || defaultValue))?.name : "Kategorie wählen..."}
           >
             <option value="" disabled hidden>Wähle Kategorie</option>
             <option value="" className="bg-white dark:bg-[#050505]">Keine Kategorie</option>

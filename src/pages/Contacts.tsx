@@ -35,7 +35,6 @@ export default function Contacts() {
   const [searchParams] = useSearchParams();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
@@ -154,353 +153,310 @@ export default function Contacts() {
     });
   };
 
-  const filteredContacts = contacts.filter(c => 
-    c.name.toLowerCase().includes(search.toLowerCase()) ||
-    c.email?.toLowerCase().includes(search.toLowerCase()) ||
-    c.phone?.includes(search)
-  );
+  const filteredContacts = contacts;
 
   return (
-    <div className="max-w-6xl mx-auto flex flex-col h-full px-0 sm:px-0 pb-6">
-      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 sm:mb-12">
-        <div>
-          <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-1 uppercase">Kontakte</h1>
-        </div>
-        <button 
-          onClick={() => setIsAddModalOpen(true)}
-          className="btn-briefing-glow px-6 flex items-center gap-2"
-        >
-          <Plus size={20} />
-          <span>Kontakt hinzufügen</span>
-        </button>
-      </header>
-
-      <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 flex-1 min-h-0">
-        {/* Left: Contact List */}
-        <div className="lg:w-1/3 flex flex-col gap-4">
-          <div className="relative mb-2 w-full lg:w-[245px]">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={16} />
-            <input 
-              type="text"
-              placeholder="Suchen..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 text-sm shadow-sm bg-slate-900 dark:bg-black/40 text-white placeholder:text-white/40 rounded-2xl border border-white/10"
-            />
+    <div className="h-full flex flex-col md:flex-row gap-6 relative z-10 w-full pb-6">
+      {/* Sidebar: Contact List */}
+      <div className={cn(
+        "w-full md:w-80 flex-col glass-card rounded-3xl overflow-hidden flex-shrink-0 transition-all",
+        selectedContact || isAddModalOpen ? "hidden md:flex" : "flex h-full"
+      )}>
+        <div className="p-4 border-b border-slate-200/50 dark:border-white/10 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="font-bold text-slate-900 dark:text-white text-sm uppercase tracking-tight">Kontakte</h2>
+            <button 
+              onClick={() => { setIsAddModalOpen(true); setEditingContact(null); setSelectedContact(null); }}
+              className="p-2 bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white rounded-xl transition-all cursor-pointer font-bold flex items-center justify-center"
+            >
+               <Plus size={18} />
+            </button>
           </div>
+        </div>
 
-          <div className="border border-slate-200/50 dark:border-white/5 rounded-[2.5rem] shadow-inner overflow-hidden h-[200px]">
-            <div className="h-full overflow-y-auto custom-scrollbar">
-              {loading ? (
-                <div className="text-center py-10 text-brand-muted font-medium">Laden...</div>
-              ) : filteredContacts.length === 0 ? (
-                <div className="text-center py-10 text-brand-muted font-bold tracking-tight uppercase text-[10px]">Keine Kontakte</div>
-              ) : (
-                <div className="flex flex-col">
-                  {filteredContacts.map(contact => (
-                    <button
-                      key={contact.id}
-                      onClick={() => setSelectedContact(contact)}
-                      className={cn(
-                        "w-full text-left px-6 py-4 refined-list-item flex items-center gap-3 transition-all group relative border-l-[3px]",
-                        selectedContact?.id === contact.id 
-                          ? "bg-white dark:bg-white/[0.03] border-l-accent shadow-[0_0_20px_-5px_rgba(34,197,94,0.3)] dark:shadow-[0_0_20px_-5px_rgba(0,113,227,0.4)] z-10" 
-                          : "border-l-transparent"
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          {loading ? (
+            <div className="text-center py-10 text-brand-muted font-medium">Laden...</div>
+          ) : filteredContacts.length === 0 ? (
+            <div className="text-center py-10 text-brand-muted font-bold tracking-tight uppercase text-[10px]">Keine Kontakte</div>
+          ) : (
+            <div className="flex flex-col">
+              {filteredContacts.map(contact => (
+                  <button
+                    key={contact.id}
+                    onClick={() => setSelectedContact(contact)}
+                    className={cn(
+                      "w-full px-6 py-5 refined-list-item flex flex-col items-center justify-center transition-all group relative border-l-2 rounded-none text-center",
+                      selectedContact?.id === contact.id 
+                        ? "bg-black/[0.03] dark:bg-white/[0.03] border-l-accent" 
+                        : "border-l-transparent"
+                    )}
+                  >
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className={cn("font-bold truncate tracking-tight text-xs", selectedContact?.id === contact.id ? "text-brand" : "text-slate-900 dark:text-white")}>
+                          {contact.name}
+                        </div>
+                        {contact.isFavorite && (
+                          <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                        )}
+                      </div>
+                      {contact.phone && (
+                        <div className="text-[10px] truncate font-medium uppercase tracking-tighter text-brand-muted opacity-70">
+                          {contact.phone}
+                        </div>
                       )}
-                    >
-                      <div className={cn(
-                        "w-10 h-10 flex items-center justify-center font-black text-xs shrink-0 transition-all rounded-full lowercase",
-                        selectedContact?.id === contact.id 
-                          ? "bg-accent text-white shadow-lg shadow-accent/25" 
-                          : "bg-slate-100 dark:bg-white/5 text-slate-900 dark:text-white"
-                      )}>
-                        {contact.name[0]}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <div className={cn("font-bold truncate tracking-tight text-xs", selectedContact?.id === contact.id ? "text-white" : "text-slate-900 dark:text-white")}>
-                            {contact.name}
-                          </div>
-                          {contact.isFavorite && (
-                            <div className={cn("w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(255,149,0,0.5)]")} />
-                          )}
-                        </div>
-                        {(contact.email || contact.phone) && (
-                          <div className={cn("text-[10px] truncate font-medium uppercase tracking-tighter opacity-70", selectedContact?.id === contact.id ? "text-white/70" : "text-brand-muted")}>
-                            {contact.phone || contact.email}
-                          </div>
-                        )}
-                      </div>
-                      <ChevronRight size={14} className={cn("shrink-0 transition-opacity", selectedContact?.id === contact.id ? "text-white/40" : "text-brand-muted opacity-0 group-hover:opacity-100")} />
-                    </button>
-                  ))}
-                </div>
-              )}
+                    </div>
+                  </button>
+              ))}
             </div>
-          </div>
-        </div>
-
-        {/* Right: Contact Detail */}
-        <div className="flex-1">
-          <AnimatePresence mode="wait">
-            {selectedContact ? (
-              <motion.div 
-                key={selectedContact.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="glass-card rounded-[2.5rem] p-8 h-full flex flex-col overflow-hidden"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
-                  <div className="flex items-center gap-6">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 text-brand flex items-center justify-center text-5xl sm:text-6xl font-black shrink-0">
-                      {selectedContact.name[0].toUpperCase()}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h2 className="text-2xl sm:text-3xl font-black text-brand tracking-tight uppercase break-words">{selectedContact.name}</h2>
-                        {selectedContact.isFavorite && (
-                          <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_10px_rgba(255,149,0,0.6)]" title="Favorit" />
-                        )}
-                      </div>
-                      <div className="flex flex-wrap gap-2 text-xs font-bold text-brand-muted uppercase tracking-widest">
-                         {selectedContact.birthday && (
-                           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200/30 dark:border-white/5">
-                             <Cake size={14} className="text-brand" />
-                             {format(parseISO(selectedContact.birthday), 'd. MMMM', { locale: de })}
-                           </div>
-                         )}
-                         <div className="px-3 py-1.5 rounded-full border border-slate-200/30 dark:border-white/5">
-                           Seit {format(selectedContact.createdAt?.toDate?.() || new Date(), 'dd.MM.yyyy')}
-                         </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 sm:self-start">
-                    <button 
-                      onClick={(e) => openEditModal(selectedContact, e)}
-                      className="p-2.5 rounded-xl text-brand-muted hover:text-accent hover:bg-slate-200 transition-all shadow-sm border border-slate-200/50 dark:border-white/5"
-                    >
-                      <Edit2 size={18} />
-                    </button>
-                    <button 
-                      onClick={(e) => handleDelete(selectedContact.id, e)}
-                      className="p-2.5 rounded-xl text-brand-muted hover:text-red-500 hover:bg-red-500/10 transition-all shadow-sm border border-slate-200/50 dark:border-white/5"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                  <div className="space-y-6">
-                    <section>
-                      <h4 className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                        <Phone size={12} className="text-brand" /> Kontaktinfo
-                      </h4>
-                      <div className="space-y-4">
-                        <div className="group">
-                          <label className="block text-[10px] font-bold text-brand-muted uppercase tracking-wider mb-1 px-4 opacity-50 group-hover:opacity-100 transition-opacity">Telefon</label>
-                          <div className="px-4 py-3 rounded-2xl border border-slate-200/30 dark:border-white/5 text-brand font-medium">
-                            {selectedContact.phone || '--'}
-                          </div>
-                        </div>
-                        <div className="group">
-                          <label className="block text-[10px] font-bold text-brand-muted uppercase tracking-wider mb-1 px-4 opacity-50 group-hover:opacity-100 transition-opacity">E-Mail</label>
-                          <div className="px-4 py-3 rounded-2xl border border-slate-200/30 dark:border-white/5 text-brand font-medium">
-                            {selectedContact.email || '--'}
-                          </div>
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-
-                  <div className="space-y-6">
-                    <section>
-                      <h4 className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                        <MapPin size={12} className="text-brand" /> Adresse
-                      </h4>
-                      <div className="px-4 py-3 rounded-2xl border border-slate-200/30 dark:border-white/5 text-brand font-medium min-h-[100px] whitespace-pre-wrap">
-                        {selectedContact.address || '--'}
-                      </div>
-                    </section>
-                  </div>
-                </div>
-
-                <section className="flex-1 flex flex-col min-h-0">
-                  <h4 className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] mb-4 flex items-center gap-2 shrink-0">
-                    <FileText size={12} className="text-brand" /> Notizen
-                  </h4>
-                  <div className="flex-1 px-4 py-3 rounded-2xl border border-slate-200/30 dark:border-white/5 text-brand font-medium overflow-y-auto custom-scrollbar whitespace-pre-wrap">
-                    {selectedContact.notes || '--'}
-                  </div>
-                </section>
-              </motion.div>
-            ) : (
-              <div className="glass-card rounded-[2.5rem] p-8 h-full flex flex-col items-center justify-center text-brand-muted text-center animate-in fade-in zoom-in duration-500">
-                <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6">
-                  <User size={40} className="opacity-20" />
-                </div>
-                <h3 className="text-xl font-bold text-brand mb-2 tracking-tight uppercase">Kein Kontakt ausgewählt</h3>
-                <p className="max-w-xs text-sm font-medium">Wähle einen Kontakt aus der Liste links aus, um die Details zu sehen.</p>
-              </div>
-            )}
-          </AnimatePresence>
+          )}
         </div>
       </div>
 
-      {/* Add/Edit Modal */}
-      <AnimatePresence>
-        {isAddModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl">
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="glass-card w-full max-w-[480px] rounded-[2.5rem] overflow-hidden shadow-2xl"
-            >
-              <div className="p-8 border-b border-slate-200/50 dark:border-white/10 flex justify-between items-center bg-[#FBFBFD]/50 dark:bg-[#1C1C1E]/50">
-                <h2 className="text-2xl font-black text-brand tracking-tight uppercase">
-                  {editingContact ? 'Kontakt bearbeiten' : 'Neuer Kontakt'}
-                </h2>
-                <button onClick={closeModal} className="p-2 hover:bg-slate-200 dark:hover:bg-white/10 rounded-xl transition-colors text-brand-muted">
+      {/* Main Content: Contact Detail or Add/Edit Form */}
+      <div className={cn(
+        "flex-1 glass-card rounded-3xl overflow-hidden flex-col min-w-0 transition-all h-full",
+        !selectedContact && !isAddModalOpen ? "hidden md:flex" : "flex"
+      )}>
+        {isAddModalOpen ? (
+          <div className="flex-1 flex flex-col h-full bg-transparent p-6 sm:p-10 overflow-y-auto custom-scrollbar">
+            <div className="flex items-center justify-between mb-10">
+               <button 
+                  onClick={closeModal}
+                  className="md:hidden p-2 text-brand-muted hover:text-brand"
+                >
+                  <ChevronRight size={24} className="rotate-180" />
+                </button>
+                <h3 className="text-2xl font-black text-brand tracking-tight">
+                  {editingContact ? 'BEARBEITEN' : 'HINZUFÜGEN'}
+                </h3>
+                <button onClick={closeModal} className="p-2 text-brand-muted hover:text-brand transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5">
                   <X size={24} />
                 </button>
-              </div>
+            </div>
 
-              <form onSubmit={handleCreateOrUpdate} className="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                {!editingContact && (
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Vorlagen</label>
-                    <div className="flex gap-2">
+            <form onSubmit={handleCreateOrUpdate} className="max-w-xl mx-auto w-full space-y-8">
+              {!editingContact && (
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Vorlagen</label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({
+                        ...formData,
+                        notes: 'Geschäftlicher Kontakt\nAbteilung: \nPosition: ',
+                        color: '#3B82F6'
+                      })}
+                      className="px-4 py-2 rounded-xl bg-slate-500/10 text-brand-muted text-[10px] font-bold uppercase tracking-wider hover:bg-brand hover:text-white transition-all"
+                    >
+                      Geschäftlich
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({
+                        ...formData,
+                        notes: 'Privater Kontakt\nVerwandtschaftsgrad: ',
+                        color: '#EF4444'
+                      })}
+                      className="px-4 py-2 rounded-xl bg-slate-500/10 text-brand-muted text-[10px] font-bold uppercase tracking-wider hover:bg-brand hover:text-white transition-all"
+                    >
+                      Privat
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-8">
+                <div className="space-y-2 flex flex-col">
+                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Vollständiger Name</label>
+                  <input 
+                    required
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    placeholder="z.B. Robert Erbach"
+                    className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-accent/[0.03] focus:bg-accent/[0.06] transition-all"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">E-Mail</label>
+                      <input 
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        placeholder="email@beispiel.de"
+                        className="glass-input h-12 text-sm font-black"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Telefon</label>
+                      <input 
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                        placeholder="+49 ..."
+                        className="glass-input h-12 text-sm font-black"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Geburtstag</label>
+                      <input 
+                        type="date"
+                        value={formData.birthday}
+                        onChange={(e) => setFormData({...formData, birthday: e.target.value})}
+                        className="glass-input h-12 text-sm font-black"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Favorit</label>
                       <button
                         type="button"
-                        onClick={() => setFormData({
-                          ...formData,
-                          name: '',
-                          email: '',
-                          phone: '',
-                          birthday: '',
-                          address: '',
-                          notes: 'Geschäftlicher Kontakt\nAbteilung: \nPosition: ',
-                          color: '#3B82F6',
-                          isFavorite: false
-                        })}
-                        className="px-3 py-1.5 rounded-lg bg-slate-500/10 text-brand-muted text-[10px] font-bold uppercase tracking-wider hover:bg-brand hover:text-white transition-all"
+                        onClick={() => setFormData({...formData, isFavorite: !formData.isFavorite})}
+                        className={cn(
+                          "h-12 rounded-2xl border flex items-center justify-center gap-2 transition-all font-black text-[10px] uppercase tracking-wider",
+                          formData.isFavorite ? "bg-orange-500 text-white border-orange-500" : "bg-white/5 border-white/5 text-brand-muted"
+                        )}
                       >
-                        Geschäftlich
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setFormData({
-                          ...formData,
-                          name: '',
-                          email: '',
-                          phone: '',
-                          birthday: '',
-                          address: '',
-                          notes: 'Privater Kontakt\nVerwandtschaftsgrad: ',
-                          color: '#EF4444',
-                          isFavorite: false
-                        })}
-                        className="px-3 py-1.5 rounded-lg bg-slate-500/10 text-brand-muted text-[10px] font-bold uppercase tracking-wider hover:bg-brand hover:text-white transition-all"
-                      >
-                        Privat
+                        {formData.isFavorite ? <Check size={14} strokeWidth={3} /> : null}
+                        <span>{formData.isFavorite ? 'Favorit' : 'Zu Favoriten'}</span>
                       </button>
                     </div>
                   </div>
-                )}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Vollständiger Name</label>
-                    <input 
-                      required
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      placeholder="z.B. Robert Erbach"
-                      className="glass-input w-full p-4"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Geburtstag</label>
-                    <input 
-                      type="date"
-                      value={formData.birthday}
-                      onChange={(e) => setFormData({...formData, birthday: e.target.value})}
-                      className="glass-input w-full p-4"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">E-Mail</label>
-                    <input 
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      placeholder="email@beispiel.de"
-                      className="glass-input w-full p-4"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Telefonnummer</label>
-                    <input 
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                      placeholder="+49 ..."
-                      className="glass-input w-full p-4"
-                    />
-                  </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Adresse</label>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Adresse</label>
                   <textarea 
                     value={formData.address}
                     onChange={(e) => setFormData({...formData, address: e.target.value})}
                     placeholder="Straße, Hausnummer, PLZ, Ort"
-                    className="glass-input w-full p-4 min-h-[80px]"
+                    className="glass-input w-full p-4 min-h-[100px] text-sm font-black"
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest px-1">Notizen</label>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Notizen</label>
                   <textarea 
                     value={formData.notes}
                     onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                    placeholder="Besondere Merkmale, Vorlieben..."
-                    className="glass-input w-full p-4 min-h-[120px]"
+                    placeholder="Besondere Merkmale..."
+                    className="glass-input w-full p-4 min-h-[120px] text-sm font-black"
                   />
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setFormData({...formData, isFavorite: !formData.isFavorite})}
-                    className={cn(
-                      "flex items-center gap-2 px-4 py-2 rounded-xl border transition-all text-[10px] font-black uppercase tracking-widest",
-                      formData.isFavorite 
-                        ? "bg-orange-500 text-white border-orange-500 shadow-lg shadow-orange-500/20" 
-                        : "bg-slate-500/5 text-brand-muted border-transparent"
-                    )}
-                  >
-                    {formData.isFavorite ? <Check size={12} strokeWidth={3} /> : null}
-                    <span>Zu Favoriten hinzufügen</span>
+                <div className="flex flex-col gap-3 pt-8">
+                  <button type="submit" className="btn-green-glow w-full h-14 font-black uppercase tracking-widest">
+                    Hinzufügen
                   </button>
+                  <button type="button" onClick={closeModal} className="btn-cancel w-full h-14 font-black uppercase tracking-widest">Abbrechen</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        ) : selectedContact ? (
+          <div className="flex-1 flex flex-col h-full bg-transparent p-6 sm:p-10 overflow-y-auto custom-scrollbar">
+            <div className="flex items-center justify-between mb-10">
+               <button 
+                  onClick={() => setSelectedContact(null)}
+                  className="md:hidden p-2 text-brand-muted hover:text-brand"
+                >
+                  <ChevronRight size={24} className="rotate-180" />
+                </button>
+                <div />
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={(e) => openEditModal(selectedContact, e)}
+                    className="p-2.5 rounded-xl text-brand-muted hover:text-accent hover:bg-slate-200 dark:hover:bg-white/5 transition-all"
+                  >
+                    <Edit2 size={18} />
+                  </button>
+                  <button 
+                    onClick={(e) => handleDelete(selectedContact.id, e)}
+                    className="p-2.5 rounded-xl text-brand-muted hover:text-red-500 hover:bg-red-500/10 transition-all font-bold"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                  <button onClick={() => setSelectedContact(null)} className="p-2 text-brand-muted hover:text-brand transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5">
+                    <X size={24} />
+                  </button>
+                </div>
+            </div>
+
+            <div className="max-w-xl mx-auto w-full space-y-12">
+                <div className="flex flex-col items-center text-center gap-4 pb-8 border-b border-slate-200/30 dark:border-white/5">
+                  <div className="flex items-center justify-center gap-3">
+                    <h2 className="text-3xl font-black text-brand tracking-tight uppercase break-words">{selectedContact.name}</h2>
+                    {selectedContact.isFavorite && (
+                      <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_10px_rgba(255,149,0,0.6)]" />
+                    )}
+                  </div>
+                  <div className="flex flex-wrap justify-center gap-2 text-[10px] font-black text-brand-muted uppercase tracking-widest">
+                     {selectedContact.birthday && (
+                        <span className="px-3 py-1.5 rounded-full border border-slate-200/30 dark:border-white/5">
+                          🎂 {format(parseISO(selectedContact.birthday), 'd. MMMM', { locale: de })}
+                        </span>
+                     )}
+                     <span className="px-3 py-1.5 rounded-full border border-slate-200/30 dark:border-white/5">
+                        Seit {format(selectedContact.createdAt?.toDate?.() || new Date(), 'dd.MM.yyyy')}
+                     </span>
+                  </div>
                 </div>
 
-                <div className="flex flex-col gap-3 pt-4">
-                  <button type="submit" className="btn-green-glow w-full h-14">
-                    {editingContact ? 'Speichern' : 'Erstellen'}
-                  </button>
-                  <button type="button" onClick={closeModal} className="btn-red-glow w-full h-14">Abbrechen</button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-center">
+                <div className="space-y-6">
+                  <section>
+                    <h4 className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] mb-4">Kontaktinfo</h4>
+                    <div className="space-y-4">
+                      <div className="group">
+                        <label className="block text-[8px] font-black text-brand-muted uppercase tracking-wider mb-1 px-1 opacity-50">Telefon</label>
+                        <div className="text-sm font-black text-brand break-all">
+                          {selectedContact.phone || '--'}
+                        </div>
+                      </div>
+                      <div className="group">
+                        <label className="block text-[8px] font-black text-brand-muted uppercase tracking-wider mb-1 px-1 opacity-50">E-Mail</label>
+                        <div className="text-sm font-black text-brand break-all">
+                          {selectedContact.email || '--'}
+                        </div>
+                      </div>
+                    </div>
+                  </section>
                 </div>
-              </form>
-            </motion.div>
+                <div className="space-y-6">
+                  <section>
+                    <h4 className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] mb-4">Adresse</h4>
+                    <div className="text-sm font-black text-brand whitespace-pre-wrap leading-relaxed text-center">
+                      {selectedContact.address || '--'}
+                    </div>
+                  </section>
+                </div>
+              </div>
+
+              {selectedContact.notes && (
+                <section className="text-center">
+                  <h4 className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] mb-4">Notizen</h4>
+                  <div className="text-sm font-black text-brand whitespace-pre-wrap leading-relaxed bg-accent/[0.03] p-4 rounded-2xl text-center">
+                    {selectedContact.notes}
+                  </div>
+                </section>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center text-brand-muted">
+            <div className="w-16 h-16 flex items-center justify-center mb-4 text-brand dark:text-white">
+               <User size={48} />
+            </div>
+            <p className="font-medium">Wähle einen Kontakt aus</p>
           </div>
         )}
-      </AnimatePresence>
+      </div>
     </div>
   );
 }

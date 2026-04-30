@@ -350,11 +350,8 @@ export default function Household() {
 
   return (
     <div className="max-w-5xl mx-auto flex flex-col relative z-10 w-full px-0 sm:px-0 pb-10">
-      <header className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
-        <div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white uppercase">Haushaltsbuch</h1>
-        </div>
-        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+      <header className="mb-10 flex flex-col sm:flex-row justify-end items-start sm:items-end gap-6">
+        <div className="flex flex-wrap items-center sm:justify-end gap-3 w-full sm:w-auto">
           <select 
             value={filterMonth} 
             onChange={(e) => setFilterMonth(e.target.value)}

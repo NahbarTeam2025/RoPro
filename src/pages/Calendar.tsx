@@ -201,36 +201,36 @@ export default function Calendar() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 relative z-10 w-full px-0 sm:px-0 pb-10 lg:pb-6">
-      <div className="glass-card rounded-[2.5rem] p-6 mb-6">
-        <div className="flex items-center justify-between gap-4">
+      <div className="glass-card rounded-[2rem] p-3 mb-4">
+        <div className="flex items-center justify-between gap-3">
           <div className="hidden sm:block shrink-0">
             <button 
               onClick={() => setCurrentDate(new Date())}
-              className="btn-briefing-glow h-12 px-6 flex items-center justify-center shrink-0"
+              className="btn-briefing-glow h-10 px-5 text-sm flex items-center justify-center shrink-0"
             >
               Heute
             </button>
           </div>
 
           <div className="flex-1 px-1 sm:px-4 flex justify-center">
-            <h1 className="text-xl sm:text-3xl font-black tracking-tighter text-brand capitalize leading-none text-center flex flex-col items-center">
+            <h1 className="text-lg sm:text-2xl font-black tracking-tighter text-brand capitalize leading-none text-center flex flex-row items-baseline gap-2">
               <span className="block">{format(currentDate, "MMMM", { locale: de })}</span>
-              <span className="text-[10px] sm:text-lg opacity-40 mt-1 tracking-widest block">{format(currentDate, "yyyy")}</span>
+              <span className="text-[10px] sm:text-sm opacity-40 tracking-widest block">{format(currentDate, "yyyy")}</span>
             </h1>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <button 
               onClick={prevMonth}
-              className="w-12 h-12 flex items-center justify-center rounded-[1.25rem] bg-white dark:bg-white/[0.03] border border-slate-200/50 dark:border-white/5 text-brand shadow-sm hover:bg-slate-50 dark:hover:bg-white/[0.08] transition-all active:scale-90"
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-white/[0.03] border border-slate-200/50 dark:border-white/5 text-brand shadow-sm hover:bg-slate-50 dark:hover:bg-white/[0.08] transition-all active:scale-90"
             >
-              <ChevronLeft size={24} />
+              <ChevronLeft size={20} />
             </button>
             <button 
               onClick={nextMonth}
-              className="w-12 h-12 flex items-center justify-center rounded-[1.25rem] bg-white dark:bg-white/[0.03] border border-slate-200/50 dark:border-white/5 text-brand shadow-sm hover:bg-slate-50 dark:hover:bg-white/[0.08] transition-all active:scale-90"
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-white/[0.03] border border-slate-200/50 dark:border-white/5 text-brand shadow-sm hover:bg-slate-50 dark:hover:bg-white/[0.08] transition-all active:scale-90"
             >
-              <ChevronRight size={24} />
+              <ChevronRight size={20} />
             </button>
           </div>
         </div>
@@ -323,10 +323,20 @@ export default function Calendar() {
         </div>
       </div>
 
+      <div className="flex justify-center mt-8 px-4">
+        <button 
+          onClick={() => handleDayClick(new Date(), null)}
+          className="btn-blue-glow w-full sm:w-auto px-12 h-16 rounded-[2rem] flex items-center justify-center gap-4 font-black text-sm uppercase tracking-[0.15em] transition-all active:scale-95"
+        >
+          <Plus size={20} strokeWidth={4} />
+          <span>Hinzufügen</span>
+        </button>
+      </div>
+
       {/* Modal / Dialog for day actions */}
       {selectedDay && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl p-4 sm:p-8 pt-32 sm:pt-40 pb-10 overflow-hidden">
-          <div className="glass-card shadow-2xl w-full max-w-[480px] rounded-[2.5rem] overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col relative max-h-full">
+        <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/80 backdrop-blur-xl p-4 sm:p-6 pt-16 sm:pt-20 pb-6 overflow-hidden">
+          <div className="glass-card shadow-2xl w-full max-w-[480px] rounded-[2.5rem] overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col relative h-full max-h-[calc(100vh-theme(spacing.32))]">
             {/* Google Search Quick Access in Calendar Modal too? No, just keep the close button. */}
             <div className="p-6 border-b border-slate-200/50 dark:border-white/10 flex justify-between items-center shrink-0">
               <div>
@@ -419,7 +429,7 @@ export default function Calendar() {
               <form onSubmit={editingAppointment ? handleUpdateTask : handleAddTask} className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-bold text-brand-muted uppercase tracking-widest">
-                    {editingAppointment ? 'Termin bearbeiten' : 'Neuer Termin'}
+                    {editingAppointment ? 'Bearbeiten' : 'Hinzufügen'}
                   </h4>
                   {editingAppointment && (
                     <button 
@@ -483,7 +493,7 @@ export default function Calendar() {
                   <button 
                     type="submit" 
                     disabled={!newTaskText.trim() || isAddingTask}
-                    className="btn-green-glow px-8 disabled:opacity-50"
+                    className="btn-blue-glow px-8 disabled:opacity-50 !h-14"
                   >
                     {isAddingTask ? 'Speichert...' : (editingAppointment ? 'Speichern' : 'Hinzufügen')}
                   </button>

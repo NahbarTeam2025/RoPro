@@ -94,6 +94,7 @@ export default function Tasks() {
       setPriority('medium');
       setCategoryId('');
       setIsRecurring(false);
+      setIsFormExpanded(false);
     } catch (error) {
       console.error("Error adding task:", error);
     }
@@ -188,225 +189,344 @@ export default function Tasks() {
   const completedTodos = filteredTodos.filter(t => t.completed);
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col relative z-10 pb-6">
-      <header className="mb-6 sm:mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 px-0 sm:px-0">
-        <div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white uppercase">Aufgaben</h1>
-        </div>
-        <div className="flex w-full overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 items-center gap-2 custom-scrollbar">
-           <button 
-             onClick={() => setShowCatManager(true)}
-             className="bg-white/10 dark:bg-black/20 hover:bg-white/20 dark:hover:bg-black/40 h-10 w-10 rounded-xl border border-white/5 flex items-center justify-center shrink-0 transition-all shadow-none"
-             title="Kategorien verwalten"
-           >
-             <Settings2 size={20} className="text-brand-muted" />
-           </button>
-           <select 
-              value={filterCategory} 
-              onChange={(e) => setFilterCategory(e.target.value)}
-              className="glass-input h-10 w-32 sm:w-36 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider shrink-0"
-           >
-             <option value="all">Kategorie</option>
-             {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-           </select>
-           <select 
-              value={filterMonth} 
-              onChange={(e) => setFilterMonth(e.target.value)}
-              className="glass-input h-10 w-32 sm:w-36 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider shrink-0"
-           >
-             <option value="all">Zeitraum</option>
-             {availableMonths.map(m => (
-               <option key={m} value={m}>{format(new Date(`${m}-01`), 'MMMM yyyy', { locale: de })}</option>
-             ))}
-           </select>
-        </div>
-      </header>
-
-      <div className="flex-1 flex flex-col gap-6 px-0 sm:px-0">
-        <div className="glass-card p-6 sm:p-8 rounded-[2.5rem] flex flex-col gap-0 transition-all duration-300">
-          <div 
-            className="flex items-center justify-between cursor-pointer group"
-            onClick={() => setIsFormExpanded(!isFormExpanded)}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-accent/10 text-accent flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-all">
-                <Plus size={20} className={cn("transition-transform duration-300", isFormExpanded ? "rotate-45" : "")} />
-              </div>
-              <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">Neue Aufgabe</h2>
+    <div className="h-full flex flex-col md:flex-row gap-6 relative z-10 w-full pb-6">
+      {/* Sidebar / List */}
+      <div className={cn(
+        "w-full md:w-80 flex-col glass-card rounded-3xl overflow-hidden flex-shrink-0 transition-all",
+        editTask || isFormExpanded ? "hidden md:flex" : "flex h-full"
+      )}>
+        <div className="p-4 border-b border-slate-200/50 dark:border-white/10 space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <h2 className="font-bold text-slate-900 dark:text-white text-sm uppercase">Aufgaben</h2>
+            <div className="flex items-center gap-1">
+              <button 
+                onClick={() => setShowCatManager(true)} 
+                className="p-2 text-brand-muted hover:text-accent hover:bg-accent/10 rounded-xl transition-all cursor-pointer"
+                title="Kategorien verwalten"
+              >
+                <Settings2 size={18} />
+              </button>
+              <button 
+                onClick={() => { setIsFormExpanded(true); setEditTask(null); }} 
+                className="p-2 bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white rounded-xl transition-all cursor-pointer font-bold flex items-center justify-center"
+              >
+                 <Plus size={18} />
+              </button>
             </div>
-            <button type="button" className="p-2 text-brand-muted group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
-              <ChevronDown size={20} className={cn("transition-transform duration-300", isFormExpanded ? "rotate-180" : "")} />
-            </button>
           </div>
+          <div className="flex gap-2">
+             <select 
+                value={filterCategory} 
+                onChange={(e) => setFilterCategory(e.target.value)}
+                className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider px-2"
+             >
+               <option value="all">Kategorie</option>
+               {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+             </select>
+             <select 
+                value={filterMonth} 
+                onChange={(e) => setFilterMonth(e.target.value)}
+                className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider px-2"
+             >
+               <option value="all">Zeitraum</option>
+               {availableMonths.map(m => (
+                 <option key={m} value={m}>{format(new Date(`${m}-01`), 'MMM yy', { locale: de })}</option>
+               ))}
+             </select>
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <div className="space-y-6 flex flex-col h-full">
+            <div className="flex-1 space-y-6">
+              {/* Active Tasks */}
+              <div className="space-y-1">
+                <div className="px-4 py-2 flex items-center justify-between sticky top-0 z-10 bg-white/10 dark:bg-black/20 backdrop-blur-md">
+                  <span className="text-[10px] font-black text-brand-muted uppercase tracking-widest">Aktiv</span>
+                  <span className="text-[10px] font-black text-brand-muted px-2 py-0.5 rounded-full bg-slate-500/10">
+                    {activeTodos.length}
+                  </span>
+                </div>
+                {activeTodos.length === 0 ? (
+                  <div className="p-8 text-center text-[10px] uppercase font-bold text-brand-muted tracking-widest">Keine Aufgaben</div>
+                ) : (
+                  <div className="flex flex-col">
+                    {activeTodos.map(todo => (
+                      <TaskItem 
+                        key={todo.id} 
+                        todo={todo} 
+                        isActive={editTask?.id === todo.id}
+                        onToggle={() => toggleTodo(todo)} 
+                        onDelete={() => setDeleteModal({ open: true, id: todo.id })} 
+                        onEdit={() => { setEditTask(todo); setIsFormExpanded(false); }}
+                        categories={categories} 
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
 
-          <div className={cn(
-            "grid transition-all duration-300 ease-in-out",
-            isFormExpanded ? "grid-rows-[1fr] opacity-100 mt-6 pt-6 border-t border-slate-200/50 dark:border-white/5" : "grid-rows-[0fr] opacity-0 mt-0"
-          )}>
-            <div className="overflow-hidden">
-              <form onSubmit={(e) => { addTask(e); setIsFormExpanded(false); }} className="flex flex-col gap-8">
-                <div className="space-y-2.5 flex flex-col">
-                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Was steht an?</label>
-                  <div className="relative group">
-                    <input
-                      type="text"
-                      value={newTask}
-                      onChange={(e) => setNewTask(e.target.value)}
-                      placeholder="Neue Aufgabe tippen..."
-                      className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-accent/[0.03] focus:bg-accent/[0.06] transition-all placeholder-slate-400 dark:placeholder-slate-500"
-                      required
-                    />
-                    <div className="absolute left-0 bottom-0 w-0 h-1 bg-accent transition-all duration-300 group-focus-within:w-full" />
+              {/* Completed Tasks */}
+              {completedTodos.length > 0 && (
+                <div className="space-y-1">
+                  <div className="px-4 py-2 flex items-center justify-between sticky top-0 z-10 bg-white/10 dark:bg-black/20 backdrop-blur-md">
+                    <span className="text-[10px] font-black text-brand-muted uppercase tracking-widest">Erledigt</span>
+                    <span className="text-[10px] font-black text-brand-muted px-2 py-0.5 rounded-full bg-slate-500/10">
+                      {completedTodos.length}
+                    </span>
+                  </div>
+                  <div className="flex flex-col opacity-60 hover:opacity-100 transition-opacity">
+                    {completedTodos.map(todo => (
+                      <TaskItem 
+                        key={todo.id} 
+                        todo={todo} 
+                        isActive={editTask?.id === todo.id}
+                        onToggle={() => toggleTodo(todo)} 
+                        onDelete={() => setDeleteModal({ open: true, id: todo.id })} 
+                        onEdit={() => { setEditTask(todo); setIsFormExpanded(false); }}
+                        categories={categories} 
+                      />
+                    ))}
                   </div>
                 </div>
-                
-                <div className="flex flex-wrap items-center gap-x-8 gap-y-6">
-                  <div className="min-w-[140px] flex-1 space-y-4 flex flex-col border-l border-white/5 pl-4">
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Datum</label>
-                      <input
-                        type="date"
-                        value={date}
-                        onChange={(e) => setDate(e.target.value)}
-                        className="glass-input h-9 text-[10px] bg-transparent border-none p-0 focus:ring-0"
-                      />
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className={cn(
+        "flex-1 glass-card rounded-3xl overflow-hidden flex-col min-w-0 transition-all h-full",
+        !editTask && !isFormExpanded ? "hidden md:flex" : "flex"
+      )}>
+        {editTask ? (
+          <div className="flex-1 flex flex-col h-full bg-transparent p-6 sm:p-10 overflow-y-auto custom-scrollbar">
+             <div className="flex items-center justify-between mb-10">
+                <button 
+                  onClick={() => setEditTask(null)}
+                  className="md:hidden p-2 text-brand-muted hover:text-brand"
+                >
+                  <Clock size={24} className="rotate-90" />
+                </button>
+                <h3 className="text-2xl font-black text-brand tracking-tight">Bearbeiten</h3>
+                <button onClick={() => setEditTask(null)} className="p-2 text-brand-muted hover:text-brand transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5">
+                  <X size={24} />
+                </button>
+              </div>
+              
+              <div className="max-w-xl mx-auto w-full space-y-8">
+                <div className="space-y-2 flex flex-col">
+                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Aufgabe</label>
+                  <input
+                    type="text"
+                    defaultValue={editTask.task}
+                    id="edit-task-input"
+                    className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-accent/[0.03] focus:bg-accent/[0.06] transition-all"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Priorität</label>
+                      <select
+                        id="edit-priority-select"
+                        defaultValue={editTask.priority}
+                        className="glass-input h-12 text-sm font-black uppercase appearance-none"
+                      >
+                        <option value="high">🔴 Hoch</option>
+                        <option value="medium">🟡 Mittel</option>
+                        <option value="low">🟢 Niedrig</option>
+                      </select>
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Uhrzeit</label>
-                      <input
-                        type="time"
-                        value={time}
-                        onChange={(e) => setTime(e.target.value)}
-                        className="glass-input h-9 text-[10px] bg-transparent border-none p-0 focus:ring-0"
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Kategorie</label>
+                      <CategorySelect 
+                        type="task" 
+                        defaultValue={editTask.categoryId}
+                        id="edit-category-select"
+                        className="h-12 text-sm font-black uppercase"
                       />
                     </div>
                   </div>
-                  <div className="w-full sm:w-32 space-y-2 flex flex-col border-l border-white/5 pl-4">
-                    <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Priorität</label>
+                  <div className="space-y-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Datum</label>
+                      <input
+                        type="date"
+                        id="edit-date-input"
+                        defaultValue={editTask.dueDate ? format(new Date(editTask.dueDate), 'yyyy-MM-dd') : ''}
+                        className="glass-input h-12 text-sm font-black"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Uhrzeit</label>
+                      <input
+                        type="time"
+                        id="edit-time-input"
+                        defaultValue={editTask.dueDate ? format(new Date(editTask.dueDate), 'HH:mm') : ''}
+                        className="glass-input h-12 text-sm font-black"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-3 pt-8">
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      const taskInput = document.getElementById('edit-task-input') as HTMLInputElement;
+                      const prioritySelect = document.getElementById('edit-priority-select') as HTMLSelectElement;
+                      const dateInput = document.getElementById('edit-date-input') as HTMLInputElement;
+                      const timeInput = document.getElementById('edit-time-input') as HTMLInputElement;
+                      
+                      let finalDueDate = null;
+                      if (dateInput.value) {
+                         finalDueDate = new Date(`${dateInput.value}T${timeInput.value || '00:00'}:00`).toISOString();
+                      }
+
+                      handleUpdateTask({
+                        ...editTask,
+                        task: taskInput.value,
+                        priority: prioritySelect.value as any,
+                        dueDate: finalDueDate,
+                        categoryId: (document.getElementById('edit-category-select') as HTMLSelectElement)?.value || ''
+                      });
+                    }}
+                    className="btn-green-glow w-full h-14 font-black uppercase tracking-widest"
+                  >
+                    Speichern
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => setEditTask(null)}
+                    className="btn-cancel w-full h-14 font-black uppercase tracking-widest"
+                  >
+                    Abbrechen
+                  </button>
+                </div>
+              </div>
+          </div>
+        ) : isFormExpanded ? (
+          <div className="flex-1 flex flex-col h-full bg-transparent p-6 sm:p-10 overflow-y-auto custom-scrollbar">
+            <div className="flex items-center justify-between mb-10">
+              <h3 className="text-2xl font-black text-brand tracking-tight">Hinzufügen</h3>
+              <button onClick={() => setIsFormExpanded(false)} className="p-2 text-brand-muted hover:text-brand transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5">
+                <X size={24} />
+              </button>
+            </div>
+
+            <form onSubmit={addTask} className="max-w-xl mx-auto w-full space-y-8">
+              <div className="space-y-2 flex flex-col">
+                <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Was steht an?</label>
+                <input
+                  type="text"
+                  value={newTask}
+                  onChange={(e) => setNewTask(e.target.value)}
+                  placeholder="Aufgabe beschreiben..."
+                  className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-accent/[0.03] focus:bg-accent/[0.06] transition-all"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Priorität</label>
                     <select
                       value={priority}
                       onChange={(e) => setPriority(e.target.value as any)}
-                      className="glass-input h-9 text-[10px] font-black uppercase appearance-none bg-transparent border-none p-0 focus:ring-0"
+                      className="glass-input h-12 text-sm font-black uppercase appearance-none"
                     >
-                      <option value="high" className="bg-[#1C1C1E]">🔴 Hoch</option>
-                      <option value="medium" className="bg-[#1C1C1E]">🟡 Mittel</option>
-                      <option value="low" className="bg-[#1C1C1E]">🟢 Niedrig</option>
+                      <option value="high">🔴 Hoch</option>
+                      <option value="medium">🟡 Mittel</option>
+                      <option value="low">🟢 Niedrig</option>
                     </select>
                   </div>
-                  <div className="w-full sm:w-40 space-y-2 flex flex-col border-l border-white/5 pl-4">
-                    <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Kategorie</label>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Kategorie</label>
                     <CategorySelect 
                       type="task" 
                       value={categoryId} 
                       onChange={setCategoryId}
-                      className="h-9 px-4"
+                      className="h-12 text-sm font-black uppercase"
                     />
                   </div>
-                  <div className="w-full sm:w-auto space-y-2 flex flex-col border-l border-white/5 pl-4">
-                    <label className="text-[9px] font-black text-brand-muted uppercase tracking-widest">Wiederholen</label>
-                    <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setIsRecurring(!isRecurring)}
-                          className={cn(
-                            "h-9 px-3 rounded-xl border flex items-center justify-center gap-2 transition-all font-black text-[9px] uppercase tracking-wider",
-                            isRecurring ? "bg-accent text-white" : "bg-white/5 border-white/5 text-brand-muted hover:text-slate-900 dark:hover:text-white"
-                          )}
-                        >
-                          {isRecurring ? <Check size={12} strokeWidth={3} /> : null}
-                          <span>{isRecurring ? 'An' : 'Aus'}</span>
-                        </button>
-                        {isRecurring && (
-                          <select
-                            value={recurrenceInterval}
-                            onChange={(e) => setRecurrenceInterval(e.target.value as any)}
-                            className="h-9 bg-accent/10 border-none rounded-xl px-2 text-[9px] font-black uppercase tracking-wider text-brand dark:text-white"
-                          >
-                            <option value="daily" className="bg-[#1C1C1E]">Täglich</option>
-                            <option value="weekly" className="bg-[#1C1C1E]">Wöchentlich</option>
-                            <option value="monthly" className="bg-[#1C1C1E]">Monatlich</option>
-                          </select>
-                        )}
-                    </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Datum</label>
+                    <input
+                      type="date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      className="glass-input h-12 text-sm font-black"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Uhrzeit</label>
+                    <input
+                      type="time"
+                      value={time}
+                      onChange={(e) => setTime(e.target.value)}
+                      className="glass-input h-12 text-sm font-black"
+                    />
                   </div>
                 </div>
+              </div>
 
-                <div className="flex justify-center border-t border-white/5 pt-8">
+              <div className="space-y-4">
+                <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Wiederholung</label>
+                <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsRecurring(!isRecurring)}
+                      className={cn(
+                        "flex-1 h-12 rounded-2xl border flex items-center justify-center gap-2 transition-all font-black text-[10px] uppercase tracking-wider",
+                        isRecurring ? "bg-accent text-white" : "bg-white/5 border-white/5 text-brand-muted"
+                      )}
+                    >
+                      {isRecurring ? <Check size={14} strokeWidth={3} /> : null}
+                      <span>Wiederholung {isRecurring ? 'An' : 'Aus'}</span>
+                    </button>
+                    {isRecurring && (
+                      <select
+                        value={recurrenceInterval}
+                        onChange={(e) => setRecurrenceInterval(e.target.value as any)}
+                        className="flex-1 h-12 glass-input px-4 text-[10px] font-black uppercase tracking-wider"
+                      >
+                        <option value="daily">Täglich</option>
+                        <option value="weekly">Wöchentlich</option>
+                        <option value="monthly">Monatlich</option>
+                      </select>
+                    )}
+                </div>
+              </div>
+
+              <div className="pt-8">
                   <button
                     type="submit"
-                    className="btn-green-glow px-10 flex items-center justify-center gap-3 group h-14"
+                    className="btn-green-glow w-full h-14 font-black uppercase tracking-[0.2em]"
                   >
-                    <Plus size={24} className="group-hover:rotate-90 transition-transform duration-300" />
-                    <span>Aufgabe Hinzufügen</span>
+                    Hinzufügen
                   </button>
-                </div>
-              </form>
-            </div>
+              </div>
+            </form>
           </div>
-        </div>
-
-        <div className="flex-1 space-y-8">
-          {/* Active Tasks */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between mb-2">
-            <h2 className="pro-heading !text-slate-900 dark:!text-white">Aktive Aufgaben</h2>
-              <span className="text-[10px] font-black text-brand-muted px-2.5 py-1 rounded-full uppercase tracking-widest">{activeTodos.length}</span>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center text-brand-muted">
+            <div className="w-16 h-16 flex items-center justify-center mb-4 text-brand dark:text-white">
+               <Check size={48} />
             </div>
-            
-            <div className="flex-1 border border-slate-200/50 dark:border-white/5 rounded-[2.5rem] overflow-hidden shadow-inner">
-              <div className="max-h-[420px] overflow-y-auto custom-scrollbar p-1">
-                {activeTodos.map(todo => (
-                  <TaskItem 
-                    key={todo.id} 
-                    todo={todo} 
-                    onToggle={() => toggleTodo(todo)} 
-                    onDelete={() => setDeleteModal({ open: true, id: todo.id })} 
-                    onEdit={() => setEditTask(todo)}
-                    categories={categories} 
-                  />
-                ))}
-                {activeTodos.length === 0 && (
-                  <div className="text-center">
-                     <div className="w-12 h-12 text-brand flex items-center justify-center mx-auto mb-4">
-                      <Check size={32} />
-                    </div>
-                    <h3 className="pro-heading !text-slate-900 dark:text-white">Alles geschafft</h3>
-                    <p className="mt-1 text-sm font-medium text-brand-muted">Du hast keine anstehenden Aufgaben.</p>
-                  </div>
-                )}
-              </div>
-            </div>
+            <p className="font-medium">Wähle eine Aufgabe aus oder erstelle eine neue</p>
           </div>
-
-          {/* Completed Tasks */}
-          {completedTodos.length > 0 && (
-            <div className="pt-4">
-              <div className="flex items-center justify-between mb-4 border-b border-slate-200/50 dark:border-white/10 pb-2">
-                <h3 className="pro-heading">Abgeschlossen</h3>
-                <span className="text-[10px] font-black text-brand-muted">{completedTodos.length}</span>
-              </div>
-              <div className="border border-slate-200/50 dark:border-white/5 rounded-[2.5rem] overflow-hidden shadow-inner">
-                <div className="max-h-[420px] overflow-y-auto custom-scrollbar opacity-60 hover:opacity-100 transition-opacity duration-300 p-1">
-                  {completedTodos.map(todo => (
-                    <TaskItem 
-                      key={todo.id} 
-                      todo={todo} 
-                      onToggle={() => toggleTodo(todo)} 
-                      onDelete={() => setDeleteModal({ open: true, id: todo.id })} 
-                      onEdit={() => setEditTask(todo)}
-                      categories={categories} 
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
       {/* Custom Delete Modal */}
       {deleteModal && deleteModal.open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl">
           <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
             <p className="text-sm text-[#86868B] mb-8">Diese Aufgabe wird unwiderruflich entfernt.</p>
@@ -430,250 +550,65 @@ export default function Tasks() {
         </div>
       )}
 
-      {/* Edit Modal */}
-      {editTask && (
-        <EditTaskModal 
-          todo={editTask} 
-          categories={categories} 
-          onClose={() => setEditTask(null)} 
-          onSave={handleUpdateTask} 
-        />
-      )}
-      
-      {/* Category Manager Modal */}
       {showCatManager && <CategoryManager type="task" onClose={() => setShowCatManager(false)} />}
     </div>
   );
 }
 
-function EditTaskModal({ todo, categories, onClose, onSave }: { todo: Todo, categories: any[], onClose: () => void, onSave: (todo: Todo) => void }) {
-  const [task, setTask] = useState(todo.task);
-  const [priority, setPriority] = useState(todo.priority);
-  const [date, setDate] = useState(() => {
-    if (!todo.dueDate) return '';
-    try {
-      return format(new Date(todo.dueDate), 'yyyy-MM-dd');
-    } catch { return ''; }
-  });
-  const [time, setTime] = useState(() => {
-    if (!todo.dueDate) return '';
-    try {
-      return format(new Date(todo.dueDate), 'HH:mm');
-    } catch { return ''; }
-  });
-  const [categoryId, setCategoryId] = useState(todo.categoryId);
-  const [isRecurring, setIsRecurring] = useState(!!todo.isRecurring);
-  const [recurrenceInterval, setRecurrenceInterval] = useState<'daily' | 'weekly' | 'monthly'>(todo.recurrenceInterval || 'weekly');
-
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl">
-      <div className="glass-card w-full max-w-[480px] max-h-[90vh] overflow-y-auto rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)] custom-scrollbar relative">
-        <div className="flex items-center justify-between mb-10">
-          <h3 className="text-2xl font-black text-brand tracking-tight">Bearbeiten</h3>
-          <button onClick={onClose} className="p-2 text-brand-muted hover:text-brand transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5">
-            <X size={24} />
-          </button>
-        </div>
-        
-        <div className="space-y-4 mb-8">
-          <div className="space-y-1.5 flex flex-col">
-            <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Aufgabe</label>
-            <input
-              type="text"
-              value={task}
-              onChange={(e) => setTask(e.target.value)}
-              className="glass-input h-10"
-              required
-            />
-          </div>
-          <div className="space-y-4">
-            <div className="space-y-1.5 flex flex-col">
-              <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Priorität</label>
-              <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value as any)}
-                className="glass-input h-10 appearance-none bg-white dark:bg-[#050505]"
-              >
-                <option value="high">Hoch</option>
-                <option value="medium">Mittel</option>
-                <option value="low">Niedrig</option>
-              </select>
-            </div>
-            <div className="space-y-1.5 flex flex-col">
-              <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Kategorie</label>
-              <CategorySelect 
-                type="task" 
-                value={categoryId} 
-                onChange={setCategoryId}
-                className="glass-input h-10"
-              />
-            </div>
-            <div className="space-y-4">
-              <div className="space-y-1.5 flex flex-col">
-                <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Datum</label>
-                <input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="glass-input h-10"
-                />
-              </div>
-              <div className="space-y-1.5 flex flex-col">
-                <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Uhrzeit</label>
-                <input
-                  type="time"
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  className="glass-input h-10"
-                />
-              </div>
-            </div>
-            <div className="space-y-1.5 flex flex-col">
-              <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Wiederholen</label>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsRecurring(!isRecurring)}
-                  className={cn(
-                    "flex-1 h-10 rounded-xl border flex items-center justify-center gap-2 transition-all font-bold text-[10px] uppercase",
-                    isRecurring ? "bg-accent text-white shadow-lg shadow-accent/20" : "bg-slate-500/10 border-transparent text-brand-muted"
-                  )}
-                >
-                  {isRecurring ? <Check size={12} /> : null}
-                  <span>An</span>
-                </button>
-                {isRecurring && (
-                  <select
-                    value={recurrenceInterval}
-                    onChange={(e) => setRecurrenceInterval(e.target.value as any)}
-                    className="flex-1 h-10 glass-input px-2 text-[10px] font-bold uppercase"
-                  >
-                    <option value="daily">Täglich</option>
-                    <option value="weekly">Wöchentlich</option>
-                    <option value="monthly">Monatlich</option>
-                  </select>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <button 
-            type="button"
-            onClick={() => {
-              let finalDueDate = todo.dueDate;
-              if (date) {
-                finalDueDate = new Date(`${date}T${time || '00:00'}:00`).toISOString();
-              } else {
-                finalDueDate = null;
-              }
-              onSave({ 
-                ...todo, 
-                task, 
-                priority, 
-                dueDate: finalDueDate, 
-                categoryId,
-                isRecurring,
-                recurrenceInterval: isRecurring ? recurrenceInterval : null
-              });
-            }}
-            className="btn-green-glow w-full h-14"
-          >
-            Speichern
-          </button>
-          <button 
-            type="button"
-            onClick={onClose}
-            className="btn-red-glow w-full h-14"
-          >
-            Abbrechen
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function TaskItem({ todo, onToggle, onDelete, onEdit, categories }: { todo: Todo, onToggle: () => void, onDelete: () => void, onEdit: () => void, categories: any[] }) {
+function TaskItem({ todo, isActive, onToggle, onDelete, onEdit, categories }: { todo: Todo, isActive?: boolean, onToggle: () => void, onDelete: () => void, onEdit: () => void, categories: any[] }) {
   const isOverdue = todo.dueDate && !todo.completed && new Date(todo.dueDate) < new Date();
   const catName = categories.find(c => c.id === todo.categoryId)?.name || todo.categoryId || '';
   
   return (
     <div className={cn(
-      "group flex items-center justify-between p-4 refined-list-item border-l-2 rounded-none",
-      todo.completed && "opacity-60",
-      isOverdue && !todo.completed && "bg-red-500/[0.03]"
+      "w-full text-left p-4 refined-list-item transition-all focus:outline-none cursor-pointer group relative border-l-2 rounded-none",
+      isActive ? "bg-black/[0.03] dark:bg-white/[0.05]" : "bg-transparent border-transparent",
+      todo.completed && "opacity-60"
     )}
     style={{ borderLeftColor: todo.completed ? 'transparent' : (
       todo.priority === 'high' ? '#FF3B30' : 
       todo.priority === 'medium' ? '#FF9500' : 
       '#34C759'
     ) }}
+    onClick={onEdit}
     >
-      <div className="flex items-start gap-4 overflow-hidden">
+      <div className="flex items-start gap-3 overflow-hidden">
         <button 
           type="button"
-          onClick={onToggle}
+          onClick={(e) => { e.stopPropagation(); onToggle(); }}
           className={cn(
-            "flex-shrink-0 w-5 h-5 rounded border mt-0.5 flex items-center justify-center transition-all cursor-pointer",
+            "flex-shrink-0 w-4 h-4 rounded border mt-0.5 flex items-center justify-center transition-all cursor-pointer",
             todo.completed ? "bg-accent border-accent text-white" : "border-slate-300 dark:border-white/10 text-transparent hover:border-accent bg-transparent"
           )}
         >
-          <Check size={12} className="stroke-[4]" />
+          <Check size={10} className="stroke-[4]" />
         </button>
-        <div className="min-w-0 flex flex-col justify-center cursor-pointer" onClick={onEdit}>
-          <p className={cn(
-            "text-sm font-bold truncate transition-all mb-1 tracking-tight",
+        <div className="min-w-0 flex-1">
+          <h3 className={cn(
+            "text-sm font-bold truncate tracking-tight",
             todo.completed ? "text-brand-muted line-through" : "text-slate-900 dark:text-white"
           )}>
             {todo.task}
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
-            <span className={cn(
-              "pro-heading !text-[9px]",
-              todo.priority === 'high' ? "!text-red-500" :
-              todo.priority === 'medium' ? "!text-amber-500" :
-              "!text-green-500"
-            )}>
-              {todo.priority === 'high' ? 'Prio: Hoch' : todo.priority === 'medium' ? 'Prio: Mittel' : 'Prio: Niedrig'}
-            </span>
-            {catName && (
-              <span className="pro-heading !text-[9px] !text-brand-muted/70">
-                {catName}
-              </span>
-            )}
-            {todo.isRecurring && (
-              <span className="pro-heading !text-[9px] !text-slate-400 flex items-center gap-0.5">
-                <Clock size={8} className="text-slate-400" /> Wiederkehrend ({todo.recurrenceInterval === 'daily' ? 'Täglich' : todo.recurrenceInterval === 'weekly' ? 'Wöchentlich' : 'Monatlich'})
-              </span>
-            )}
-            {todo.dueDate && (
-              <span className={cn(
-                "inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-[0.1em]",
-                isOverdue && !todo.completed ? "text-red-500" : "text-brand-muted/60"
-              )}>
-                {isOverdue && !todo.completed ? <AlertCircle size={10} className="stroke-[3] text-red-500" /> : <Clock size={10} className="stroke-[3] text-slate-400" />}
-                {format(new Date(todo.dueDate), 'd. MMM, HH:mm')}
-              </span>
-            )}
+          </h3>
+          <div className="flex items-center justify-between mt-1">
+             <span className="pro-heading !text-[8px]">
+               {catName || 'Aufgabe'}
+             </span>
+             {todo.dueDate && (
+               <span className={cn(
+                 "text-[8px] font-black uppercase tracking-tighter",
+                 isOverdue && !todo.completed ? "text-red-500" : "text-brand-muted/50"
+               )}>
+                 {format(new Date(todo.dueDate), 'd. MMM • HH:mm')}
+               </span>
+             )}
           </div>
         </div>
-      </div>
-      <div className="flex items-center gap-1">
-        <button 
-          onClick={onEdit}
-          className="p-2 text-brand-muted hover:text-accent hover:bg-accent/10 rounded-lg lg:opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
-          aria-label="Aufgabe bearbeiten"
+        <button
+          onClick={(e) => { e.stopPropagation(); onDelete(); }}
+          className="p-1 text-brand-muted hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition-opacity"
         >
-          <Edit2 size={14} />
-        </button>
-        <button 
-          onClick={onDelete}
-          className="p-2 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg lg:opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
-          aria-label="Aufgabe löschen"
-        >
-          <Trash2 size={14} />
+          <Trash2 size={12} />
         </button>
       </div>
     </div>

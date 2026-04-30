@@ -48,6 +48,7 @@ export default function Links() {
   ];
 
   const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [filterMonth, setFilterMonth] = useState<string>('all');
   const [showCatManager, setShowCatManager] = useState(false);
 
   useEffect(() => {
@@ -75,6 +76,9 @@ export default function Links() {
   const togglePin = async (link: LinkItem) => {
     if (!user) return;
     try {
+      if (editLink?.id === link.id) {
+        setEditLink({ ...editLink, isPinned: !editLink.isPinned });
+      }
       await updateDoc(doc(db, 'links', link.id), {
         isPinned: !link.isPinned,
         updatedAt: serverTimestamp()
@@ -123,6 +127,9 @@ export default function Links() {
   const confirmDelete = async () => {
     if (!deleteModal || !user) return;
     try {
+      if (editLink?.id === deleteModal.id) {
+        setEditLink(null);
+      }
       await deleteDoc(doc(db, 'links', deleteModal.id));
       setDeleteModal(null);
     } catch (error) {
@@ -181,199 +188,316 @@ export default function Links() {
 
   const filteredLinks = links.filter(l => {
     if (filterCategory !== 'all' && l.categoryId !== filterCategory) return false;
+    if (filterMonth !== 'all') {
+      const monthStr = l.createdAt?.toDate ? format(l.createdAt.toDate(), 'yyyy-MM') : null;
+      if (monthStr !== filterMonth) return false;
+    }
     return true;
   });
-
   return (
-    <div className="max-w-5xl mx-auto flex flex-col relative z-10 w-full pb-10">
-      <header className="mb-6 sm:mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
-        <div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white uppercase">Links</h1>
-        </div>
-        <div className="flex flex-col sm:flex-row w-full sm:w-auto items-center gap-2">
-           <button 
-             onClick={() => setShowCatManager(true)}
-             className="btn-briefing-glow h-10 w-full sm:w-12 p-0 flex items-center justify-center shrink-0 mb-2 sm:mb-0"
-             title="Kategorien verwalten"
-           >
-             <Settings2 size={20} />
-           </button>
-           <div className="flex w-full sm:w-auto gap-2">
+    <div className="h-full flex flex-col md:flex-row gap-6 relative z-10 w-full pb-6">
+      {/* Sidebar List */}
+      <div className={cn(
+        "w-full md:w-80 flex-col glass-card rounded-3xl overflow-hidden flex-shrink-0 transition-all",
+        editLink || showAdd ? "hidden md:flex" : "flex h-full"
+      )}>
+        <div className="p-4 border-b border-slate-200/50 dark:border-white/10 space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <h2 className="font-bold text-slate-900 dark:text-white text-sm uppercase">Links</h2>
+            <div className="flex items-center gap-1">
+              <button 
+                onClick={() => setShowCatManager(true)}
+                className="p-2 text-brand-muted hover:text-accent hover:bg-accent/10 rounded-xl transition-all cursor-pointer"
+                title="Kategorien verwalten"
+              >
+                <Settings2 size={18} />
+              </button>
+              <button 
+                onClick={() => { setShowAdd(true); setEditLink(null); }} 
+                className="p-2 bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white rounded-xl transition-all cursor-pointer font-bold flex items-center justify-center"
+              >
+                 <Plus size={18} />
+              </button>
+            </div>
+          </div>
+          <div className="flex gap-2">
              <select 
                 value={filterCategory} 
                 onChange={(e) => setFilterCategory(e.target.value)}
-                className="glass-input h-10 w-full sm:w-48 appearance-none bg-white dark:bg-[#050505] text-xs font-bold uppercase tracking-wider px-4 text-center"
+                className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider px-2"
              >
-               <option value="all">Alle Kategorien</option>
+               <option value="all">Kategorie</option>
                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
              </select>
-           </div>
-           <button
-             onClick={() => setShowAdd(!showAdd)}
-             className="btn-briefing-glow px-6 flex w-full sm:w-auto justify-center items-center gap-2 shrink-0 h-10"
-           >
-             <Plus size={16} />
-             <span>Link hinzufügen</span>
-           </button>
-        </div>
-      </header>
-
-      {showAdd && (
-        <form onSubmit={addLink} className="glass-card p-6 rounded-3xl flex flex-col md:flex-row gap-4 items-end mb-6 animate-in fade-in slide-in-from-top-2">
-          <div className="w-full space-y-1.5">
-            <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Website-Titel</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="z.B. GitHub Repository"
-              className="glass-input"
-              required
-            />
-          </div>
-          <div className="w-full space-y-1.5">
-            <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">URL</label>
-            <input
-              type="text"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://example.com"
-              className="glass-input"
-              required
-            />
-          </div>
-          <div className="w-full space-y-1.5">
-            <label className="text-xs font-bold text-brand-muted uppercase tracking-wider mb-2">Kategorie</label>
-            <CategorySelect 
-              type="link" 
-              value={categoryId} 
-              onChange={setCategoryId}
-            />
-          </div>
-          <div className="w-full space-y-1.5">
-            <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Farbe</label>
-            <div className="flex items-center gap-2 h-10">
-               {colors.map(c => (
-                 <button
-                    key={c.name}
-                    type="button"
-                    onClick={() => setColor(c.value)}
-                    className={cn(
-                      "w-8 h-8 rounded-full border-2 transition-all",
-                      color === c.value ? "border-accent scale-110 shadow-[0_0_15px_rgba(37,99,235,0.4)]" : "border-transparent",
-                      !c.value ? "bg-slate-200 dark:bg-white/20" : ""
-                    )}
-                    style={c.value ? { backgroundColor: c.value } : {}}
-                    title={c.name}
-                 />
+             <select 
+                value={filterMonth} 
+                onChange={(e) => setFilterMonth(e.target.value)}
+                className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider px-2"
+             >
+               <option value="all">Zeitraum</option>
+               {availableMonths.map(m => (
+                 <option key={m} value={m}>{format(new Date(`${m}-01`), 'MMM yy', { locale: de })}</option>
                ))}
-            </div>
+             </select>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto mt-2 md:mt-0">
-            <button
-               type="submit"
-               className="btn-green-glow flex-1 md:flex-none px-8"
-             >
-               <Save size={18} />
-               <span>Speichern</span>
-             </button>
-             <button
-               type="button"
-               onClick={() => setShowAdd(false)}
-               className="btn-red-glow flex-1 md:flex-none px-6"
-             >
-               <X size={18} />
-               <span>Abbrechen</span>
-             </button>
-          </div>
-        </form>
-      )}
-
-      {filteredLinks.length === 0 && !showAdd ? (
-        <div className="p-12 text-center flex-1 flex flex-col items-center justify-center">
-          <div className="w-12 h-12 text-green-500 flex items-center justify-center mx-auto mb-4">
-            <LinkIcon size={32} />
-          </div>
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Keine Links gefunden</h3>
-          <p className="mt-1 text-sm font-medium text-brand-muted">Füge dein erstes Lesezeichen hinzu, oder ändere den Filter.</p>
         </div>
-      ) : (
-        <div className="border border-slate-200/50 dark:border-white/5 rounded-[2.5rem] p-6 shadow-inner">
-          <div className="max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-1">
-              {filteredLinks.map(link => {
-                const catName = categories.find(c => c.id === link.categoryId)?.name || link.categoryId || '';
-                return (
-                <div
-                  key={link.id}
-                  className="group glass-card rounded-3xl p-6 transition-all flex flex-col hover:shadow-xl relative overflow-hidden cursor-pointer h-full border border-black/5 dark:border-white/[0.06] border-l-4"
-                  style={{ borderLeftColor: link.color || '#2563EB' }}
-                  onClick={() => window.open(link.url, '_blank', 'noopener,noreferrer')}
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <div 
-                        className="w-12 h-12 flex items-center justify-center shrink-0 overflow-hidden"
-                      >
-                        <img 
-                          src={`https://www.google.com/s2/favicons?sz=64&domain=${getDomain(link.url)}`} 
-                          alt="" 
-                          className="w-10 h-10 object-contain"
-                          referrerPolicy="no-referrer"
-                          onError={(e) => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2386868B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>'; }} 
-                        />
+        <div className="flex-1 bg-transparent rounded-[2rem] m-4 mt-0 overflow-hidden">
+          <div className="h-full overflow-y-auto custom-scrollbar">
+            {filteredLinks.length === 0 ? (
+              <div className="p-8 text-center text-[10px] uppercase font-bold text-brand-muted tracking-widest">Keine Links gefunden</div>
+            ) : (
+              <div className="flex flex-col">
+                {filteredLinks.map(link => {
+                  const catName = categories.find(c => c.id === link.categoryId)?.name || link.categoryId || 'Allgemein';
+                  return (
+                    <div
+                      key={link.id}
+                      onClick={() => { setEditLink(link); setShowAdd(false); setEditTitle(link.title); setEditUrl(link.url); setEditCategoryId(link.categoryId); setEditColor(link.color || ''); }}
+                      className={cn(
+                        "w-full text-left p-4 refined-list-item transition-all focus:outline-none cursor-pointer group relative border-l-2 rounded-none",
+                        editLink?.id === link.id ? "bg-black/[0.03] dark:bg-white/[0.05]" : "bg-transparent border-transparent"
+                      )}
+                      style={{ borderLeftColor: link.color || '#2563EB' }}
+                    >
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex items-center gap-2 overflow-hidden">
+                           <div className="w-4 h-4 shrink-0">
+                             <img 
+                                src={`https://www.google.com/s2/favicons?sz=32&domain=${getDomain(link.url)}`} 
+                                alt="" 
+                                className="w-4 h-4 object-contain"
+                                referrerPolicy="no-referrer"
+                                onError={(e) => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2386868B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>'; }} 
+                              />
+                           </div>
+                           <h3 className="font-bold truncate text-sm tracking-tight text-slate-900 dark:text-white">{link.title}</h3>
+                        </div>
+                        {link.isPinned && (
+                          <div className="text-accent shrink-0">
+                             <Pin size={12} className="fill-accent" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="pro-heading !text-[8px] uppercase tracking-widest">{catName}</span>
+                         <a 
+                          href={link.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-[8px] font-black text-brand-muted/50 hover:text-brand transition-colors uppercase tracking-tighter"
+                        >
+                          Öffnen <ExternalLink size={8} className="inline mb-0.5" />
+                        </a>
                       </div>
                     </div>
-                    <div className="flex gap-1 pr-6" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          togglePin(link);
-                        }}
-                        className={cn(
-                          "p-1.5 rounded-lg transition-all",
-                          link.isPinned ? "text-brand bg-accent/10" : "text-brand-muted hover:bg-slate-500/10"
-                        )}
-                        title={link.isPinned ? "Fixierung lösen" : "Anpinnen"}
-                      >
-                        <Pin size={14} className={cn(link.isPinned && "fill-brand")} />
-                      </button>
-                      <button
-                        onClick={(e) => handleEdit(link, e)}
-                        className="p-1.5 text-brand-muted hover:text-accent hover:bg-accent/10 rounded-lg transition-all cursor-pointer"
-                        aria-label="Link bearbeiten"
-                      >
-                        <Edit2 size={14} />
-                      </button>
-                      <button
-                        onClick={(e) => deleteLink(e, link.id)}
-                        className="p-1.5 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all cursor-pointer"
-                        aria-label="Link löschen"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </div>
-                  <h3 className="font-bold text-brand mb-1 line-clamp-1 tracking-tight">{link.title}</h3>
-                  <p className="text-[10px] font-black text-brand-muted/70 line-clamp-1 mb-4 flex items-center gap-1.5 uppercase tracking-wider">
-                    {getDomain(link.url)}
-                  </p>
-                  
-                  <div className="mt-auto pt-4 border-t border-slate-200/50 dark:border-white/10 flex items-center justify-between">
-                    <span className="opacity-0">Placeholder</span>
-                    {catName && (
-                      <span className="pro-heading !text-[9px] truncate max-w-[150px]">
-                        {catName}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )})}
-            </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
         </div>
-      )}
+      </div>
+
+      {/* Editor Pane / Main Content */}
+      <div className={cn(
+        "flex-1 glass-card rounded-3xl overflow-hidden flex-col min-w-0 transition-all h-full",
+        !editLink && !showAdd ? "hidden md:flex" : "flex"
+      )}>
+        {editLink ? (
+          <div className="flex-1 flex flex-col h-full bg-transparent p-6 sm:p-10 overflow-y-auto custom-scrollbar">
+            <div className="flex items-center justify-between mb-10">
+               <div className="flex flex-col gap-1 items-start">
+                 <h3 className="text-2xl font-black text-brand tracking-tight">Bearbeiten</h3>
+                 <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => togglePin(editLink)}
+                      className={cn(
+                        "p-2 rounded-xl transition-all",
+                        editLink.isPinned ? "bg-accent/10 text-accent" : "text-brand-muted hover:bg-accent/10 hover:text-accent"
+                      )}
+                      title={editLink.isPinned ? "Fixierung lösen" : "Anpinnen"}
+                    >
+                      <Pin size={20} className={cn(editLink.isPinned && "fill-accent")} />
+                    </button>
+                    <button
+                      onClick={(e) => deleteLink(e, editLink.id)}
+                      className="p-2 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+                      title="Link löschen"
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                 </div>
+               </div>
+               <button onClick={() => setEditLink(null)} className="p-2 text-brand-muted hover:text-brand transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5">
+                 <X size={24} />
+               </button>
+            </div>
+            
+            <form onSubmit={updateLink} className="max-w-xl mx-auto w-full space-y-8">
+              <div className="space-y-4">
+                <div className="space-y-2 flex flex-col">
+                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Titel</label>
+                  <input
+                    type="text"
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-accent/[0.03] focus:bg-accent/[0.06] transition-all"
+                    required
+                  />
+                </div>
+                <div className="space-y-2 flex flex-col">
+                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">URL</label>
+                  <input
+                    type="text"
+                    value={editUrl}
+                    onChange={(e) => setEditUrl(e.target.value)}
+                    className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-accent/[0.03] focus:bg-accent/[0.06] transition-all"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  <div className="space-y-2 flex flex-col">
+                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Kategorie</label>
+                    <CategorySelect 
+                      type="link" 
+                      value={editCategoryId} 
+                      onChange={setEditCategoryId}
+                      className="h-12 border-none bg-accent/[0.03] px-4 font-black uppercase text-xs"
+                    />
+                  </div>
+                  <div className="space-y-2 flex flex-col">
+                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Farbe</label>
+                    <div className="flex items-center gap-2 h-12 bg-accent/[0.03] rounded-2xl px-3 border-none">
+                       {colors.map(c => (
+                         <button
+                            key={c.name}
+                            type="button"
+                            onClick={() => setEditColor(c.value)}
+                            className={cn(
+                              "w-6 h-6 rounded-full border-2 transition-all",
+                              editColor === c.value ? "border-accent scale-110" : "border-transparent",
+                              !c.value ? "bg-slate-200 dark:bg-white/20" : ""
+                            )}
+                            style={c.value ? { backgroundColor: c.value } : {}}
+                            title={c.name}
+                         />
+                       ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-8 flex flex-col gap-3">
+                <button
+                   type="submit"
+                   disabled={isUpdating}
+                   className="btn-green-glow w-full h-14 font-black uppercase tracking-widest"
+                 >
+                   {isUpdating ? 'Speichert...' : 'Speichern'}
+                 </button>
+                <button
+                   type="button"
+                   onClick={() => setEditLink(null)}
+                   className="btn-cancel w-full h-14 font-black uppercase tracking-widest"
+                 >
+                   Abbrechen
+                 </button>
+              </div>
+            </form>
+          </div>
+        ) : showAdd ? (
+          <div className="flex-1 flex flex-col h-full bg-transparent p-6 sm:p-10 overflow-y-auto custom-scrollbar">
+            <div className="flex items-center justify-between mb-10">
+               <h3 className="text-2xl font-black text-brand tracking-tight">Hinzufügen</h3>
+               <button onClick={() => setShowAdd(false)} className="p-2 text-brand-muted hover:text-brand transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5">
+                 <X size={24} />
+               </button>
+            </div>
+            
+            <form onSubmit={addLink} className="max-w-xl mx-auto w-full space-y-8">
+              <div className="space-y-4">
+                <div className="space-y-2 flex flex-col">
+                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Website-Titel</label>
+                  <input
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="z.B. GitHub Repository"
+                    className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-accent/[0.03] focus:bg-accent/[0.06] transition-all"
+                    required
+                  />
+                </div>
+                <div className="space-y-2 flex flex-col">
+                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">URL</label>
+                  <input
+                    type="text"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    placeholder="https://example.com"
+                    className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-accent/[0.03] focus:bg-accent/[0.06] transition-all"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  <div className="space-y-2 flex flex-col">
+                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Kategorie</label>
+                    <CategorySelect 
+                      type="link" 
+                      value={categoryId} 
+                      onChange={setCategoryId}
+                      className="h-12 border-none bg-accent/[0.03] px-4 font-black uppercase text-xs"
+                    />
+                  </div>
+                  <div className="space-y-2 flex flex-col">
+                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Farbe</label>
+                    <div className="flex items-center gap-2 h-12 bg-accent/[0.03] rounded-2xl px-3 border-none">
+                       {colors.map(c => (
+                         <button
+                            key={c.name}
+                            type="button"
+                            onClick={() => setColor(c.value)}
+                            className={cn(
+                              "w-6 h-6 rounded-full border-2 transition-all",
+                              color === c.value ? "border-accent scale-110 shadow-[0_0_15px_rgba(37,99,235,0.4)]" : "border-transparent",
+                              !c.value ? "bg-slate-200 dark:bg-white/20" : ""
+                            )}
+                            style={c.value ? { backgroundColor: c.value } : {}}
+                            title={c.name}
+                         />
+                       ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-8 flex flex-col gap-3">
+                  <button
+                   type="submit"
+                   className="btn-green-glow w-full h-14 font-black uppercase tracking-widest"
+                 >
+                   Hinzufügen
+                 </button>
+                <button
+                   type="button"
+                   onClick={() => setShowAdd(false)}
+                   className="btn-cancel w-full h-14 font-black uppercase tracking-widest"
+                 >
+                   Abbrechen
+                 </button>
+              </div>
+            </form>
+          </div>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center text-brand-muted">
+            <div className="w-16 h-16 flex items-center justify-center mb-4 text-brand dark:text-white">
+               <LinkIcon size={48} />
+            </div>
+            <p className="font-medium">Wähle einen Link aus oder füge einen neuen hinzu</p>
+          </div>
+        )}
+      </div>
+
       {/* Custom Delete Modal */}
       {deleteModal && deleteModal.open && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-xl">
@@ -400,88 +524,6 @@ export default function Links() {
         </div>
       )}
 
-      {/* Edit Modal */}
-      {editLink && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xl p-4 pt-20 text-left overflow-y-auto">
-          <div className="glass-card shadow-2xl w-full max-w-md my-auto rounded-[2.5rem] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-8 pb-0 flex justify-between items-start">
-               <div>
-                  <h3 className="text-2xl font-black text-brand tracking-tight">Link bearbeiten</h3>
-               </div>
-               <button onClick={() => setEditLink(null)} className="p-2 hover:bg-slate-500/10 rounded-xl transition-colors text-brand-muted">
-                  <X size={24} />
-               </button>
-            </div>
-            
-            <form onSubmit={updateLink} className="p-8 pt-6 space-y-5">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Titel</label>
-                <input
-                  type="text"
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                  className="glass-input h-12"
-                  required
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">URL</label>
-                <input
-                  type="text"
-                  value={editUrl}
-                  onChange={(e) => setEditUrl(e.target.value)}
-                  className="glass-input h-12"
-                  required
-                />
-              </div>
-              <div className="space-y-1.5 flex flex-col">
-                <label className="text-xs font-bold text-brand-muted uppercase tracking-wider mb-2">Kategorie</label>
-                <CategorySelect 
-                  type="link" 
-                  value={editCategoryId} 
-                  onChange={setEditCategoryId}
-                  className="h-12 border-none px-0"
-                />
-              </div>
-              <div className="space-y-1.5 flex flex-col">
-                <label className="text-xs font-bold text-brand-muted uppercase tracking-wider mb-2">Farbe</label>
-                <div className="flex items-center gap-2 h-10">
-                   {colors.map(c => (
-                     <button
-                        key={c.name}
-                        type="button"
-                        onClick={() => setEditColor(c.value)}
-                        className={cn(
-                          "w-8 h-8 rounded-full border-2 transition-all",
-                          editColor === c.value ? "border-accent scale-110" : "border-transparent",
-                          !c.value ? "bg-slate-200 dark:bg-white/20" : ""
-                        )}
-                        style={c.value ? { backgroundColor: c.value } : {}}
-                        title={c.name}
-                     />
-                   ))}
-                </div>
-              </div>
-              <div className="pt-4 flex flex-col gap-3">
-                <button
-                   type="submit"
-                   disabled={isUpdating}
-                   className="btn-green-glow w-full h-12"
-                 >
-                   {isUpdating ? 'Speichert...' : 'Speichern'}
-                 </button>
-                <button
-                   type="button"
-                   onClick={() => setEditLink(null)}
-                   className="btn-red-glow w-full h-12"
-                 >
-                   Abbrechen
-                 </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
       {showCatManager && <CategoryManager type="link" onClose={() => setShowCatManager(false)} />}
     </div>
   );

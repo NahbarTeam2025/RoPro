@@ -28,7 +28,6 @@ export default function Prompts() {
   const { user } = useAuth();
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [activePrompt, setActivePrompt] = useState<Prompt | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const { categories } = useCategories('prompt');
 
@@ -107,11 +106,7 @@ export default function Prompts() {
     ...prompts
   ].filter(p => {
     if (filterCategory !== 'all' && p.category !== filterCategory) return false;
-    const queryStr = searchQuery.toLowerCase();
-    const catName = categories.find(c => c.id === p.category)?.name || p.category;
-    return p.title.toLowerCase().includes(queryStr) || 
-           p.content.toLowerCase().includes(queryStr) ||
-           catName.toLowerCase().includes(queryStr);
+    return true;
   });
 
   return (
@@ -123,7 +118,7 @@ export default function Prompts() {
       )}>
         <div className="p-4 border-b border-slate-200/50 dark:border-white/10 space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <h2 className="font-bold text-slate-900 dark:text-white text-xl uppercase">Prompts</h2>
+            <h2 className="font-bold text-slate-900 dark:text-white text-sm uppercase">Prompts</h2>
             <div className="flex items-center gap-1">
               <button 
                 onClick={() => setShowCatManager(true)}
@@ -146,16 +141,6 @@ export default function Prompts() {
                <option value="all">Kategorie</option>
                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
              </select>
-          </div>
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 text-white/40" size={16} />
-            <input
-              type="text"
-              placeholder="Suchen..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 py-2 text-sm bg-slate-900 dark:bg-black/40 text-white placeholder:text-white/40 rounded-xl border border-white/10"
-            />
           </div>
         </div>
         <div className="flex-1 bg-transparent rounded-[2rem] m-4 mt-0 overflow-hidden">

@@ -31,7 +31,6 @@ export default function Notes() {
   const [searchParams] = useSearchParams();
   const [notes, setNotes] = useState<Note[]>([]);
   const [activeNote, setActiveNote] = useState<Note | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const { categories } = useCategories('note');
 
   const [filterCategory, setFilterCategory] = useState<string>('all');
@@ -130,11 +129,7 @@ export default function Notes() {
                         (note.createdAt?.toDate ? format(note.createdAt.toDate(), 'yyyy-MM') : null);
        if (monthStr !== filterMonth) return false;
     }
-    const queryStr = searchQuery.toLowerCase();
-    const catName = categories.find(c => c.id === note.categoryId)?.name || note.categoryId;
-    return note.title.toLowerCase().includes(queryStr) || 
-           note.content.toLowerCase().includes(queryStr) ||
-           (catName && catName.toLowerCase().includes(queryStr));
+    return true;
   });
 
   return (
@@ -179,16 +174,6 @@ export default function Notes() {
                  <option key={m} value={m}>{format(new Date(`${m}-01`), 'MMMM', { locale: de })}</option>
                ))}
              </select>
-          </div>
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 text-white/40" size={16} />
-            <input
-              type="text"
-              placeholder="Suchen..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 py-2 text-sm bg-slate-900 dark:bg-black/40 text-white placeholder:text-white/40 rounded-xl border border-white/10"
-            />
           </div>
         </div>
         <div className="flex-1 bg-transparent rounded-[2rem] m-4 mt-0 overflow-hidden">
