@@ -451,7 +451,7 @@ export default function Passwords() {
         >
           <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-brand to-transparent opacity-30" />
           
-          <div className="w-24 h-24 flex items-center justify-center text-brand dark:text-white bg-brand/5 rounded-full ring-8 ring-brand/5">
+          <div className="w-24 h-24 flex items-center justify-center text-brand dark:text-white bg-brand/5 rounded-full ring-8 ring-accent/20">
             <Lock size={56} strokeWidth={1} className="drop-shadow-glow" />
           </div>
 
@@ -476,7 +476,7 @@ export default function Passwords() {
                   onChange={(e) => setMasterPassword(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && (config ? handleUnlock() : handleCreateVault())}
                   placeholder="••••••••••••"
-                  className="glass-input w-full pl-12 h-16 text-lg tracking-widest transition-all focus:ring-4 focus:ring-brand/5"
+                  className="glass-input w-full pl-12 h-16 text-lg tracking-widest transition-all focus:ring-4 focus:ring-accent/50/5"
                   autoFocus
                 />
                 <Key className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted transition-colors group-focus-within:text-brand" size={24} />
@@ -630,59 +630,59 @@ export default function Passwords() {
               <div className="space-y-6 text-slate-900 dark:text-white">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-1.5 text-slate-900 dark:text-white">
-                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Website / URL *</label>
+                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Website / URL *</label>
                     <input 
                       type="text" 
                       placeholder="google.com" 
                       value={formData.url} 
                       onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
-                      className="glass-input w-full h-12" 
+                      className="glass-input w-full h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold" 
                     />
                   </div>
                   <div className="space-y-1.5 text-slate-900 dark:text-white">
-                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Bezeichnung</label>
+                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Bezeichnung</label>
                     <input 
                       type="text" 
                       placeholder="z.B. Google Account" 
                       value={formData.name} 
                       onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      className="glass-input w-full h-12" 
+                      className="glass-input w-full h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold" 
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-1.5 text-slate-900 dark:text-white">
-                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Kategorie</label>
+                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Kategorie</label>
                     <input 
                       type="text" 
                       placeholder="Arbeit, Social..." 
                       value={formData.category} 
                       onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                      className="glass-input w-full h-12" 
+                      className="glass-input w-full h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold" 
                     />
                   </div>
                   <div className="space-y-1.5 text-slate-900 dark:text-white">
-                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Benutzername *</label>
+                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Benutzername *</label>
                     <input 
                       type="text" 
                       placeholder="Nutzer oder Email" 
                       value={formData.username} 
                       onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
-                      className="glass-input w-full h-12" 
+                      className="glass-input w-full h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold" 
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1.5 text-slate-900 dark:text-white">
-                  <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Passwort *</label>
+                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Passwort *</label>
                   <div className="relative">
                     <input 
                       type="text" 
                       placeholder="Sicheres Passwort" 
                       value={formData.password} 
                       onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                      className="glass-input w-full h-12 pr-12 font-mono text-sm" 
+                      className="glass-input w-full h-12 pr-12 font-mono bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold text-sm" 
                     />
                     <button 
                       onClick={generatePassword}
@@ -694,12 +694,12 @@ export default function Passwords() {
                 </div>
 
                 <div className="space-y-1.5 text-slate-900 dark:text-white">
-                  <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Notiz</label>
+                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Notiz</label>
                   <textarea 
                     rows={4} 
                     value={formData.note} 
                     onChange={(e) => setFormData(prev => ({ ...prev, note: e.target.value }))}
-                    className="glass-input w-full resize-none p-4 text-sm" 
+                    className="glass-input w-full resize-none p-4 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold" 
                   />
                 </div>
 

@@ -276,51 +276,51 @@ export default function Contacts() {
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                     placeholder="z.B. Robert Erbach"
-                    className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-accent/[0.03] focus:bg-accent/[0.06] transition-all"
+                    className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">E-Mail</label>
+                      <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">E-Mail</label>
                       <input 
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({...formData, email: e.target.value})}
                         placeholder="email@beispiel.de"
-                        className="glass-input h-12 text-sm font-black"
+                        className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold"
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Telefon</label>
+                      <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Telefon</label>
                       <input 
                         type="tel"
                         value={formData.phone}
                         onChange={(e) => setFormData({...formData, phone: e.target.value})}
                         placeholder="+49 ..."
-                        className="glass-input h-12 text-sm font-black"
+                        className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold"
                       />
                     </div>
                   </div>
                   <div className="space-y-4">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Geburtstag</label>
+                      <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Geburtstag</label>
                       <input 
                         type="date"
                         value={formData.birthday}
                         onChange={(e) => setFormData({...formData, birthday: e.target.value})}
-                        className="glass-input h-12 text-sm font-black"
+                        className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold"
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Favorit</label>
+                      <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Favorit</label>
                       <button
                         type="button"
                         onClick={() => setFormData({...formData, isFavorite: !formData.isFavorite})}
                         className={cn(
-                          "h-12 rounded-2xl border flex items-center justify-center gap-2 transition-all font-black text-[10px] uppercase tracking-wider",
-                          formData.isFavorite ? "bg-orange-500 text-white border-orange-500" : "bg-white/5 border-white/5 text-brand-muted"
+                          "glass-input h-12 rounded-2xl border-none flex items-center justify-center gap-2 transition-all font-black text-[10px] uppercase tracking-wider",
+                          formData.isFavorite ? "bg-amber-500/20 text-amber-500" : "bg-accent/[0.03] dark:bg-white/[0.03] text-brand-muted hover:bg-slate-500/10"
                         )}
                       >
                         {formData.isFavorite ? <Check size={14} strokeWidth={3} /> : null}
@@ -331,22 +331,22 @@ export default function Contacts() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Adresse</label>
+                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Adresse</label>
                   <textarea 
                     value={formData.address}
                     onChange={(e) => setFormData({...formData, address: e.target.value})}
                     placeholder="Straße, Hausnummer, PLZ, Ort"
-                    className="glass-input w-full p-4 min-h-[100px] text-sm font-black"
+                    className="glass-input w-full p-4 min-h-[100px] bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Notizen</label>
+                  <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Notizen</label>
                   <textarea 
                     value={formData.notes}
                     onChange={(e) => setFormData({...formData, notes: e.target.value})}
                     placeholder="Besondere Merkmale..."
-                    className="glass-input w-full p-4 min-h-[120px] text-sm font-black"
+                    className="glass-input w-full p-4 min-h-[120px] bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold"
                   />
                 </div>
 

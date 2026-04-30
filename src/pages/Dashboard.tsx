@@ -269,11 +269,11 @@ export default function Dashboard() {
                         type="button" 
                         onClick={(e) => handleToggleTodo(e, todo)} 
                         className={cn(
-                          "w-6 h-6 rounded-lg border transition-all flex items-center justify-center shrink-0 shadow-sm ml-1 relative z-30", 
-                          todo.completed ? "bg-accent border-accent text-white" : "bg-white dark:bg-white/10 border-slate-200 dark:border-white/10"
+                          "flex-shrink-0 w-4 h-4 rounded border flex items-center justify-center transition-all cursor-pointer ml-1 relative z-30", 
+                          todo.completed ? "bg-accent border-accent text-white" : "border-slate-300 dark:border-white/10 text-transparent hover:border-accent bg-transparent"
                         )}
                       >
-                        {todo.completed && <Check size={14} strokeWidth={3} />}
+                        <Check size={10} className="stroke-[4]" />
                       </button>
                       <div 
                         className="flex-1 min-w-0 pr-10 cursor-pointer" 

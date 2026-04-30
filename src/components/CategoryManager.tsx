@@ -26,9 +26,9 @@ export function CategoryManager({ type, onClose }: CategoryManagerProps) {
   const handleUpdate = async (id: string) => {
     if (editName.trim()) {
       await updateCategory(id, editName.trim());
-      setEditingId(null);
-      setEditName('');
     }
+    setEditingId(null);
+    setEditName('');
   };
 
   const typeLabels: Record<string, string> = {
@@ -58,9 +58,9 @@ export function CategoryManager({ type, onClose }: CategoryManagerProps) {
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="Neue Kategorie..."
-              className="glass-input h-12 flex-1"
+              className="w-full px-4 h-12 flex-1 rounded-xl text-xs text-[#1D1D1F] dark:text-[#F5F5F7] bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold transition-all duration-200"
             />
-            <button type="submit" className="h-12 w-12 bg-brand text-white rounded-[1.25rem] flex items-center justify-center shrink-0 shadow-lg shadow-accent/20 active:scale-95 transition-all">
+            <button type="submit" className="h-12 w-12 bg-accent text-white rounded-[1.25rem] flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,85,212,0.4)] hover:shadow-[0_0_20px_rgba(0,85,212,0.6)] active:scale-95 transition-all">
               <Plus size={24} />
             </button>
           </form>
@@ -76,7 +76,7 @@ export function CategoryManager({ type, onClose }: CategoryManagerProps) {
                       type="text"
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
-                      className="glass-input h-8 py-0 px-2 flex-1 text-sm bg-white dark:bg-[#3A3A3C]"
+                      className="w-full px-2 h-8 flex-1 rounded-lg text-sm text-[#1D1D1F] dark:text-[#F5F5F7] bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold transition-all duration-200"
                       autoFocus
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') handleUpdate(cat.id);
@@ -86,7 +86,7 @@ export function CategoryManager({ type, onClose }: CategoryManagerProps) {
                     <button onClick={() => handleUpdate(cat.id)} className="p-1.5 text-green-500 hover:bg-green-500/10 rounded-lg shrink-0">
                       <Check size={16} />
                     </button>
-                    <button onClick={() => setConfirmDeleteId(null)} className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg shrink-0">
+                    <button onClick={() => { setEditingId(null); setEditName(''); }} className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg shrink-0">
                       <X size={16} />
                     </button>
                   </div>

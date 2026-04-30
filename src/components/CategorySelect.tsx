@@ -82,7 +82,8 @@ export function CategorySelect({ type, value, defaultValue, id, onChange, classN
             defaultValue={defaultValue}
             onChange={(e) => onChange?.(e.target.value)}
             aria-label="Kategorie auswählen"
-            className="flex-1 min-w-0 bg-transparent text-xs font-bold text-slate-900 dark:text-white cursor-pointer outline-none focus:ring-0 focus:ring-offset-0 uppercase tracking-wider appearance-none pr-6"
+            className="flex-1 min-w-0 !bg-transparent border-none focus:border-none text-xs font-bold text-slate-900 dark:text-white cursor-pointer outline-none focus:outline-none focus-visible:outline-none focus:!ring-0 focus:!ring-offset-0 focus-visible:!ring-0 focus-visible:!outline-none uppercase tracking-wider appearance-none pr-6"
+            style={{ outline: "none", boxShadow: "none", background: "transparent" }}
             title={(value || defaultValue) ? categories.find(c => c.id === (value || defaultValue))?.name : "Kategorie wählen..."}
           >
             <option value="" disabled hidden>Wähle Kategorie</option>
@@ -93,7 +94,7 @@ export function CategorySelect({ type, value, defaultValue, id, onChange, classN
               </option>
             ))}
           </select>
-          <ChevronDown size={14} className="absolute right-8 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none transition-colors" />
+          <ChevronDown size={14} className={cn("absolute top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none transition-colors", readOnly ? "right-2" : "right-8")} />
           <button 
             type="button"
             onClick={(e) => { 
@@ -103,8 +104,8 @@ export function CategorySelect({ type, value, defaultValue, id, onChange, classN
               setIsAdding(true); 
             }} 
             className={cn(
-              "p-1 rounded-md transition-colors shrink-0 cursor-pointer",
-              readOnly ? "hidden" : "text-brand-muted hover:text-green-500 hover:bg-green-500/10"
+              "p-1 rounded-md transition-colors shrink-0 cursor-pointer text-brand-muted hover:text-green-500 hover:bg-green-500/10",
+              readOnly && "hidden"
             )}
             title="Neue Kategorie anlegen"
             aria-label="Neue Kategorie anlegen"

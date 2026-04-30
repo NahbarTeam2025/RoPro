@@ -446,7 +446,7 @@ export default function Calendar() {
                   )}
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-brand-muted uppercase tracking-wider mb-2">
+                  <label className="block text-[10px] font-black text-brand uppercase tracking-[0.2em] mb-2 px-1">
                     Titel
                   </label>
                   <input
@@ -454,11 +454,11 @@ export default function Calendar() {
                     value={newTaskText}
                     onChange={(e) => setNewTaskText(e.target.value)}
                     placeholder="Titel eingeben..."
-                    className="glass-input text-base sm:text-lg mb-3"
+                    className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all mb-3 text-sm"
                   />
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <div className="flex-1 space-y-1">
-                      <label className="block text-[10px] font-bold text-brand-muted uppercase tracking-wider">Datum</label>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1 space-y-1.5">
+                      <label className="block text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Datum</label>
                       <input
                         type="date"
                         value={format(selectedDay.date, 'yyyy-MM-dd')}
@@ -468,16 +468,16 @@ export default function Calendar() {
                             setSelectedDay({ ...selectedDay, date: newDate });
                           }
                         }}
-                        className="glass-input !h-10 text-sm"
+                        className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="block text-[10px] font-bold text-brand-muted uppercase tracking-wider">Uhrzeit</label>
+                    <div className="space-y-1.5">
+                      <label className="block text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Uhrzeit</label>
                       <input
                         type="time"
                         value={newTaskTime}
                         onChange={(e) => setNewTaskTime(e.target.value)}
-                        className="glass-input !h-10 text-sm"
+                        className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full"
                       />
                     </div>
                   </div>

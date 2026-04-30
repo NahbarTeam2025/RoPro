@@ -161,7 +161,9 @@ export function NoteEditor({ note, onBack, onSave }: { note: Note, onBack: () =>
             type="note" 
             value={category} 
             onChange={setCategory}
-            className="flex-1 max-w-sm"
+            className="h-10 w-full sm:w-auto bg-transparent border-none focus-within:ring-0 focus-within:outline-none focus:ring-0 focus:outline-none font-bold uppercase text-xs px-2"
+            readOnly
+            hideIcon
           />
           <div className="flex items-center gap-2">
             <span className="pro-heading">Farbe:</span>

@@ -190,108 +190,108 @@ export default function Tasks() {
 
   return (
     <div className="h-full flex flex-col md:flex-row gap-6 relative z-10 w-full pb-6">
-      {/* Sidebar / List */}
+      {/* Sidebar / List Container */}
       <div className={cn(
-        "w-full md:w-80 flex-col glass-card rounded-3xl overflow-hidden flex-shrink-0 transition-all",
+        "w-full md:w-80 flex-col gap-6 flex-shrink-0 transition-all",
         editTask || isFormExpanded ? "hidden md:flex" : "flex h-full"
       )}>
-        <div className="p-4 border-b border-slate-200/50 dark:border-white/10 space-y-4">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <h2 className="font-bold text-slate-900 dark:text-white text-sm uppercase">Aufgaben</h2>
-            <div className="flex items-center gap-1">
-              <button 
-                onClick={() => setShowCatManager(true)} 
-                className="p-2 text-brand-muted hover:text-accent hover:bg-accent/10 rounded-xl transition-all cursor-pointer"
-                title="Kategorien verwalten"
-              >
-                <Settings2 size={18} />
-              </button>
-              <button 
-                onClick={() => { setIsFormExpanded(true); setEditTask(null); }} 
-                className="p-2 bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white rounded-xl transition-all cursor-pointer font-bold flex items-center justify-center"
-              >
-                 <Plus size={18} />
-              </button>
+        {/* Active Tasks Card */}
+        <div className="flex-1 min-h-0 flex flex-col glass-card rounded-3xl overflow-hidden">
+          <div className="p-4 border-b border-slate-200/50 dark:border-white/10 space-y-4 shrink-0">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <h2 className="font-bold text-slate-900 dark:text-white text-sm uppercase">Aufgaben</h2>
+              <div className="flex items-center gap-1">
+                <button 
+                  onClick={() => setShowCatManager(true)} 
+                  className="p-2 text-brand-muted hover:text-accent hover:bg-accent/10 rounded-xl transition-all cursor-pointer"
+                  title="Kategorien verwalten"
+                >
+                  <Settings2 size={18} />
+                </button>
+                <button 
+                  onClick={() => { setIsFormExpanded(true); setEditTask(null); }} 
+                  className="p-2 bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white rounded-xl transition-all cursor-pointer font-bold flex items-center justify-center"
+                >
+                   <Plus size={18} />
+                </button>
+              </div>
+            </div>
+            <div className="flex gap-2">
+               <select 
+                  value={filterCategory} 
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                  className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider px-2"
+               >
+                 <option value="all">Kategorie</option>
+                 {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+               </select>
+               <select 
+                  value={filterMonth} 
+                  onChange={(e) => setFilterMonth(e.target.value)}
+                  className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider px-2"
+               >
+                 <option value="all">Zeitraum</option>
+                 {availableMonths.map(m => (
+                   <option key={m} value={m}>{format(new Date(`${m}-01`), 'MMM yy', { locale: de })}</option>
+                 ))}
+               </select>
             </div>
           </div>
-          <div className="flex gap-2">
-             <select 
-                value={filterCategory} 
-                onChange={(e) => setFilterCategory(e.target.value)}
-                className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider px-2"
-             >
-               <option value="all">Kategorie</option>
-               {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-             </select>
-             <select 
-                value={filterMonth} 
-                onChange={(e) => setFilterMonth(e.target.value)}
-                className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-[10px] font-bold uppercase tracking-wider px-2"
-             >
-               <option value="all">Zeitraum</option>
-               {availableMonths.map(m => (
-                 <option key={m} value={m}>{format(new Date(`${m}-01`), 'MMM yy', { locale: de })}</option>
-               ))}
-             </select>
-          </div>
-        </div>
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
-          <div className="space-y-6 flex flex-col h-full">
-            <div className="flex-1 space-y-6">
-              {/* Active Tasks */}
-              <div className="space-y-1">
-                <div className="px-4 py-2 flex items-center justify-between sticky top-0 z-10 bg-white/10 dark:bg-black/20 backdrop-blur-md">
-                  <span className="text-[10px] font-black text-brand-muted uppercase tracking-widest">Aktiv</span>
-                  <span className="text-[10px] font-black text-brand-muted px-2 py-0.5 rounded-full bg-slate-500/10">
-                    {activeTodos.length}
-                  </span>
-                </div>
-                {activeTodos.length === 0 ? (
-                  <div className="p-8 text-center text-[10px] uppercase font-bold text-brand-muted tracking-widest">Keine Aufgaben</div>
-                ) : (
-                  <div className="flex flex-col">
-                    {activeTodos.map(todo => (
-                      <TaskItem 
-                        key={todo.id} 
-                        todo={todo} 
-                        isActive={editTask?.id === todo.id}
-                        onToggle={() => toggleTodo(todo)} 
-                        onDelete={() => setDeleteModal({ open: true, id: todo.id })} 
-                        onEdit={() => { setEditTask(todo); setIsFormExpanded(false); }}
-                        categories={categories} 
-                      />
-                    ))}
-                  </div>
-                )}
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            <div className="space-y-1">
+              <div className="px-4 py-2 flex items-center justify-between sticky top-0 z-10 bg-white/10 dark:bg-black/20 backdrop-blur-md">
+                <span className="text-[10px] font-black text-brand-muted uppercase tracking-widest">Aktiv</span>
+                <span className="text-[10px] font-black text-brand-muted px-2 py-0.5 rounded-full bg-slate-500/10">
+                  {activeTodos.length}
+                </span>
               </div>
-
-              {/* Completed Tasks */}
-              {completedTodos.length > 0 && (
-                <div className="space-y-1">
-                  <div className="px-4 py-2 flex items-center justify-between sticky top-0 z-10 bg-white/10 dark:bg-black/20 backdrop-blur-md">
-                    <span className="text-[10px] font-black text-brand-muted uppercase tracking-widest">Erledigt</span>
-                    <span className="text-[10px] font-black text-brand-muted px-2 py-0.5 rounded-full bg-slate-500/10">
-                      {completedTodos.length}
-                    </span>
-                  </div>
-                  <div className="flex flex-col opacity-60 hover:opacity-100 transition-opacity">
-                    {completedTodos.map(todo => (
-                      <TaskItem 
-                        key={todo.id} 
-                        todo={todo} 
-                        isActive={editTask?.id === todo.id}
-                        onToggle={() => toggleTodo(todo)} 
-                        onDelete={() => setDeleteModal({ open: true, id: todo.id })} 
-                        onEdit={() => { setEditTask(todo); setIsFormExpanded(false); }}
-                        categories={categories} 
-                      />
-                    ))}
-                  </div>
+              {activeTodos.length === 0 ? (
+                <div className="p-8 text-center text-[10px] uppercase font-bold text-brand-muted tracking-widest">Keine Aufgaben</div>
+              ) : (
+                <div className="flex flex-col">
+                  {activeTodos.map(todo => (
+                    <TaskItem 
+                      key={todo.id} 
+                      todo={todo} 
+                      isActive={editTask?.id === todo.id}
+                      onToggle={() => toggleTodo(todo)} 
+                      onDelete={() => setDeleteModal({ open: true, id: todo.id })} 
+                      onEdit={() => { setEditTask(todo); setIsFormExpanded(false); }}
+                      categories={categories} 
+                    />
+                  ))}
                 </div>
               )}
             </div>
           </div>
         </div>
+
+        {/* Completed Tasks Card */}
+        {completedTodos.length > 0 && (
+          <div className="max-h-[33%] min-h-[150px] flex flex-col glass-card rounded-3xl overflow-hidden flex-shrink-0">
+            <div className="px-4 py-3 border-b border-slate-200/50 dark:border-white/10 flex items-center justify-between sticky top-0 z-10 bg-white/50 dark:bg-black/20 backdrop-blur-md">
+              <span className="text-[10px] font-black text-brand uppercase tracking-widest">Erledigt</span>
+              <span className="text-[10px] font-black text-brand-muted px-2 py-0.5 rounded-full bg-slate-500/10">
+                {completedTodos.length}
+              </span>
+            </div>
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              <div className="flex flex-col opacity-60 hover:opacity-100 transition-opacity">
+                {completedTodos.map(todo => (
+                  <TaskItem 
+                    key={todo.id} 
+                    todo={todo} 
+                    isActive={editTask?.id === todo.id}
+                    onToggle={() => toggleTodo(todo)} 
+                    onDelete={() => setDeleteModal({ open: true, id: todo.id })} 
+                    onEdit={() => { setEditTask(todo); setIsFormExpanded(false); }}
+                    categories={categories} 
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Main Content Area */}
@@ -308,14 +308,14 @@ export default function Tasks() {
                 </button>
               </div>
               
-              <div className="max-w-xl mx-auto w-full space-y-8">
+              <div className="max-w-xl mx-auto w-full space-y-6">
                 <div className="space-y-2 flex flex-col">
                   <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Aufgabe</label>
                   <input
                     type="text"
                     defaultValue={editTask.task}
                     id="edit-task-input"
-                    className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-white/[0.03] dark:bg-white/[0.03] focus:bg-white/[0.06] transition-all"
+                    className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
                     required
                   />
                 </div>
@@ -323,44 +323,49 @@ export default function Tasks() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Priorität</label>
-                      <select
-                        id="edit-priority-select"
-                        defaultValue={editTask.priority}
-                        className="glass-input h-12 text-sm font-black uppercase appearance-none"
-                      >
-                        <option value="high">🔴 Hoch</option>
-                        <option value="medium">🟡 Mittel</option>
-                        <option value="low">🟢 Niedrig</option>
-                      </select>
+                      <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Priorität</label>
+                      <div className="relative">
+                        <select
+                          id="edit-priority-select"
+                          defaultValue={editTask.priority}
+                          className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold uppercase appearance-none w-full"
+                        >
+                          <option value="high">🔴 Hoch</option>
+                          <option value="medium">🟡 Mittel</option>
+                          <option value="low">🟢 Niedrig</option>
+                        </select>
+                        <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none" />
+                      </div>
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Kategorie</label>
+                      <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Kategorie</label>
                       <CategorySelect 
                         type="task" 
                         defaultValue={editTask.categoryId}
                         id="edit-category-select"
-                        className="h-12 text-sm font-black uppercase"
+                        className="w-full px-4 h-12 rounded-xl text-xs text-[#1D1D1F] dark:text-[#F5F5F7] bg-accent/[0.03] dark:bg-white/[0.03] border-none focus-within:ring-2 focus-within:ring-accent/50 font-bold uppercase transition-all duration-200"
+                        readOnly
+                        hideIcon
                       />
                     </div>
                   </div>
                   <div className="space-y-4">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Datum</label>
+                      <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Datum</label>
                       <input
                         type="date"
                         id="edit-date-input"
                         defaultValue={editTask.dueDate ? format(new Date(editTask.dueDate), 'yyyy-MM-dd') : ''}
-                        className="glass-input h-12 text-sm font-black"
+                        className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold"
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Uhrzeit</label>
+                      <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Uhrzeit</label>
                       <input
                         type="time"
                         id="edit-time-input"
                         defaultValue={editTask.dueDate ? format(new Date(editTask.dueDate), 'HH:mm') : ''}
-                        className="glass-input h-12 text-sm font-black"
+                        className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold"
                       />
                     </div>
                   </div>
@@ -412,14 +417,14 @@ export default function Tasks() {
             </div>
 
             <form onSubmit={addTask} className="max-w-xl mx-auto w-full space-y-8">
-              <div className="space-y-2 flex flex-col">
+              <div className="space-y-6 flex flex-col">
                 <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Was steht an?</label>
                 <input
                   type="text"
                   value={newTask}
                   onChange={(e) => setNewTask(e.target.value)}
                   placeholder="Aufgabe beschreiben..."
-                  className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-white/[0.03] dark:bg-white/[0.03] focus:bg-white/[0.06] transition-all"
+                  className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
                   required
                 />
               </div>
@@ -427,58 +432,63 @@ export default function Tasks() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                 <div className="space-y-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Priorität</label>
-                    <select
-                      value={priority}
-                      onChange={(e) => setPriority(e.target.value as any)}
-                      className="glass-input h-12 text-sm font-black uppercase appearance-none"
-                    >
-                      <option value="high">🔴 Hoch</option>
-                      <option value="medium">🟡 Mittel</option>
-                      <option value="low">🟢 Niedrig</option>
-                    </select>
+                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Priorität</label>
+                    <div className="relative">
+                      <select
+                        value={priority}
+                        onChange={(e) => setPriority(e.target.value as any)}
+                        className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold uppercase appearance-none w-full"
+                      >
+                        <option value="high">🔴 Hoch</option>
+                        <option value="medium">🟡 Mittel</option>
+                        <option value="low">🟢 Niedrig</option>
+                      </select>
+                      <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none" />
+                    </div>
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Kategorie</label>
+                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Kategorie</label>
                     <CategorySelect 
                       type="task" 
                       value={categoryId} 
                       onChange={setCategoryId}
-                      className="h-12 text-sm font-black uppercase"
+                      className="w-full px-4 h-12 rounded-xl text-[10px] sm:text-xs text-[#1D1D1F] dark:text-[#F5F5F7] bg-accent/[0.03] dark:bg-white/[0.03] border-none focus-within:ring-2 focus-within:ring-accent/50 font-bold uppercase transition-all duration-200"
+                      readOnly
+                      hideIcon
                     />
                   </div>
                 </div>
                 <div className="space-y-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Datum</label>
+                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Datum</label>
                     <input
                       type="date"
                       value={date}
                       onChange={(e) => setDate(e.target.value)}
-                      className="glass-input h-12 text-sm font-black"
+                      className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold"
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Uhrzeit</label>
+                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Uhrzeit</label>
                     <input
                       type="time"
                       value={time}
                       onChange={(e) => setTime(e.target.value)}
-                      className="glass-input h-12 text-sm font-black"
+                      className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold"
                     />
                   </div>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Wiederholung</label>
+                <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Wiederholung</label>
                 <div className="flex gap-2">
                     <button
                       type="button"
                       onClick={() => setIsRecurring(!isRecurring)}
                       className={cn(
                         "flex-1 h-12 rounded-2xl border flex items-center justify-center gap-2 transition-all font-black text-[10px] uppercase tracking-wider",
-                        isRecurring ? "bg-accent text-white" : "bg-white/5 border-white/5 text-brand-muted"
+                        isRecurring ? "bg-accent/20 text-accent border-accent/30" : "bg-accent/[0.03] dark:bg-white/[0.03] border-none text-brand-muted"
                       )}
                     >
                       {isRecurring ? <Check size={14} strokeWidth={3} /> : null}
@@ -488,7 +498,7 @@ export default function Tasks() {
                       <select
                         value={recurrenceInterval}
                         onChange={(e) => setRecurrenceInterval(e.target.value as any)}
-                        className="flex-1 h-12 glass-input px-4 text-[10px] font-black uppercase tracking-wider"
+                        className="flex-1 h-12 glass-input px-4 text-[10px] font-black uppercase tracking-wider bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50"
                       >
                         <option value="daily">Täglich</option>
                         <option value="weekly">Wöchentlich</option>

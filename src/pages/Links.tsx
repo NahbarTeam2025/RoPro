@@ -335,14 +335,14 @@ export default function Links() {
             </div>
             
             <form onSubmit={updateLink} className="max-w-xl mx-auto w-full space-y-8">
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div className="space-y-2 flex flex-col">
                   <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Titel</label>
                   <input
                     type="text"
                     value={editTitle}
                     onChange={(e) => setEditTitle(e.target.value)}
-                    className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-accent/[0.03] focus:bg-accent/[0.06] transition-all"
+                    className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
                     required
                   />
                 </div>
@@ -352,23 +352,23 @@ export default function Links() {
                     type="text"
                     value={editUrl}
                     onChange={(e) => setEditUrl(e.target.value)}
-                    className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-accent/[0.03] focus:bg-accent/[0.06] transition-all"
+                    className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
                     required
                   />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                   <div className="space-y-2 flex flex-col">
-                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Kategorie</label>
+                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Kategorie</label>
                     <CategorySelect 
                       type="link" 
                       value={editCategoryId} 
                       onChange={setEditCategoryId}
-                      className="h-12 border-none bg-accent/[0.03] px-4 font-black uppercase text-xs"
+                      className="h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all px-4 uppercase text-xs"
                     />
                   </div>
                   <div className="space-y-2 flex flex-col">
-                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Farbe</label>
-                    <div className="flex items-center gap-2 h-12 bg-accent/[0.03] rounded-2xl px-3 border-none">
+                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Farbe</label>
+                    <div className="flex items-center gap-2 h-12 bg-accent/[0.03] dark:bg-white/[0.03] rounded-2xl px-4 border-none w-full">
                        {colors.map(c => (
                          <button
                             key={c.name}
@@ -416,7 +416,7 @@ export default function Links() {
             </div>
             
             <form onSubmit={addLink} className="max-w-xl mx-auto w-full space-y-8">
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div className="space-y-2 flex flex-col">
                   <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Website-Titel</label>
                   <input
@@ -424,7 +424,7 @@ export default function Links() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="z.B. GitHub Repository"
-                    className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-accent/[0.03] focus:bg-accent/[0.06] transition-all"
+                    className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
                     required
                   />
                 </div>
@@ -435,23 +435,23 @@ export default function Links() {
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     placeholder="https://example.com"
-                    className="glass-input h-14 sm:h-16 text-lg sm:text-xl font-black w-full border-none bg-accent/[0.03] focus:bg-accent/[0.06] transition-all"
+                    className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
                     required
                   />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                   <div className="space-y-2 flex flex-col">
-                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Kategorie</label>
+                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Kategorie</label>
                     <CategorySelect 
                       type="link" 
                       value={categoryId} 
                       onChange={setCategoryId}
-                      className="h-12 border-none bg-accent/[0.03] px-4 font-black uppercase text-xs"
+                      className="h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all px-4 uppercase text-xs"
                     />
                   </div>
                   <div className="space-y-2 flex flex-col">
-                    <label className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-1">Farbe</label>
-                    <div className="flex items-center gap-2 h-12 bg-accent/[0.03] rounded-2xl px-3 border-none">
+                    <label className="text-[10px] font-black text-brand uppercase tracking-[0.2em] px-1">Farbe</label>
+                    <div className="flex items-center gap-2 h-12 bg-accent/[0.03] dark:bg-white/[0.03] rounded-2xl px-4 border-none w-full">
                        {colors.map(c => (
                          <button
                             key={c.name}
