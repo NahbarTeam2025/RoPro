@@ -490,10 +490,10 @@ export default function Layout() {
                 >
                   <button 
                     onClick={() => setIsSearchOpen(true)}
-                    className="w-full flex items-center gap-2 h-10 px-4 bg-[#1C1C1E] rounded-xl text-white hover:bg-black transition-colors shrink-0"
+                    className="w-full flex items-center gap-2 h-10 px-4 bg-white/20 dark:bg-[#1C1C1E]/40 backdrop-blur-md border border-black/5 dark:border-white/5 rounded-xl text-[#1D1D1F] dark:text-white hover:bg-white/30 dark:hover:bg-[#1C1C1E]/60 transition-colors shrink-0 shadow-sm"
                   >
-                    <Search size={16} className="shrink-0 text-white/70" />
-                    <span className="text-sm font-medium text-white/90">Suchen...</span>
+                    <Search size={16} className="shrink-0 text-[#1D1D1F]/70 dark:text-white/70" />
+                    <span className="text-sm font-medium text-[#1D1D1F]/90 dark:text-white/90">Suchen...</span>
                   </button>
                 </motion.div>
               )}
@@ -505,7 +505,7 @@ export default function Layout() {
             <button 
               ref={mobileSearchToggleRef}
               onClick={() => setIsMobileSearchExpanded(!isMobileSearchExpanded)}
-              className={cn("w-10 h-10 flex items-center justify-center rounded-lg transition-colors", isMobileSearchExpanded ? "text-[#1D1D1F] dark:text-white bg-black/5 dark:bg-white/10" : "text-[#86868B] hover:bg-black/5 dark:hover:bg-white/10")}
+              className={cn("w-10 h-10 flex items-center justify-center rounded-lg transition-colors", isMobileSearchExpanded ? "text-[#1D1D1F] dark:text-white bg-white/20 dark:bg-[#1C1C1E]/40 backdrop-blur-md border border-black/5 dark:border-white/5 shadow-sm" : "text-[#86868B] hover:bg-black/5 dark:hover:bg-white/10")}
             >
                {isMobileSearchExpanded ? <X size={20} /> : <Search size={22} />}
             </button>
