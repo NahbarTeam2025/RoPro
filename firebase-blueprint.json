@@ -162,6 +162,15 @@
         "uploadedAt": { "type": "timestamp" }
       },
       "required": ["name", "typ", "storageUrl", "storagePath", "fileType", "fileSize", "userId", "uploadedAt"]
+    },
+    "UserSettings": {
+      "title": "UserSettings",
+      "description": "User specific module configuration",
+      "type": "object",
+      "properties": {
+        "modules": { "type": "array" }
+      },
+      "required": ["modules"]
     }
   },
   "firestore": {
@@ -208,6 +217,10 @@
     "/media/{fileId}": {
       "schema": { "$ref": "#/entities/Media" },
       "description": "Stores user media metadata"
+    },
+    "/userSettings/{userId}": {
+      "schema": { "$ref": "#/entities/UserSettings" },
+      "description": "Stores user settings for the dashboard"
     }
   }
 }

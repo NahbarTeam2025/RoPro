@@ -276,7 +276,7 @@ export default function Contacts() {
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                     placeholder="z.B. Robert Erbach"
-                    className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
+                    className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
                   />
                 </div>
 
@@ -289,7 +289,7 @@ export default function Contacts() {
                         value={formData.email}
                         onChange={(e) => setFormData({...formData, email: e.target.value})}
                         placeholder="email@beispiel.de"
-                        className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold"
+                        className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold"
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
@@ -299,7 +299,7 @@ export default function Contacts() {
                         value={formData.phone}
                         onChange={(e) => setFormData({...formData, phone: e.target.value})}
                         placeholder="+49 ..."
-                        className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold"
+                        className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold"
                       />
                     </div>
                   </div>
@@ -310,7 +310,7 @@ export default function Contacts() {
                         type="date"
                         value={formData.birthday}
                         onChange={(e) => setFormData({...formData, birthday: e.target.value})}
-                        className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold"
+                        className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold"
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
@@ -336,7 +336,7 @@ export default function Contacts() {
                     value={formData.address}
                     onChange={(e) => setFormData({...formData, address: e.target.value})}
                     placeholder="Straße, Hausnummer, PLZ, Ort"
-                    className="glass-input w-full p-4 min-h-[100px] bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold"
+                    className="glass-input w-full p-4 min-h-[100px] focus:ring-2 focus:ring-accent/50 font-bold"
                   />
                 </div>
 
@@ -346,7 +346,7 @@ export default function Contacts() {
                     value={formData.notes}
                     onChange={(e) => setFormData({...formData, notes: e.target.value})}
                     placeholder="Besondere Merkmale..."
-                    className="glass-input w-full p-4 min-h-[120px] bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold"
+                    className="glass-input w-full p-4 min-h-[120px] focus:ring-2 focus:ring-accent/50 font-bold"
                   />
                 </div>
 

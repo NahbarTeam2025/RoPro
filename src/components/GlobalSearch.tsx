@@ -240,7 +240,7 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-[#000000] opacity-90 backdrop-blur-xl"
+            className="absolute inset-0 bg-black/40 backdrop-blur-md"
             onClick={onClose}
           />
           
@@ -249,7 +249,7 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="w-full max-w-[480px] bg-[#1c1c1e]/40 backdrop-blur-lg rounded-[2rem] border border-white/5 shadow-2xl overflow-hidden flex flex-col"
+            className="glass-card w-full max-w-[480px] rounded-[2rem] overflow-hidden flex flex-col"
           >
             <div className="relative border-b border-black/5 dark:border-white/5">
               <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-muted" size={20} />
@@ -333,21 +333,6 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
               ) : (
                 null
               )}
-            </div>
-            
-            <div className="p-4 border-t border-black/5 dark:border-white/5 bg-black/[0.02] flex items-center justify-center gap-6">
-              <div className="flex items-center gap-2">
-                <kbd className="px-1.5 py-1 rounded bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-xs font-black font-mono">↑↓</kbd>
-                <span className="text-xs font-bold text-brand-muted uppercase tracking-wider">Navigieren</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <kbd className="px-1.5 py-1 rounded bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-xs font-black font-mono">ENTER</kbd>
-                <span className="text-xs font-bold text-brand-muted uppercase tracking-wider">Öffnen</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <kbd className="px-1.5 py-1 rounded bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-xs font-black font-mono">ESC</kbd>
-                <span className="text-xs font-bold text-brand-muted uppercase tracking-wider">Schließen</span>
-              </div>
             </div>
           </motion.div>
         </div>

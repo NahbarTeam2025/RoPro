@@ -335,7 +335,7 @@ export default function Calendar() {
 
       {/* Modal / Dialog for day actions */}
       {selectedDay && (
-        <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/80 backdrop-blur-xl p-4 sm:p-6 pt-16 sm:pt-20 pb-6 overflow-hidden">
+        <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/40 backdrop-blur-md p-4 sm:p-6 pt-16 sm:pt-20 pb-6 overflow-hidden">
           <div className="glass-card shadow-2xl w-full max-w-[480px] rounded-[2.5rem] overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col relative h-full max-h-[calc(100vh-theme(spacing.32))]">
             {/* Google Search Quick Access in Calendar Modal too? No, just keep the close button. */}
             <div className="p-6 border-b border-slate-200/50 dark:border-white/10 flex justify-between items-center shrink-0">
@@ -425,7 +425,7 @@ export default function Calendar() {
               })()}
             </div>
 
-            <div className="p-6 border-t border-slate-200/50 dark:border-white/10 bg-white/50 dark:bg-black/40  mt-auto">
+            <div className="p-6 border-t border-black/5 dark:border-white/10 mt-auto">
               <form onSubmit={editingAppointment ? handleUpdateTask : handleAddTask} className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-bold text-brand-muted uppercase tracking-widest">
@@ -454,7 +454,7 @@ export default function Calendar() {
                     value={newTaskText}
                     onChange={(e) => setNewTaskText(e.target.value)}
                     placeholder="Titel eingeben..."
-                    className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all mb-3 text-sm"
+                    className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all mb-3 text-sm"
                   />
                   <div className="flex flex-col sm:flex-row gap-4">
                     <div className="flex-1 space-y-1.5">
@@ -470,7 +470,7 @@ export default function Calendar() {
                               setSelectedDay({ ...selectedDay, date: newDate });
                             }
                           }}
-                          className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full"
+                          className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold w-full"
                         />
                         <CalendarIcon 
                           size={18} 
@@ -496,7 +496,7 @@ export default function Calendar() {
                           id="cal-time-input"
                           value={newTaskTime}
                           onChange={(e) => setNewTaskTime(e.target.value)}
-                          className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full"
+                          className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold w-full"
                         />
                         <Clock 
                           size={18} 
@@ -540,7 +540,7 @@ export default function Calendar() {
     )}
       {/* Custom Delete Modal */}
       {deleteModal && deleteModal.open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
           <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
             <p className="text-sm text-[#86868B] mb-8">Dieser Termin wird unwiderruflich entfernt.</p>

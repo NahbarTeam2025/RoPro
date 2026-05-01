@@ -220,7 +220,7 @@ export default function Tasks() {
                <select 
                   value={filterCategory} 
                   onChange={(e) => setFilterCategory(e.target.value)}
-                  className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-xs font-bold uppercase tracking-wider px-2"
+                  className="glass-input h-10 flex-1 appearance-none text-xs font-bold uppercase tracking-wider px-2"
                >
                  <option value="all">Kategorie</option>
                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -228,7 +228,7 @@ export default function Tasks() {
                <select 
                   value={filterMonth} 
                   onChange={(e) => setFilterMonth(e.target.value)}
-                  className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-xs font-bold uppercase tracking-wider px-2"
+                  className="glass-input h-10 flex-1 appearance-none text-xs font-bold uppercase tracking-wider px-2"
                >
                  <option value="all">Zeitraum</option>
                  {availableMonths.map(m => (
@@ -315,7 +315,7 @@ export default function Tasks() {
                     type="text"
                     defaultValue={editTask.task}
                     id="edit-task-input"
-                    className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
+                    className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
                     required
                   />
                 </div>
@@ -328,7 +328,7 @@ export default function Tasks() {
                         <select
                           id="edit-priority-select"
                           defaultValue={editTask.priority}
-                          className="glass-input h-12 bg-[#1c1c1e] text-white border-white/10 focus:ring-2 focus:ring-accent/50 font-bold uppercase appearance-none w-full"
+                          className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold uppercase appearance-none w-full"
                         >
                           <option value="high" className="bg-[#1c1c1e] text-white">🔴 Hoch</option>
                           <option value="medium" className="bg-[#1c1c1e] text-white">🟡 Mittel</option>
@@ -343,7 +343,7 @@ export default function Tasks() {
                         type="task" 
                         defaultValue={editTask.categoryId}
                         id="edit-category-select"
-                        className="w-full px-4 h-12 rounded-xl text-xs text-[#1D1D1F] dark:text-[#F5F5F7] bg-accent/[0.03] dark:bg-white/[0.03] border-none focus-within:ring-2 focus-within:ring-accent/50 font-bold uppercase transition-all duration-200"
+                        className="glass-input h-12 focus-within:ring-2 focus-within:ring-accent/50 font-bold uppercase w-full"
                         readOnly
                         hideIcon
                       />
@@ -357,7 +357,7 @@ export default function Tasks() {
                           type="date"
                           id="edit-date-input"
                           defaultValue={editTask.dueDate ? format(new Date(editTask.dueDate), 'yyyy-MM-dd') : ''}
-                          className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full"
+                          className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold w-full"
                         />
                         <CalendarIcon 
                           size={18} 
@@ -382,7 +382,7 @@ export default function Tasks() {
                           type="time"
                           id="edit-time-input"
                           defaultValue={editTask.dueDate ? format(new Date(editTask.dueDate), 'HH:mm') : ''}
-                          className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full"
+                          className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold w-full"
                         />
                         <Clock 
                           size={18} 
@@ -456,7 +456,7 @@ export default function Tasks() {
                   value={newTask}
                   onChange={(e) => setNewTask(e.target.value)}
                   placeholder="Aufgabe beschreiben..."
-                  className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
+                  className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
                   required
                 />
               </div>
@@ -469,7 +469,7 @@ export default function Tasks() {
                       <select
                         value={priority}
                         onChange={(e) => setPriority(e.target.value as any)}
-                        className="glass-input h-12 bg-[#1c1c1e] text-white border-white/10 focus:ring-2 focus:ring-accent/50 font-bold uppercase appearance-none w-full"
+                        className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold uppercase appearance-none w-full"
                       >
                         <option value="high" className="bg-[#1c1c1e] text-white">🔴 Hoch</option>
                         <option value="medium" className="bg-[#1c1c1e] text-white">🟡 Mittel</option>
@@ -484,7 +484,7 @@ export default function Tasks() {
                       type="task" 
                       value={categoryId} 
                       onChange={setCategoryId}
-                      className="w-full px-4 h-12 rounded-xl text-xs sm:text-xs text-[#1D1D1F] dark:text-[#F5F5F7] bg-accent/[0.03] dark:bg-white/[0.03] border-none focus-within:ring-2 focus-within:ring-accent/50 font-bold uppercase transition-all duration-200"
+                      className="glass-input h-12 focus-within:ring-2 focus-within:ring-accent/50 font-bold uppercase w-full"
                       readOnly
                       hideIcon
                     />
@@ -499,7 +499,7 @@ export default function Tasks() {
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
                         id="add-task-date"
-                        className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full"
+                        className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold w-full"
                       />
                       <CalendarIcon 
                         size={18} 
@@ -525,7 +525,7 @@ export default function Tasks() {
                         value={time}
                         onChange={(e) => setTime(e.target.value)}
                         id="add-task-time"
-                        className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full"
+                        className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold w-full"
                       />
                       <Clock 
                         size={18} 

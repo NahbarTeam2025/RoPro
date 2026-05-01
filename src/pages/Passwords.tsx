@@ -636,7 +636,7 @@ export default function Passwords() {
                       placeholder="google.com" 
                       value={formData.url} 
                       onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
-                      className="glass-input w-full h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold" 
+                      className="glass-input w-full h-12 focus:ring-2 focus:ring-accent/50 font-bold" 
                     />
                   </div>
                   <div className="space-y-1.5 text-slate-900 dark:text-white">
@@ -646,7 +646,7 @@ export default function Passwords() {
                       placeholder="z.B. Google Account" 
                       value={formData.name} 
                       onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      className="glass-input w-full h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold" 
+                      className="glass-input w-full h-12 focus:ring-2 focus:ring-accent/50 font-bold" 
                     />
                   </div>
                 </div>
@@ -659,7 +659,7 @@ export default function Passwords() {
                       placeholder="Arbeit, Social..." 
                       value={formData.category} 
                       onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                      className="glass-input w-full h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold" 
+                      className="glass-input w-full h-12 focus:ring-2 focus:ring-accent/50 font-bold" 
                     />
                   </div>
                   <div className="space-y-1.5 text-slate-900 dark:text-white">
@@ -669,7 +669,7 @@ export default function Passwords() {
                       placeholder="Nutzer oder Email" 
                       value={formData.username} 
                       onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
-                      className="glass-input w-full h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold" 
+                      className="glass-input w-full h-12 focus:ring-2 focus:ring-accent/50 font-bold" 
                     />
                   </div>
                 </div>
@@ -682,7 +682,7 @@ export default function Passwords() {
                       placeholder="Sicheres Passwort" 
                       value={formData.password} 
                       onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                      className="glass-input w-full h-12 pr-12 font-mono bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold text-sm" 
+                      className="glass-input w-full h-12 pr-12 font-mono focus:ring-2 focus:ring-accent/50 font-bold text-sm" 
                     />
                     <button 
                       onClick={generatePassword}
@@ -699,7 +699,7 @@ export default function Passwords() {
                     rows={4} 
                     value={formData.note} 
                     onChange={(e) => setFormData(prev => ({ ...prev, note: e.target.value }))}
-                    className="glass-input w-full resize-none p-4 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold" 
+                    className="glass-input w-full resize-none p-4 focus:ring-2 focus:ring-accent/50 font-bold" 
                   />
                 </div>
 

@@ -224,7 +224,7 @@ export default function Links() {
              <select 
                 value={filterCategory} 
                 onChange={(e) => setFilterCategory(e.target.value)}
-                className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-xs font-bold uppercase tracking-wider px-2"
+                className="glass-input h-10 flex-1 appearance-none text-xs font-bold uppercase tracking-wider px-2"
              >
                <option value="all">Kategorie</option>
                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -232,7 +232,7 @@ export default function Links() {
              <select 
                 value={filterMonth} 
                 onChange={(e) => setFilterMonth(e.target.value)}
-                className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-xs font-bold uppercase tracking-wider px-2"
+                className="glass-input h-10 flex-1 appearance-none text-xs font-bold uppercase tracking-wider px-2"
              >
                <option value="all">Zeitraum</option>
                {availableMonths.map(m => (
@@ -343,7 +343,7 @@ export default function Links() {
                     type="text"
                     value={editTitle}
                     onChange={(e) => setEditTitle(e.target.value)}
-                    className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
+                    className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
                     required
                   />
                 </div>
@@ -353,7 +353,7 @@ export default function Links() {
                     type="text"
                     value={editUrl}
                     onChange={(e) => setEditUrl(e.target.value)}
-                    className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
+                    className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
                     required
                   />
                 </div>
@@ -425,7 +425,7 @@ export default function Links() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="z.B. GitHub Repository"
-                    className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
+                    className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
                     required
                   />
                 </div>
@@ -436,7 +436,7 @@ export default function Links() {
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     placeholder="https://example.com"
-                    className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
+                    className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all"
                     required
                   />
                 </div>

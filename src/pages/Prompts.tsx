@@ -125,7 +125,7 @@ export default function Prompts() {
              <select 
                 value={filterCategory} 
                 onChange={(e) => setFilterCategory(e.target.value)}
-                className="glass-input h-10 flex-1 appearance-none bg-white dark:bg-[#050505] text-xs font-bold uppercase tracking-wider px-2"
+                className="glass-input h-10 flex-1 appearance-none text-xs font-bold uppercase tracking-wider px-2"
              >
                <option value="all">Kategorie</option>
                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}

@@ -98,10 +98,7 @@ body {
   
   /* Custom Inputs for Premium UI */
   .glass-input {
-    @apply w-full px-4 py-3 bg-[#F5F5F7] border border-transparent rounded-xl text-sm text-[#1D1D1F] focus:outline-none focus:ring-2 focus:ring-accent/20 focus:bg-white transition-all duration-200 placeholder-[#86868B];
-  }
-  .dark .glass-input {
-    @apply bg-[#2C2C2E] border-transparent text-[#F5F5F7] focus:ring-accent/30 focus:bg-[#3A3A3C] placeholder-[#86868B];
+    @apply w-full px-4 py-3 bg-white/40 dark:bg-[#1c1c1e]/40 backdrop-blur-md border border-black/5 dark:border-white/10 rounded-xl text-sm text-[#1D1D1F] dark:text-[#F5F5F7] focus:outline-none focus:ring-2 focus:ring-accent/40 focus:bg-white/60 dark:focus:bg-black/60 transition-all duration-200 placeholder-[#86868B];
   }
 
   /* Custom Buttons */
@@ -114,54 +111,51 @@ body {
   }
 
   .glass-button-primary {
-    @apply bg-accent text-white shadow-xl shadow-accent/20 hover:bg-accent/90 cursor-pointer;
+    @apply backdrop-blur-md bg-black/40 dark:bg-black/60 text-white shadow-xl shadow-black/20 hover:bg-black/60 dark:hover:bg-black/80 border border-white/10 cursor-pointer;
   }
   
   .glass-button-secondary {
-    @apply bg-[#F5F5F7] text-[#1D1D1F] border border-transparent shadow-xl shadow-accent/20 cursor-pointer;
+    @apply backdrop-blur-md bg-white/10 dark:bg-[#2C2C2E]/40 text-[#1D1D1F] dark:text-[#F5F5F7] border border-black/5 dark:border-white/10 shadow-xl shadow-black/10 cursor-pointer hover:bg-white/20 dark:hover:bg-[#2C2C2E]/60;
   }
-  .dark .glass-button-secondary {
-    @apply bg-[#2C2C2E] text-[#F5F5F7];
-  }
-
+  
   .btn-save {
-    @apply bg-green-500 text-white shadow-xl shadow-green-500/20 hover:bg-green-600;
+    @apply backdrop-blur-md bg-black/40 dark:bg-black/60 text-green-400 shadow-xl shadow-black/20 hover:bg-black/60 dark:hover:bg-black/80 border border-green-500/20 hover:border-green-500/40;
   }
 
   .btn-cancel {
-    @apply bg-red-500 text-white shadow-xl shadow-red-500/20 hover:bg-red-600;
+    @apply backdrop-blur-md bg-black/40 dark:bg-black/60 text-red-400 shadow-xl shadow-black/20 hover:bg-black/60 dark:hover:bg-black/80 border border-red-500/20 hover:border-red-500/40;
   }
 
   .btn-action {
-    @apply bg-accent text-white shadow-xl shadow-accent/20 hover:bg-accent/90;
+    @apply backdrop-blur-md bg-black/40 dark:bg-black/60 text-accent shadow-xl shadow-black/20 hover:bg-black/60 dark:hover:bg-black/80 border border-accent/20 hover:border-accent/40;
   }
 
   .btn-briefing-glow {
     @apply font-sans h-14 rounded-[1.25rem] font-black uppercase tracking-normal text-xs sm:text-xs transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
-    @apply bg-zinc-950 text-white border border-white/5;
+    @apply backdrop-blur-md bg-zinc-950/60 text-white border border-white/10;
     @apply shadow-[0_15px_30px_-12px_rgba(37,99,235,0.3)];
-    @apply hover:shadow-[0_20px_40px_-12px_rgba(37,99,235,0.4)] hover:bg-black;
+    @apply hover:shadow-[0_20px_40px_-12px_rgba(37,99,235,0.4)] hover:bg-black/80;
   }
 
   .btn-green-glow {
     @apply font-sans rounded-[1.25rem] font-bold uppercase tracking-normal transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
-    @apply bg-black text-white border border-white/10;
-    @apply shadow-[0_15px_30px_-10px_rgba(34,197,94,0.4)];
-    @apply hover:shadow-[0_25px_50px_-12px_rgba(34,197,94,0.6)] hover:scale-[1.02];
+    @apply backdrop-blur-md bg-black/40 dark:bg-black/60 text-green-400 border border-green-500/20;
+    @apply shadow-[0_15px_30px_-10px_rgba(0,0,0,0.4)];
+    @apply hover:shadow-[0_25px_50px_-12px_rgba(34,197,94,0.3)] hover:bg-black/60 dark:hover:bg-black/80 hover:border-green-500/40 hover:scale-[1.02];
   }
 
   .btn-blue-glow {
     @apply font-sans rounded-[1.25rem] font-bold uppercase tracking-normal transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
-    @apply bg-black text-white border border-white/10;
-    @apply shadow-[0_15px_30px_-10px_rgba(0,102,255,0.4)];
-    @apply hover:shadow-[0_25px_50px_-12px_rgba(0,102,255,0.6)] hover:scale-[1.02];
+    @apply backdrop-blur-md bg-black/40 dark:bg-black/60 text-accent border border-accent/20;
+    @apply shadow-[0_15px_30px_-10px_rgba(0,0,0,0.4)];
+    @apply hover:shadow-[0_25px_50px_-12px_rgba(0,102,255,0.3)] hover:bg-black/60 dark:hover:bg-black/80 hover:border-accent/40 hover:scale-[1.02];
   }
 
   .btn-red-glow {
     @apply font-sans rounded-[1.25rem] font-bold uppercase tracking-normal transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
-    @apply bg-black text-white border border-white/10;
-    @apply shadow-[0_15px_30px_-10px_rgba(239,68,68,0.4)];
-    @apply hover:shadow-[0_25px_50px_-12px_rgba(239,68,68,0.6)] hover:scale-[1.02];
+    @apply backdrop-blur-md bg-black/40 dark:bg-black/60 text-red-500 border border-red-500/20;
+    @apply shadow-[0_15px_30px_-10px_rgba(0,0,0,0.4)];
+    @apply hover:shadow-[0_25px_50px_-12px_rgba(239,68,68,0.3)] hover:bg-black/60 dark:hover:bg-black/80 hover:border-red-500/40 hover:scale-[1.02];
   }
 
   .custom-scrollbar {

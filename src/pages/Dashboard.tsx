@@ -7,6 +7,7 @@ import { CheckSquare, Calendar as CalendarIcon, Clock as ClockIcon, FileText, Me
 import { Link } from 'react-router-dom';
 import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
+import { useSettings } from '../contexts/SettingsContext';
 import { cn } from '../lib/utils';
 import Holidays from 'date-holidays';
 import { NoteEditor } from '../components/NoteEditor';
@@ -38,6 +39,7 @@ function LiveClock() {
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { modules } = useSettings();
   
   const [todos, setTodos] = useState<any[]>([]);
   const [appointments, setAppointments] = useState<any[]>([]);
@@ -204,19 +206,11 @@ export default function Dashboard() {
     </div>
   );
 
-  return (
-    <div className="max-w-[1500px] mx-auto flex flex-col relative z-10 w-full px-6 sm:px-8 pb-10">
-      <header className="mb-8 mt-4 flex justify-center w-full px-1">
-        <LiveClock />
-      </header>
-
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-           {[1,2,3,4,5,6,7,8,9].map(i => <div key={i} className="h-80 bg-[#1c1c1e]/10 rounded-[2.5rem] border border-white/5 shadow-sm" />)}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8 mt-4 md:mt-0 flex-1">
-          <DashboardCard title="Termine" icon={CalendarIcon} to="/calendar" color="#60A5FA">
+  const renderCard = (moduleId: string) => {
+    switch (moduleId) {
+      case 'calendar':
+        return (
+          <DashboardCard key="calendar" title="Termine" icon={CalendarIcon} to="/calendar" color="#60A5FA">
             {appointments.length > 0 ? (
                <div className={cn("flex flex-col -mx-6 max-h-[222px] md:max-h-[296px] overflow-y-auto custom-scrollbar", nextHoliday ? "-mb-3" : "-mb-6")}>
                 {appointments.map(app => (
@@ -252,8 +246,10 @@ export default function Dashboard() {
               </div>
             )}
           </DashboardCard>
-
-          <DashboardCard title="Aufgaben" icon={CheckSquare} to="/tasks" color="#60A5FA">
+        );
+      case 'tasks':
+        return (
+          <DashboardCard key="tasks" title="Aufgaben" icon={CheckSquare} to="/tasks" color="#60A5FA">
             {todos.length > 0 ? (
                <div className="flex flex-col -mx-6 -mb-6 max-h-[222px] md:max-h-[296px] overflow-y-auto custom-scrollbar">
                   {todos.map(todo => (
@@ -305,8 +301,10 @@ export default function Dashboard() {
                </div>
             )}
           </DashboardCard>
-
-          <DashboardCard title="Notizen" icon={FileText} to="/notes" color="#AF52DE">
+        );
+      case 'notes':
+        return (
+          <DashboardCard key="notes" title="Notizen" icon={FileText} to="/notes" color="#AF52DE">
             {notes.length > 0 ? (
                <div className="flex flex-col -mx-6 -mb-6 max-h-[222px] md:max-h-[296px] overflow-y-auto custom-scrollbar">
                 {notes.map(note => (
@@ -331,8 +329,10 @@ export default function Dashboard() {
                </div>
             )}
           </DashboardCard>
-
-          <DashboardCard title="Haushaltsbuch" icon={Wallet} to="/household" color="#34C759">
+        );
+      case 'household':
+        return (
+          <DashboardCard key="household" title="Haushaltsbuch" icon={Wallet} to="/household" color="#34C759">
             <div className="grid grid-cols-3 gap-2 mb-2 p-3">
               <div className="text-center">
                 <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Plus</div>
@@ -374,8 +374,10 @@ export default function Dashboard() {
                </div>
             )}
           </DashboardCard>
-
-          <DashboardCard title="Prompts" icon={MessageSquare} to="/prompts" color="#FF9500">
+        );
+      case 'prompts':
+        return (
+          <DashboardCard key="prompts" title="Prompts" icon={MessageSquare} to="/prompts" color="#FF9500">
             {prompts.length > 0 ? (
                <div className="flex flex-col -mx-6 -mb-6 max-h-[222px] md:max-h-[296px] overflow-y-auto custom-scrollbar">
                 {prompts.map(prompt => (
@@ -400,8 +402,10 @@ export default function Dashboard() {
                </div>
             )}
           </DashboardCard>
-
-          <DashboardCard title="Links" icon={LinkIcon} to="/links" color="#5856D6">
+        );
+      case 'links':
+        return (
+          <DashboardCard key="links" title="Links" icon={LinkIcon} to="/links" color="#5856D6">
             {links.length > 0 ? (
                <div className="flex flex-col -mx-6 -mb-6 max-h-[222px] md:max-h-[296px] overflow-y-auto custom-scrollbar">
                 {links.map(link => {
@@ -428,8 +432,10 @@ export default function Dashboard() {
                </div>
             )}
           </DashboardCard>
-
-          <DashboardCard title="Kontakte" icon={Users} to="/contacts" color="#FF2D55">
+        );
+      case 'contacts':
+        return (
+          <DashboardCard key="contacts" title="Kontakte" icon={Users} to="/contacts" color="#FF2D55">
             {contacts.length > 0 ? (
               <div className="flex flex-col -mx-6 -mb-6 max-h-[222px] md:max-h-[296px] overflow-y-auto custom-scrollbar">
                 {contacts.map(contact => (
@@ -453,12 +459,32 @@ export default function Dashboard() {
               </div>
             )}
           </DashboardCard>
+        );
+      default:
+        return null;
+    }
+  };
 
+  return (
+    <div className="max-w-[1500px] mx-auto flex flex-col relative z-10 w-full px-6 sm:px-8 pb-10">
+      <header className="mb-8 mt-4 flex justify-center w-full px-1">
+        <LiveClock />
+      </header>
+
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+           {[1,2,3,4,5,6,7,8,9].map(i => <div key={i} className="h-80 bg-[#1c1c1e]/10 rounded-[2.5rem] border border-white/5 shadow-sm" />)}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8 mt-4 md:mt-0 flex-1">
+          {modules
+             .filter(m => m.enabled && m.id !== 'dashboard' && m.id !== 'settings' && m.id !== 'passwords')
+             .map(m => renderCard(m.id))}
         </div>
       )}
 
       {editItem && createPortal(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-xl animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-md animate-in fade-in duration-300">
            <div className="glass-card w-full max-w-[480px] md:max-w-4xl h-full max-h-[85vh] rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl relative">
               <div className="flex-1 overflow-hidden">
                 {editItem.type === 'notes' && <NoteEditor note={editItem.data} onBack={() => setEditItem(null)} />}
@@ -473,7 +499,7 @@ export default function Dashboard() {
       )}
 
       {deleteModal && deleteModal.open && createPortal(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
           <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
             <p className="text-sm text-[#86868B] mb-8">Dieser Eintrag wird unwiderruflich entfernt.</p>
@@ -548,7 +574,7 @@ function TaskEditForm({ todo, onBack }: { todo: any, onBack: () => void }) {
         </div>
         <div className="space-y-1.5 flex flex-col">
           <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Priorität</label>
-          <select value={priority} onChange={(e) => setPriority(e.target.value as any)} className="glass-input h-12 bg-[#1c1c1e] text-white border-white/10 focus:ring-accent/30 font-bold uppercase appearance-none w-full">
+          <select value={priority} onChange={(e) => setPriority(e.target.value as any)} className="glass-input h-12 focus:ring-accent/30 font-bold uppercase appearance-none w-full">
             <option value="high" className="bg-[#1c1c1e] text-white">🔴 Hoch</option>
             <option value="medium" className="bg-[#1c1c1e] text-white">🟡 Mittel</option>
             <option value="low" className="bg-[#1c1c1e] text-white">🟢 Niedrig</option>

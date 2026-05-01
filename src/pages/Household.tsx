@@ -741,7 +741,7 @@ export default function Household() {
                 type="number" step="0.01" 
                 value={amount} onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="glass-input h-12 font-black text-lg bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent" required
+                className="glass-input h-12 font-black text-lg focus:ring-2 focus:ring-accent" required
               />
             </div>
 
@@ -750,7 +750,7 @@ export default function Household() {
               <input 
                 type="text" value={description} onChange={(e) => setDescription(e.target.value)}
                 placeholder="z.B. Miete"
-                className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold" required
+                className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold" required
               />
             </div>
 
@@ -758,7 +758,7 @@ export default function Household() {
               <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Datum</label>
               <input 
                 type="date" value={date} onChange={(e) => setDate(e.target.value)}
-                className="glass-input h-12 bg-brand/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold" required
+                className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold" required
               />
             </div>
 

@@ -14,6 +14,8 @@ export interface WeatherData {
     tempMax: number[];
     tempMin: number[];
     precipitationSum: number[];
+    sunrise: string[];
+    sunset: string[];
   };
   trend: {
     time: string[];
@@ -58,7 +60,7 @@ export function getWeatherInfo(code: number) {
 }
 
 export async function fetchWeather(lat: number, lon: number): Promise<WeatherData> {
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=14`;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,sunrise,sunset&timezone=auto&forecast_days=14`;
   
   try {
     const response = await fetch(url);
@@ -84,6 +86,8 @@ export async function fetchWeather(lat: number, lon: number): Promise<WeatherDat
         tempMax: data.daily.temperature_2m_max.slice(0, 8),
         tempMin: data.daily.temperature_2m_min.slice(0, 8),
         precipitationSum: data.daily.precipitation_sum.slice(0, 8),
+        sunrise: data.daily.sunrise.slice(0, 8),
+        sunset: data.daily.sunset.slice(0, 8),
       },
       trend: {
         time: data.daily.time,

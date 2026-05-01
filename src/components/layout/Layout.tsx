@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { useSettings, MODULE_ICONS, MODULE_PATHS } from '../../contexts/SettingsContext';
 import { 
   LayoutDashboard, CheckSquare, Calendar as CalendarIcon, FileText, 
   Link as LinkIcon, Menu, X, Sun, Zap, MessageSquare, 
@@ -9,7 +10,8 @@ import {
   Code, BookOpen, Sparkles, FastForward, Layers, Compass,
   Music, Volume2, Mic, Linkedin, Share2, Users, Dices, LogOut, Shield,
   Facebook, Instagram,
-  Command, CloudSun, CloudRain, CloudSnow, CloudFog, CloudDrizzle, CloudLightning
+  Command, CloudSun, CloudRain, CloudSnow, CloudFog, CloudDrizzle, CloudLightning,
+  Settings as SettingsIcon
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -18,6 +20,7 @@ import WeatherModal from '../WeatherModal';
 import { fetchWeather, WeatherData, getWeatherInfo, fetchCityName } from '../../services/weatherService';
 
 interface NavItem {
+  id?: string;
   name: string;
   icon: any;
   path?: string;
@@ -39,6 +42,7 @@ interface Category {
 
 export default function Layout() {
   const { user, logout } = useAuth();
+  const { modules } = useSettings();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -53,6 +57,9 @@ export default function Layout() {
     ai: false,
     social: false
   });
+  const [isMobileSearchExpanded, setIsMobileSearchExpanded] = useState(false);
+  const mobileSearchContainerRef = React.useRef<HTMLDivElement>(null);
+  const mobileSearchToggleRef = React.useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -64,6 +71,23 @@ export default function Layout() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isMobileSearchExpanded &&
+        mobileSearchContainerRef.current &&
+        !mobileSearchContainerRef.current.contains(event.target as Node) &&
+        mobileSearchToggleRef.current &&
+        !mobileSearchToggleRef.current.contains(event.target as Node)
+      ) {
+        setIsMobileSearchExpanded(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isMobileSearchExpanded]);
 
   useEffect(() => {
     const loadWeather = async () => {
@@ -139,17 +163,12 @@ export default function Layout() {
     }, 400);
   };
 
-  const navItems: NavItem[] = [
-    { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
-    { name: 'Kalender', icon: CalendarIcon, path: '/calendar' },
-    { name: 'Aufgaben', icon: CheckSquare, path: '/tasks' },
-    { name: 'Notizen', icon: FileText, path: '/notes' },
-    { name: 'Haushaltsbuch', icon: Wallet, path: '/household' },
-    { name: 'Prompts', icon: MessageSquare, path: '/prompts' },
-    { name: 'Links', icon: LinkIcon, path: '/links' },
-    { name: 'Kontakte', icon: Users, path: '/contacts' },
-    { name: 'Safe', icon: Shield, path: '/passwords' },
-  ];
+  const navItems: NavItem[] = modules.filter(m => m.enabled).map(m => ({
+    id: m.id,
+    name: m.name,
+    icon: MODULE_ICONS[m.id] || LayoutDashboard,
+    path: MODULE_PATHS[m.id] || '/'
+  }));
 
   const categories: Category[] = [
     {
@@ -247,29 +266,48 @@ export default function Layout() {
           isSidebarCollapsed ? "lg:w-20" : "lg:w-64 w-64"
         )}
       >
-        <div className={cn("h-16 px-6 lg:h-auto lg:p-8 flex items-center shrink-0", isSidebarCollapsed ? "flex-col gap-4 px-0" : "gap-3")}>
-          <div className="w-8 h-8 flex items-center justify-center text-blue-500 shrink-0">
-            <Zap size={26} fill="currentColor" />
-          </div>
-          {!isSidebarCollapsed ? (
-            <div className="flex-1 flex items-center justify-between overflow-hidden">
-              <span className="font-brand font-bold text-base tracking-tighter text-[#1D1D1F] dark:text-[#F5F5F7] truncate uppercase">ROPRO</span>
-              <WeatherSummaryIcon className="ml-2 hidden lg:flex" />
-            </div>
-          ) : (
-            <WeatherSummaryIcon className="hidden lg:flex" />
-          )}
+        <div className={cn("h-16 px-4 lg:h-auto lg:p-4 flex items-center shrink-0 border-b border-transparent dark:border-[#424245]/30", isSidebarCollapsed ? "justify-center" : "")}>
+          <button 
+            className={cn("flex items-center gap-3 w-full p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-colors text-left group", isSidebarCollapsed ? "justify-center" : "")}
+            onClick={logout}
+            title="Abmelden"
+          >
+            {user?.photoURL ? (
+              <img 
+                src={user.photoURL} 
+                alt={user.displayName || 'Avatar'} 
+                className="w-10 h-10 rounded-full border border-black/5 dark:border-white/10 shrink-0"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 shrink-0 group-hover:bg-red-500/20 transition-colors">
+                <LogOut size={18} />
+              </div>
+            )}
+            {!isSidebarCollapsed && (
+              <div className="flex-1 min-w-0 flex flex-col justify-center">
+                <span className="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7] truncate">{user?.displayName || 'Benutzer'}</span>
+                <span className="text-[10px] text-[#86868B] truncate group-hover:text-red-500 transition-colors uppercase tracking-wider font-bold">Abmelden</span>
+              </div>
+            )}
+            {isSidebarCollapsed && (
+               <div className="absolute top-1/2 -right-8 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+                   Abmelden
+               </div>
+            )}
+          </button>
+          
           <button 
             type="button"
-            className="lg:hidden text-[#86868B] ml-auto hover:text-[#1D1D1F] transition-colors focus-visible:ring-2 rounded-lg flex items-center justify-center w-10 h-10 -mr-2" 
+            className="lg:hidden text-[#86868B] ml-2 hover:text-[#1D1D1F] transition-colors focus-visible:ring-2 rounded-lg flex items-center justify-center w-10 h-10 shrink-0" 
             onClick={() => setIsSidebarOpen(false)}
             aria-label="Sidebar schließen"
           >
-            <X size={28} />
+            <X size={24} />
           </button>
         </div>
 
-        <nav className="flex-1 py-2 overflow-y-auto flex flex-col gap-6">
+        <nav className="flex-1 pt-4 pb-2 overflow-y-auto flex flex-col gap-6">
           <div className="space-y-1">
             {!isSidebarCollapsed && <h3 className="px-4 text-xs font-bold text-[#86868B] uppercase tracking-wider mb-2">Hauptmenü</h3>}
             {navItems.map((item) => {
@@ -315,6 +353,10 @@ export default function Layout() {
                 </NavLink>
               );
             })}
+          </div>
+
+          <div className={cn("shrink-0", isSidebarCollapsed ? "px-2" : "px-4")}>
+            <div className="h-[1px] bg-black/5 dark:bg-white/5" />
           </div>
 
           <div className="space-y-4">
@@ -365,96 +407,111 @@ export default function Layout() {
           </div>
         </nav>
 
-        <div className="py-3 border-t border-[#D2D2D7]/30 dark:border-[#424245]/30 space-y-1.5 shrink-0">
+        <div className={cn("p-4 border-t border-[#D2D2D7]/30 dark:border-[#424245]/30 shrink-0 flex gap-2", isSidebarCollapsed ? "flex-col" : "flex-row")}>
            <button 
              type="button"
              onClick={handleRandomize}
              disabled={isRolling}
-             className={cn(
-               "sidebar-item focus:outline-none w-full",
-               isSidebarCollapsed && "justify-center px-0 text-slate-400"
+             className={cn("flex-1 h-10 flex items-center justify-center gap-2 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white",
+               isRolling && "opacity-50",
+               isSidebarCollapsed ? "px-0 flex-col gap-1" : ""
              )}
-             title={isSidebarCollapsed ? "Zufall" : undefined}
+             title="Zufallsgenerator"
            >
-             <Dices size={20} className={cn("shrink-0", isRolling && "animate-spin")} />
-             {!isSidebarCollapsed && (
-               <>
-                 <span className="flex-1 text-left">Zufallsgenerator</span>
-                 {randomResult && (
-                   <motion.span 
-                     initial={{ scale: 0.5, opacity: 0 }}
-                     animate={{ scale: 1, opacity: 1 }}
-                     className="bg-brand text-white px-2 py-0.5 rounded-lg font-black text-[9px] uppercase tracking-wider"
-                   >
-                     {randomResult}
-                   </motion.span>
-                 )}
-               </>
-             )}
-             {isSidebarCollapsed && randomResult && !isRolling && (
-               <div className="absolute top-0.5 right-0.5 bg-brand text-white text-[8px] w-3.5 h-3.5 flex items-center justify-center rounded-full font-black shadow-sm ring-2 ring-[#F2F2F7] dark:ring-[#000000]">
-                 {randomResult === 'Ja' ? 'J' : 'N'}
-               </div>
+             <Dices size={20} className={cn(isRolling && "animate-spin")} />
+             {randomResult && !isRolling && (
+               <span className={cn("font-black tracking-wider text-brand", isSidebarCollapsed ? "text-[9px]" : "text-sm ml-1")}>
+                 {randomResult === 'Ja' ? 'JA' : 'NEIN'}
+               </span>
              )}
            </button>
 
-           <div className="w-full mt-1">
-             <button 
-               type="button"
-               className={cn(
-                 "sidebar-item w-full focus:outline-none hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500 dark:text-red-500",
-                 isSidebarCollapsed && "justify-center px-0 text-red-500"
-               )}
-               onClick={logout}
-               title={isSidebarCollapsed ? "Abmelden" : undefined}
-             >
-               {user?.photoURL ? (
-                 <img 
-                   src={user.photoURL} 
-                   alt={user.displayName || 'Avatar'} 
-                   className="w-5 h-5 rounded-full border border-black/5 dark:border-white/10 shrink-0"
-                   referrerPolicy="no-referrer"
-                 />
-               ) : (
-                 <LogOut size={20} className="shrink-0" />
-               )}
-               {!isSidebarCollapsed && (
-                 <span>Abmelden</span>
-               )}
-             </button>
-           </div>
+           <NavLink
+              to="/settings"
+              onClick={() => setIsSidebarOpen(false)}
+              className={({ isActive }) => cn(
+                "flex-1 h-10 flex items-center justify-center rounded-xl transition-colors text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white",
+                isActive ? "text-brand bg-brand/10 dark:text-brand dark:bg-brand/20" : "bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10"
+              )}
+              title="Einstellungen"
+            >
+              <SettingsIcon size={20} />
+            </NavLink>
 
            <button 
              type="button"
              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-             className="hidden lg:flex w-full items-center justify-center h-8 rounded-xl bg-white/50 dark:bg-white/5 border border-black/5 dark:border-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-all text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white focus:outline-none"
+             className="hidden lg:flex w-10 h-10 shrink-0 items-center justify-center rounded-xl bg-white/50 dark:bg-white/5 border border-black/5 dark:border-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-all text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white focus:outline-none"
              aria-label={isSidebarCollapsed ? "Menü ausklappen" : "Menü einklappen"}
            >
-             {isSidebarCollapsed ? <p className="text-xs font-bold">»</p> : <p className="text-xs font-bold">«</p>}
+             {isSidebarCollapsed ? <span className="text-xs font-bold">»</span> : <span className="text-xs font-bold">«</span>}
            </button>
         </div>
       </aside>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 h-screen relative z-10 transition-colors duration-500 overflow-hidden">
-        <header className="absolute top-0 inset-x-0 h-16 flex items-center justify-between px-6 lg:hidden shrink-0 bg-white/40 dark:bg-black/40 backdrop-blur-xl z-[60] border-none">
-          <div className="flex items-center gap-3 flex-1 mr-4">
+        <header className="absolute top-0 inset-x-0 h-16 flex items-center justify-between px-4 lg:hidden shrink-0 bg-white/40 dark:bg-black/40 backdrop-blur-xl z-[60] border-none overflow-hidden">
+          {/* Hamburger Menu */}
+          <div className="flex items-center shrink-0 z-20 bg-transparent">
             <button 
-              className="w-10 h-10 flex items-center justify-center -ml-2 text-[#86868B] hover:text-[#1D1D1F] rounded-lg transition-colors shrink-0"
+              className="w-10 h-10 flex items-center justify-center -ml-2 text-[#86868B] hover:text-[#1D1D1F] rounded-lg transition-colors"
               onClick={() => setIsSidebarOpen(true)}
             >
               <Menu size={28} />
             </button>
-            <button 
-              onClick={() => setIsSearchOpen(true)}
-              className="flex-1 flex items-center gap-2 h-11 px-4 bg-black/10 dark:bg-black/50 rounded-xl text-[#86868B] hover:bg-black/15 dark:hover:bg-white/10 transition-colors"
-            >
-              <Search size={18} className="shrink-0" />
-              <span className="text-sm font-medium">Suchen...</span>
-            </button>
           </div>
-          <div className="flex items-center justify-center shrink-0">
-            <WeatherSummaryIcon iconSize={24} textSize="text-sm" />
+
+          <div className="flex-1 flex items-center justify-end h-full relative mx-2" ref={mobileSearchContainerRef}>
+            <AnimatePresence>
+              {!isMobileSearchExpanded && (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-y-0 left-0 flex items-center pointer-events-none"
+                >
+                  <div className="flex items-center gap-2 text-blue-500">
+                    <Zap size={22} fill="currentColor" />
+                    <span className="font-brand font-bold text-lg tracking-tighter text-[#1D1D1F] dark:text-[#F5F5F7] uppercase">ROPRO</span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+              {isMobileSearchExpanded && (
+                <motion.div 
+                  initial={{ maxWidth: 0, opacity: 0 }}
+                  animate={{ maxWidth: '100%', opacity: 1 }}
+                  exit={{ maxWidth: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  className="w-full h-full flex items-center justify-end overflow-hidden origin-right"
+                >
+                  <button 
+                    onClick={() => setIsSearchOpen(true)}
+                    className="w-full flex items-center gap-2 h-10 px-4 bg-[#1C1C1E] rounded-xl text-white hover:bg-black transition-colors shrink-0"
+                  >
+                    <Search size={16} className="shrink-0 text-white/70" />
+                    <span className="text-sm font-medium text-white/90">Suchen...</span>
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Right side icons */}
+          <div className="flex items-center gap-2 shrink-0 z-20 bg-transparent">
+            <button 
+              ref={mobileSearchToggleRef}
+              onClick={() => setIsMobileSearchExpanded(!isMobileSearchExpanded)}
+              className={cn("w-10 h-10 flex items-center justify-center rounded-lg transition-colors", isMobileSearchExpanded ? "text-[#1D1D1F] dark:text-white bg-black/5 dark:bg-white/10" : "text-[#86868B] hover:bg-black/5 dark:hover:bg-white/10")}
+            >
+               {isMobileSearchExpanded ? <X size={20} /> : <Search size={22} />}
+            </button>
+            <div className="flex items-center justify-center shrink-0">
+               <WeatherSummaryIcon iconSize={24} textSize="text-sm" />
+            </div>
           </div>
         </header>
 

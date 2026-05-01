@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   X, Sun, Cloud, CloudSun, CloudRain, CloudSnow, 
   CloudFog, CloudDrizzle, CloudLightning, Wind, 
-  Droplets, Thermometer, Calendar, TrendingUp
+  Droplets, Thermometer, Calendar, TrendingUp, Sunrise, Sunset
 } from 'lucide-react';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, 
@@ -107,7 +107,7 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 w-full md:w-auto">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 w-full md:w-auto">
                     <div className="flex items-center gap-3 p-3">
                       <Wind size={24} className="text-brand dark:text-white" />
                       <div>
@@ -122,6 +122,24 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
                         <div className="text-sm font-bold text-slate-900 dark:text-white">{data.current.humidity}%</div>
                       </div>
                     </div>
+                    {data.daily.sunrise && data.daily.sunrise[0] && (
+                      <div className="flex items-center gap-3 p-3">
+                        <Sunrise size={24} className="text-brand dark:text-white" />
+                        <div>
+                          <div className="text-xs font-black uppercase text-brand-muted tracking-wider">Aufgang</div>
+                          <div className="text-sm font-bold text-slate-900 dark:text-white">{format(new Date(data.daily.sunrise[0]), 'HH:mm')} Uhr</div>
+                        </div>
+                      </div>
+                    )}
+                    {data.daily.sunset && data.daily.sunset[0] && (
+                      <div className="flex items-center gap-3 p-3">
+                        <Sunset size={24} className="text-brand dark:text-white" />
+                        <div>
+                          <div className="text-xs font-black uppercase text-brand-muted tracking-wider">Untergang</div>
+                          <div className="text-sm font-bold text-slate-900 dark:text-white">{format(new Date(data.daily.sunset[0]), 'HH:mm')} Uhr</div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

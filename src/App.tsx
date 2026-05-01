@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { SettingsProvider } from './contexts/SettingsContext';
 import { useAuth } from './hooks/useAuth';
 import Layout from './components/layout/Layout';
 
@@ -16,6 +17,7 @@ const Prompts = lazy(() => import('./pages/Prompts'));
 const Household = lazy(() => import('./pages/Household'));
 const Contacts = lazy(() => import('./pages/Contacts'));
 const Passwords = lazy(() => import('./pages/Passwords'));
+const Settings = lazy(() => import('./pages/Settings'));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -28,31 +30,34 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <BrowserRouter>
-          <Suspense fallback={<div className="min-h-screen bg-slate-50 dark:bg-black text-slate-900 dark:text-white flex items-center justify-center font-sans">Laden...</div>}>
-          <Routes>
-            <Route path="/auth" element={<Auth />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Layout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<Dashboard />} />
-              <Route path="household" element={<Household />} />
-              <Route path="notes" element={<Notes />} />
-              <Route path="tasks" element={<Tasks />} />
-              <Route path="calendar" element={<CalendarPage />} />
-              <Route path="links" element={<Links />} />
-              <Route path="prompts" element={<Prompts />} />
-              <Route path="contacts" element={<Contacts />} />
-              <Route path="passwords" element={<Passwords />} />
-            </Route>
-          </Routes>
-        </Suspense>
-        </BrowserRouter>
+        <SettingsProvider>
+          <BrowserRouter>
+            <Suspense fallback={<div className="min-h-screen bg-slate-50 dark:bg-black text-slate-900 dark:text-white flex items-center justify-center font-sans">Laden...</div>}>
+            <Routes>
+              <Route path="/auth" element={<Auth />} />
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <Layout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<Dashboard />} />
+                <Route path="household" element={<Household />} />
+                <Route path="notes" element={<Notes />} />
+                <Route path="tasks" element={<Tasks />} />
+                <Route path="calendar" element={<CalendarPage />} />
+                <Route path="links" element={<Links />} />
+                <Route path="prompts" element={<Prompts />} />
+                <Route path="contacts" element={<Contacts />} />
+                <Route path="passwords" element={<Passwords />} />
+                <Route path="settings" element={<Settings />} />
+              </Route>
+            </Routes>
+          </Suspense>
+          </BrowserRouter>
+        </SettingsProvider>
       </AuthProvider>
     </ThemeProvider>
   );
