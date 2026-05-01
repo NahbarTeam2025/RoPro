@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { collection, query, where, onSnapshot, updateDoc, deleteDoc, doc, serverTimestamp, orderBy } from 'firebase/firestore';
 import { format, startOfDay, addDays } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { CheckSquare, Calendar as CalendarIcon, FileText, MessageSquare, Link as LinkIcon, Plus, ChevronRight, Check, Edit2, Trash2, Search, X, Save, Wallet, ArrowUpCircle, ArrowDownCircle, Zap, Pin, Users, Shield } from 'lucide-react';
+import { CheckSquare, Calendar as CalendarIcon, Clock as ClockIcon, FileText, MessageSquare, Link as LinkIcon, Plus, ChevronRight, Check, Edit2, Trash2, Search, X, Save, Wallet, ArrowUpCircle, ArrowDownCircle, Zap, Pin, Users, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
@@ -16,7 +16,7 @@ import { createPortal } from 'react-dom';
 
 const hd = new Holidays('DE', 'BB');
 
-function Clock() {
+function LiveClock() {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -207,7 +207,7 @@ export default function Dashboard() {
   return (
     <div className="max-w-[1500px] mx-auto flex flex-col relative z-10 w-full px-6 sm:px-8 pb-10">
       <header className="mb-8 mt-4 flex justify-center w-full px-1">
-        <Clock />
+        <LiveClock />
       </header>
 
       {loading ? (
@@ -548,10 +548,10 @@ function TaskEditForm({ todo, onBack }: { todo: any, onBack: () => void }) {
         </div>
         <div className="space-y-1.5 flex flex-col">
           <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Priorität</label>
-          <select value={priority} onChange={(e) => setPriority(e.target.value as any)} className="glass-input h-12 appearance-none bg-white dark:bg-[#050505]">
-            <option value="high">Hoch</option>
-            <option value="medium">Mittel</option>
-            <option value="low">Niedrig</option>
+          <select value={priority} onChange={(e) => setPriority(e.target.value as any)} className="glass-input h-12 bg-[#1c1c1e] text-white border-white/10 focus:ring-accent/30 font-bold uppercase appearance-none w-full">
+            <option value="high" className="bg-[#1c1c1e] text-white">🔴 Hoch</option>
+            <option value="medium" className="bg-[#1c1c1e] text-white">🟡 Mittel</option>
+            <option value="low" className="bg-[#1c1c1e] text-white">🟢 Niedrig</option>
           </select>
         </div>
         <div className="space-y-1.5 flex flex-col">
@@ -561,11 +561,43 @@ function TaskEditForm({ todo, onBack }: { todo: any, onBack: () => void }) {
         <div className="space-y-4">
           <div className="space-y-1.5 flex flex-col">
             <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Datum</label>
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="glass-input h-12" />
+            <div className="relative">
+              <input type="date" id="task-edit-date" value={date} onChange={(e) => setDate(e.target.value)} className="glass-input h-12 w-full" />
+              <CalendarIcon 
+                size={18} 
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted cursor-pointer hover:text-brand" 
+                onClick={() => {
+                  const input = document.getElementById('task-edit-date') as any;
+                  if (input) {
+                    if (document.activeElement === input) {
+                      input.blur();
+                    } else {
+                      input.showPicker?.() || input.focus();
+                    }
+                  }
+                }}
+              />
+            </div>
           </div>
           <div className="space-y-1.5 flex flex-col">
             <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Uhrzeit</label>
-            <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="glass-input h-12" />
+            <div className="relative">
+              <input type="time" id="task-edit-time" value={time} onChange={(e) => setTime(e.target.value)} className="glass-input h-12 w-full" />
+              <ClockIcon 
+                size={18} 
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted cursor-pointer hover:text-brand" 
+                onClick={() => {
+                  const input = document.getElementById('task-edit-time') as any;
+                  if (input) {
+                    if (document.activeElement === input) {
+                      input.blur();
+                    } else {
+                      input.showPicker?.() || input.focus();
+                    }
+                  }
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -636,11 +668,43 @@ function AppointmentEditForm({ appointment, onBack }: { appointment: any, onBack
         <div className="space-y-4">
           <div className="space-y-1.5 flex flex-col">
             <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Datum</label>
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="glass-input h-12" />
+            <div className="relative">
+              <input type="date" id="app-date-input" value={date} onChange={(e) => setDate(e.target.value)} className="glass-input h-12 w-full" />
+              <CalendarIcon 
+                size={18} 
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted cursor-pointer hover:text-brand" 
+                onClick={() => {
+                  const input = document.getElementById('app-date-input') as any;
+                  if (input) {
+                    if (document.activeElement === input) {
+                      input.blur();
+                    } else {
+                      input.showPicker?.() || input.focus();
+                    }
+                  }
+                }}
+              />
+            </div>
           </div>
           <div className="space-y-1.5 flex flex-col">
             <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Uhrzeit</label>
-            <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="glass-input h-12" />
+            <div className="relative">
+              <input type="time" id="app-time-input" value={time} onChange={(e) => setTime(e.target.value)} className="glass-input h-12 w-full" />
+              <ClockIcon 
+                size={18} 
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted cursor-pointer hover:text-brand" 
+                onClick={() => {
+                  const input = document.getElementById('app-time-input') as any;
+                  if (input) {
+                    if (document.activeElement === input) {
+                      input.blur();
+                    } else {
+                      input.showPicker?.() || input.focus();
+                    }
+                  }
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>

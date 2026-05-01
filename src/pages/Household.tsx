@@ -5,11 +5,22 @@ import { useAuth } from '../hooks/useAuth';
 import { 
   Plus, Trash2, ArrowUpCircle, ArrowDownCircle, Wallet, 
   Search, Filter, TrendingUp, TrendingDown, PiggyBank,
-  Check, X, Edit2, ChevronRight, PieChart as PieChartIcon,
+  Check, X, Edit2, ChevronRight, ChevronDown, PieChart as PieChartIcon,
   BarChart3
 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, isSameMonth, eachDayOfInterval, subMonths } from 'date-fns';
 import { de } from 'date-fns/locale';
+
+const safeFormatDate = (dateObj: any, fmt: string, fallback = '--') => {
+  if (!dateObj) return fallback;
+  try {
+    const d = typeof dateObj.toDate === 'function' ? dateObj.toDate() : new Date(dateObj);
+    if (isNaN(d.getTime())) return fallback;
+    return format(d, fmt, { locale: de });
+  } catch (e) {
+    return fallback;
+  }
+};
 import { cn } from '../lib/utils';
 import { CategorySelect } from '../components/CategorySelect';
 import { CategoryManager } from '../components/CategoryManager';
@@ -29,6 +40,7 @@ interface Transaction {
   userId: string;
   isRecurring?: boolean;
   interval?: 'monthly' | 'yearly';
+  createdAt?: any;
 }
 
 export default function Household() {
@@ -53,6 +65,9 @@ export default function Household() {
   const [filterMonth, setFilterMonth] = useState(format(new Date(), 'yyyy-MM'));
   const [showCatManager, setShowCatManager] = useState(false);
   const { categories } = useCategories('household');
+  const formRef = React.useRef<HTMLFormElement>(null);
+  const automationsRunRef = React.useRef<string | null>(null);
+  const addingInProgressRef = React.useRef<Set<string>>(new Set());
 
   const [savings, setSavings] = useState<{ amount: number, id: string } | null>(null);
   const [savingsInput, setSavingsInput] = useState('');
@@ -231,7 +246,13 @@ export default function Household() {
     setInterval(t.interval || 'monthly');
     setShowAdd(true);
     setDetailModal(null); // Close detail modal if open
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Ensure form is rendered before scrolling
+    setTimeout(() => {
+      if (formRef.current) {
+        formRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
   };
 
   const handleConfirmDelete = async () => {
@@ -262,8 +283,12 @@ export default function Household() {
   };
 
   const filteredTransactions = transactions.filter(t => {
-    const tDate = t.date?.toDate ? t.date.toDate() : new Date();
-    return format(tDate, 'yyyy-MM') === filterMonth;
+    try {
+      const tDate = t.date?.toDate ? t.date.toDate() : new Date(t.date);
+      return format(tDate, 'yyyy-MM') === filterMonth;
+    } catch(e) {
+      return false;
+    }
   });
 
   const income = filteredTransactions
@@ -279,8 +304,12 @@ export default function Household() {
   // Ensure current month and selected month are always available
   const currentMonthStr = format(new Date(), 'yyyy-MM');
   const monthNamesSet = new Set(transactions.map(t => {
-    const d = t.date?.toDate ? t.date.toDate() : new Date();
-    return format(d, 'yyyy-MM');
+    try {
+      const d = t.date?.toDate ? t.date.toDate() : new Date(t.date);
+      return format(d, 'yyyy-MM');
+    } catch(e) {
+      return format(new Date(), 'yyyy-MM');
+    }
   }));
   
   monthNamesSet.add(currentMonthStr);
@@ -288,11 +317,14 @@ export default function Household() {
   
   const availableMonths = Array.from(monthNamesSet).sort().reverse();
 
-  // Groups recurring transactions to get unique "Abos"
-  const recurringItems = transactions.filter(t => t.isRecurring && t.type === 'expense');
+  const [trendData, setTrendData] = useState<any[]>([]);
+
+  const currentMonthDate = new Date(`${filterMonth}-01`);
+
+  // Groups recurring transactions to get unique "Abos" (Income and Expenses)
+  const recurringItems = transactions.filter(t => t.isRecurring);
   
   // Group by description/amount to show unique subscriptions
-  // Important: We sort by date desc first so we get the most recent instance if there are multiple
   const sortedRecurring = [...recurringItems].sort((a, b) => (b.date?.toDate?.()?.getTime() || 0) - (a.date?.toDate?.()?.getTime() || 0));
   const activeAbos = Array.from(new Map(sortedRecurring.map(item => [`${item.description}-${item.amount}`, item])).values());
   
@@ -306,68 +338,333 @@ export default function Household() {
     
   const totalPerYearSum = (monthlyRecurringSum * 12) + yearlyRecurringSum;
 
-  // Chart Data: Expense Category Distribution
-  const expenseByCategory = filteredTransactions
-    .filter(t => t.type === 'expense')
-    .reduce((acc: any[], t) => {
-      const catName = categories.find(c => c.id === t.category)?.name || 'Sonstiges';
-      const existing = acc.find(item => item.name === catName);
-      if (existing) {
-        existing.Betrag += t.amount;
-      } else {
-        acc.push({ name: catName, Betrag: t.amount });
-      }
-      return acc;
-    }, [])
-    .sort((a, b) => b.Betrag - a.Betrag);
-
   const COLORS = ['#60A5FA', '#3B82F6', '#2563EB', '#1D4ED8', '#1E40AF', '#1E3A8A', '#111827'];
 
-  // Chart Data: Trend (Daily for current month)
-  const currentMonthDate = new Date(`${filterMonth}-01`);
-  const daysInMonth = eachDayOfInterval({
-    start: startOfMonth(currentMonthDate),
-    end: endOfMonth(currentMonthDate)
-  });
+  useEffect(() => {
+    if (!user || loading) return;
 
-  let cumulativeBilanz = 0;
-  let cumulativeExpenses = 0;
-  let cumulativeIncome = 0;
-  const trendData = daysInMonth.map(day => {
-    const dayStr = format(day, 'yyyy-MM-dd');
-    const dayTransactions = filteredTransactions.filter(t => {
-      const d = t.date?.toDate ? t.date.toDate() : new Date();
-      return format(d, 'yyyy-MM-dd') === dayStr;
-    });
+    const today = new Date();
+    const currentMonthStr = format(today, 'yyyy-MM');
+    
+    // CRITICAL: Set ref immediately to prevent subsequent effects from running automations concurrently
+    if (automationsRunRef.current === currentMonthStr + '-v4') return;
+    automationsRunRef.current = currentMonthStr + '-v4';
 
-    const dIncome = dayTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-    const dExpenses = dayTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+    const runAutomations = async () => {
+      // Small delay to let full state settle
+      if (transactions.length === 0 && !loading) {
+        await new Promise(resolve => setTimeout(resolve, 800));
+      }
+      
+      const currentTransactionsSnapshot = transactions;
+      const today = new Date();
+      const currentMonthStr = format(today, 'yyyy-MM');
 
-    cumulativeBilanz += (dIncome - dExpenses);
-    cumulativeExpenses += dExpenses;
-    cumulativeIncome += dIncome;
+      // 0. Auto-Cleanup duplicates & date corrections
+      // Fix items that were incorrectly created on the 1st of the month.
+      const currentMonthTrans = currentTransactionsSnapshot.filter(t => {
+        try {
+          return format(t.date?.toDate ? t.date.toDate() : new Date(t.date), 'yyyy-MM') === currentMonthStr;
+        } catch(e) {
+          return false;
+        }
+      });
+      
+      const seenTrans = new Set<string>();
+      for (const t of currentMonthTrans) {
+        const normalizedDesc = t.description.toLowerCase().trim();
+        const isTargetForCleanup = t.isRecurring || normalizedDesc === 'übertrag aus vormonat' || normalizedDesc.includes('ps lose');
+        
+        if (isTargetForCleanup) {
+          const key = `${normalizedDesc}-${t.amount}`;
+          if (seenTrans.has(key)) {
+            // Duplicate detected, clean it up!
+            try {
+              await deleteDoc(doc(db, 'transactions', t.id));
+              console.log("Deleted duplicate transaction:", t.description);
+            } catch(e) {
+              console.error("Failed to delete duplicate:", e);
+            }
+          } else {
+            seenTrans.add(key);
+          }
+        }
+      }
 
-    return {
-      name: format(day, 'd.'),
-      Einnahmen: cumulativeIncome,
-      Ausgaben: cumulativeExpenses,
-      Bilanz: cumulativeBilanz
+      // 0.5 Run global date correction for ALL recurring items
+      const allRecurringTrans = currentTransactionsSnapshot.filter(t => t.isRecurring);
+      for (const t of allRecurringTrans) {
+        const tDate = t.date?.toDate ? t.date.toDate() : new Date(t.date);
+        if (tDate.getDate() === 1) { // Only check/fix if it's currently on the 1st
+          const normalizedDesc = t.description.toLowerCase().trim();
+          
+          const historical = currentTransactionsSnapshot.filter(ht => 
+            ht.isRecurring && 
+            ht.description.toLowerCase().trim() === normalizedDesc && 
+            Math.abs(ht.amount - t.amount) < 0.05
+          ).sort((a, b) => {
+             const timeA = a.createdAt?.toDate?.()?.getTime() || a.date?.toDate?.()?.getTime() || 0;
+             const timeB = b.createdAt?.toDate?.()?.getTime() || b.date?.toDate?.()?.getTime() || 0;
+             return timeA - timeB;
+          });
+
+          if (historical.length > 0) {
+            let original = historical[0];
+            for (const h of historical) {
+              const hDate = h.date?.toDate ? h.date.toDate() : new Date(h.date);
+              if (hDate.getDate() !== 1) {
+                 original = h;
+                 break;
+              }
+            }
+            
+            const originalDate = original.date?.toDate ? original.date.toDate() : new Date(original.date);
+            const originalDay = originalDate.getDate();
+            
+            if (originalDay && originalDay !== 1) { // If the original was NOT on the 1st
+              const maxDays = new Date(tDate.getFullYear(), tDate.getMonth() + 1, 0).getDate();
+              const correctedDay = Math.min(originalDay, maxDays);
+              const correctedDate = new Date(tDate.getFullYear(), tDate.getMonth(), correctedDay, 12, 0, 0);
+              
+              try {
+                await updateDoc(doc(db, 'transactions', t.id), {
+                  date: correctedDate,
+                  updatedAt: serverTimestamp()
+                });
+                console.log("Global corrected date for", t.description, "to day", correctedDay);
+              } catch(e) {
+                console.error("Failed to global correct date:", e);
+              }
+            }
+          }
+        }
+      }
+
+      // Helper to find existing specifically in the current snapshot
+      const findExisting = (desc: string, amount?: number) => {
+        const normalized = desc.toLowerCase().trim();
+        return currentTransactionsSnapshot.some(t => {
+          try {
+            const d = t.date?.toDate ? t.date.toDate() : new Date(t.date);
+            const isSameDesc = t.description.toLowerCase().trim() === normalized;
+            const isSameMonth = format(d, 'yyyy-MM') === currentMonthStr;
+            
+            if (amount !== undefined) {
+               return isSameDesc && isSameMonth && Math.abs(t.amount - amount) < 0.05;
+            }
+            return isSameDesc && isSameMonth;
+          } catch(e) {
+            return false;
+          }
+        });
+      };
+
+      // 1. Check for Carry Over (Übertrag)
+      const carryOverKey = 'automation-carryover-' + currentMonthStr;
+
+      if (!findExisting('Übertrag aus Vormonat') && !addingInProgressRef.current.has(carryOverKey)) {
+        // Carry over doesn't check amount, it just looks for string match in current month
+        const prevMonth = subMonths(startOfMonth(today), 1);
+        const prevMonthStr = format(prevMonth, 'yyyy-MM');
+        
+        const prevMonthTransactions = currentTransactionsSnapshot.filter(t => {
+          try {
+            const d = t.date?.toDate ? t.date.toDate() : new Date(t.date);
+            return format(d, 'yyyy-MM') === prevMonthStr;
+          } catch(e) {
+            return false;
+          }
+        });
+
+        if (prevMonthTransactions.length > 0) {
+          const prevIncome = prevMonthTransactions
+            .filter(t => t.type === 'income')
+            .reduce((sum, t) => sum + t.amount, 0);
+          const prevExpenses = prevMonthTransactions
+            .filter(t => t.type === 'expense')
+            .reduce((sum, t) => sum + t.amount, 0);
+          const prevBalance = prevIncome - prevExpenses;
+
+          if (prevBalance !== 0) {
+            try {
+              addingInProgressRef.current.add(carryOverKey);
+              await addDoc(collection(db, 'transactions'), {
+                description: 'Übertrag aus Vormonat',
+                amount: Math.abs(prevBalance),
+                type: prevBalance > 0 ? 'income' : 'expense',
+                category: 'uebertrag',
+                date: startOfMonth(today),
+                userId: user.uid,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+              });
+            } catch (error) {
+              addingInProgressRef.current.delete(carryOverKey);
+              console.error("Error creating carry over:", error);
+            }
+          }
+        }
+      }
+
+      // 2. Check for Recurring Transactions (Abos)
+      // Only look at the strictly previous month for monthly Abos, or last year this month for yearly.
+      const prevMonth = subMonths(startOfMonth(today), 1);
+      const prevMonthStr = format(prevMonth, 'yyyy-MM');
+      
+      const prevMonthAbos = currentTransactionsSnapshot.filter(t => {
+        if (!t.isRecurring) return false;
+        try {
+          const d = t.date?.toDate ? t.date.toDate() : new Date(t.date);
+          const monthStr = format(d, 'yyyy-MM');
+          // For monthly, it must be from the exact previous month.
+          // For yearly, it must be from exactly 12 months ago.
+          if (t.interval === 'yearly') {
+            const lastYear = subMonths(startOfMonth(today), 12);
+            return monthStr === format(lastYear, 'yyyy-MM');
+          }
+          return monthStr === prevMonthStr;
+        } catch(e) {
+          return false;
+        }
+      });
+      
+      // Deduplicate in case there are identical abos (same description and amount) in the previous month
+      const uniquePrevAbos = Array.from(new Map(prevMonthAbos.map(item => [`${item.description.toLowerCase().trim()}-${item.amount}`, item])).values());
+
+      for (const template of uniquePrevAbos) {
+        const normalizedDesc = template.description.toLowerCase().trim();
+        const templateKey = `automation-abo-${normalizedDesc}-${template.amount}-${currentMonthStr}`;
+        
+        if (!findExisting(template.description, template.amount) && !addingInProgressRef.current.has(templateKey)) {
+          
+          // Find actual original target day
+          const historical = currentTransactionsSnapshot.filter(ht => 
+              ht.isRecurring && 
+              ht.description.toLowerCase().trim() === normalizedDesc && 
+              Math.abs(ht.amount - template.amount) < 0.05
+          ).sort((a, b) => {
+             const timeA = a.createdAt?.toDate?.()?.getTime() || a.date?.toDate?.()?.getTime() || 0;
+             const timeB = b.createdAt?.toDate?.()?.getTime() || b.date?.toDate?.()?.getTime() || 0;
+             return timeA - timeB; 
+          });
+
+          let originalDay = 1;
+          if (historical.length > 0) {
+            let original = historical[0];
+            for (const h of historical) {
+              const hDate = h.date?.toDate ? h.date.toDate() : new Date(h.date);
+              if (hDate.getDate() !== 1) {
+                 original = h;
+                 break;
+              }
+            }
+            const origDate = original.date?.toDate ? original.date.toDate() : new Date(original.date);
+            originalDay = origDate.getDate() || 1;
+          } else {
+             try {
+                const templateDate = template.date?.toDate ? template.date.toDate() : new Date(template.date);
+                originalDay = templateDate.getDate() || 1;
+             } catch(e) {
+                originalDay = 1;
+             }
+          }
+          
+          const maxDays = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+          const targetDay = Math.min(originalDay, maxDays);
+          const recurringDate = new Date(today.getFullYear(), today.getMonth(), targetDay, 12, 0, 0);
+
+          try {
+            addingInProgressRef.current.add(templateKey);
+            await addDoc(collection(db, 'transactions'), {
+              description: template.description,
+              amount: template.amount,
+              type: template.type,
+              category: template.category,
+              date: recurringDate,
+              isRecurring: true,
+              interval: template.interval || 'monthly',
+              userId: user.uid,
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            });
+          } catch (error) {
+            addingInProgressRef.current.delete(templateKey);
+            console.error("Error creating recurring transaction:", error);
+          }
+        }
+      }
     };
-  });
+
+    runAutomations();
+  }, [user, transactions.length, loading, filterMonth]); 
+
+
+  // Trend Data calculation
+  useEffect(() => {
+    if (!loading) {
+      const currentMonthInView = new Date(`${filterMonth}-01`);
+      
+      // Calculate starting balance from ALL history before this month
+      const prevTrans = transactions.filter(t => {
+        try {
+          const d = t.date?.toDate ? t.date.toDate() : new Date(t.date);
+          if (isNaN(d.getTime())) return false;
+          return d < startOfMonth(currentMonthInView);
+        } catch(e) {
+          return false;
+        }
+      });
+      
+      const startBalance = prevTrans.reduce((sum, t) => sum + (t.type === 'income' ? t.amount : -t.amount), 0);
+      
+      let runningBalance = startBalance;
+      let runningExpenses = 0;
+      let runningIncome = 0;
+
+      const days = eachDayOfInterval({
+        start: startOfMonth(currentMonthInView),
+        end: endOfMonth(currentMonthInView)
+      });
+
+      const data = days.map(day => {
+        const dayStr = format(day, 'yyyy-MM-dd');
+        // Only consider transactions from the CURRENT filtered month for the daily chart lines
+        const dayActions = transactions.filter(t => {
+          try {
+            const d = t.date?.toDate ? t.date.toDate() : new Date(t.date);
+            return format(d, 'yyyy-MM-dd') === dayStr;
+          } catch(e) {
+            return false;
+          }
+        });
+
+        const dInc = dayActions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+        const dExp = dayActions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+
+        runningBalance += (dInc - dExp);
+        runningExpenses += dExp;
+        runningIncome += dInc;
+
+        return {
+          name: format(day, 'd.'),
+          Einnahmen: parseFloat(runningIncome.toFixed(2)),
+          Ausgaben: parseFloat(runningExpenses.toFixed(2)),
+          Bilanz: parseFloat(runningBalance.toFixed(2))
+        };
+      });
+
+      // Simple safety check to ensure we have data
+      if (data.length > 0) {
+        setTrendData(data);
+      }
+    }
+  }, [transactions, filterMonth, loading]);
+
 
   return (
     <div className="max-w-5xl mx-auto flex flex-col relative z-10 w-full px-0 sm:px-0 pb-10">
-      <header className="mb-10 flex flex-col sm:flex-row justify-end items-start sm:items-end gap-6">
-        <div className="flex flex-wrap items-center sm:justify-end gap-3 w-full sm:w-auto">
-          <select 
-            value={filterMonth} 
-            onChange={(e) => setFilterMonth(e.target.value)}
-            className="glass-input h-12 w-full sm:w-48 appearance-none bg-white dark:bg-[#050505] font-bold text-sm tracking-tight px-4 text-center"
-          >
-            {availableMonths.map(m => (
-              <option key={m} value={m}>{format(new Date(`${m}-01`), 'MMMM yyyy', { locale: de })}</option>
-            ))}
-          </select>
+      <header className="mb-10 flex justify-center sm:justify-start">
+        <div className="flex bg-slate-100 dark:bg-white/5 p-1 rounded-2xl w-full sm:w-auto">
           <button
             onClick={() => {
               if (showAdd && editingId) {
@@ -378,18 +675,39 @@ export default function Household() {
               }
             }}
             className={cn(
-              "flex items-center gap-2 h-12 px-6 shrink-0 w-full sm:w-auto",
-              editingId ? "btn-cancel" : "btn-briefing-glow"
+              "flex-1 sm:flex-none flex items-center justify-center gap-2 h-11 px-6 rounded-xl font-bold text-sm transition-all whitespace-nowrap",
+              editingId 
+                ? "bg-red-500 text-white shadow-lg shadow-red-500/20" 
+                : showAdd 
+                  ? "bg-blue-500/20 text-blue-700 dark:bg-blue-500/30 dark:text-blue-300 shadow-sm"
+                  : "text-slate-600 dark:text-slate-400 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400 dark:hover:bg-blue-500/20"
             )}
           >
-            <Plus size={20} />
-            <span>{editingId ? 'Abbrechen' : 'Eintrag'}</span>
+            <Plus size={18} className={cn("transition-transform", showAdd && !editingId && "rotate-45")} />
+            <span>{editingId ? 'Abbrechen' : 'Neuer Eintrag'}</span>
           </button>
+          
+          <div className="w-px h-6 bg-slate-200 dark:bg-white/10 self-center mx-1" />
+          
+          <div className="flex-1 sm:flex-none relative h-11 group">
+            <select 
+              value={filterMonth} 
+              onChange={(e) => setFilterMonth(e.target.value)}
+              className="w-full h-full appearance-none bg-transparent font-bold text-sm tracking-tight px-6 pr-10 text-slate-900 dark:text-white cursor-pointer focus:outline-none"
+            >
+              {availableMonths.map(m => (
+                <option key={m} value={m} className="bg-white dark:bg-slate-900">
+                  {format(new Date(`${m}-01`), 'MMMM yyyy', { locale: de })}
+                </option>
+              ))}
+            </select>
+            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-brand transition-colors" />
+          </div>
         </div>
       </header>
 
       {showAdd && (
-        <form onSubmit={handleSave} className="glass-card p-6 sm:p-8 rounded-[2.5rem] mb-10 animate-in fade-in slide-in-from-top-4 duration-300">
+        <form ref={formRef} onSubmit={handleSave} className="glass-card p-6 sm:p-8 rounded-[2.5rem] mb-10 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             <div className="space-y-1.5 lg:col-span-1">
               <label className="text-xs font-black text-brand-muted uppercase tracking-[0.2em] px-1">Typ</label>
@@ -597,7 +915,7 @@ export default function Household() {
           <div className="h-[200px] w-full relative outline-none" tabIndex={-1}>
             <div className="absolute inset-0">
               <ResponsiveContainer width="99%" height="100%" className="outline-none">
-                <AreaChart data={trendData} accessibilityLayer>
+                <AreaChart data={trendData}>
                   <defs>
                     <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.1}/>
@@ -725,21 +1043,45 @@ export default function Household() {
               ) : (
                 <div className="divide-y divide-slate-200/50 dark:divide-white/5">
                   {activeAbos.map(abo => (
-                    <div key={abo.id} className="p-4 sm:p-6 flex items-center gap-4 sm:gap-5 hover:bg-slate-500/5 transition-colors">
+                    <div key={abo.id} className="p-4 sm:p-6 flex items-center gap-4 sm:gap-5 hover:bg-slate-500/5 transition-colors group">
+                      <div className={cn(
+                        "w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center shrink-0",
+                        abo.type === 'income' ? "text-green-500" : "text-red-500"
+                      )}>
+                        {abo.type === 'income' ? <ArrowUpCircle size={24} /> : <ArrowDownCircle size={24} />}
+                      </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-col gap-1">
                           <h4 className="font-bold text-slate-900 dark:text-white truncate">{abo.description}</h4>
                           <span className="text-xs sm:text-xs font-bold text-brand-muted uppercase tracking-wider italic">
-                            {abo.date?.toDate ? format(abo.date.toDate(), 'dd.MM.yyyy', { locale: de }) : '--'}
+                            Letzte Buchung: {safeFormatDate(abo.date, 'dd.MM.yyyy')}
                           </span>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-base sm:text-lg font-black tracking-tighter text-slate-900 dark:text-white">
-                          {formatEuro(abo.amount)}
+                      <div className="flex flex-col items-end gap-2 min-w-[100px] shrink-0">
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                          <button 
+                            onClick={() => handleEdit(abo)}
+                            className="p-1 text-brand-muted hover:text-brand hover:bg-brand/10 rounded-lg transition-all"
+                            title="Abonnement bearbeiten"
+                          >
+                            <Edit2 size={14} />
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(abo.id)}
+                            className="p-1 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                            title="Abonnement löschen"
+                          >
+                            <Trash2 size={14} />
+                          </button>
                         </div>
-                        <div className="text-xs font-bold text-blue-500 uppercase tracking-widest">
-                          {abo.interval === 'yearly' ? 'pro Jahr' : 'pro Monat'}
+                        <div className="text-right">
+                          <div className="text-base sm:text-lg font-black tracking-tighter text-slate-900 dark:text-white">
+                            {formatEuro(abo.amount)}
+                          </div>
+                          <div className="text-xs font-bold text-blue-500 uppercase tracking-widest">
+                            {abo.interval === 'yearly' ? 'pro Jahr' : 'pro Monat'}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -777,7 +1119,7 @@ export default function Household() {
                             {t.isRecurring ? (t.interval === 'yearly' ? 'Jährlich' : 'Monatlich') : 'Einmalig'}
                           </span>
                           <span className="text-xs sm:text-xs font-bold text-brand-muted uppercase tracking-wider flex items-center gap-1 italic">
-                            {t.date?.toDate ? format(t.date.toDate(), 'dd.MM.yyyy', { locale: de }) : '--'}
+                            {safeFormatDate(t.date, 'dd.MM.yyyy')}
                           </span>
                         </div>
                       </div>
@@ -878,7 +1220,7 @@ export default function Household() {
                               )}
                               <div className="text-xs font-bold text-brand-muted uppercase tracking-tight whitespace-nowrap">
                                 {categories.find(c => c.id === t.category)?.name ? `${categories.find(c => c.id === t.category)?.name} • ` : ''}
-                                {t.date?.toDate ? format(t.date.toDate(), 'dd.MM.yyyy') : ''}
+                                {safeFormatDate(t.date, 'dd.MM.yyyy', '')}
                               </div>
                             </div>
                           </div>

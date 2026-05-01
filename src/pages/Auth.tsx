@@ -21,13 +21,17 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative p-6 font-sans">
-      <div className="absolute inset-0 z-0 bg-slate-50 dark:bg-[#000000] transition-colors duration-500 ease-out">
-        {/* Decorative background elements */}
-        <div className="absolute top-1/4 left-1/4 w-[40%] h-[40%] bg-blue-500/10 dark:bg-blue-600/10 rounded-full blur-[120px] opacity-50 dark:opacity-20 animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-[40%] h-[40%] bg-green-500/10 dark:bg-green-600/10 rounded-full blur-[120px] opacity-50 dark:opacity-20 animate-pulse delay-1000"></div>
+      <div className="fixed inset-0 z-0 bg-[#0a0a0a]">
+        <img
+          src="https://meine-assets.pages.dev/b1.webp"
+          alt="Background"
+          className="w-full h-full object-cover opacity-100"
+        />
+        {/* Overlay to ensure readability and glass effect works well */}
+        <div className="absolute inset-0 bg-white/5 dark:bg-black/40 backdrop-blur-[2px]" />
       </div>
       
-      <div className="w-full max-w-sm glass-card p-10 rounded-[2.5rem] text-center relative z-10">
+      <div className="w-full max-w-sm glass-card p-10 rounded-[2.5rem] text-center relative z-10 animate-in fade-in zoom-in duration-500">
         <div className="w-20 h-20 flex items-center justify-center mx-auto mb-6 text-slate-900 dark:text-white dark:text-white">
           <Zap size={56} fill="currentColor" />
         </div>

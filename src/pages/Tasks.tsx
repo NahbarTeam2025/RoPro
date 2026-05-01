@@ -4,7 +4,7 @@ import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { Check, Clock, Plus, Trash2, AlertCircle, Edit2, Settings2, X, ChevronDown } from 'lucide-react';
+import { Check, Clock, Plus, Trash2, AlertCircle, Edit2, Settings2, X, ChevronDown, Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { CategorySelect } from '../components/CategorySelect';
 import { CategoryManager } from '../components/CategoryManager';
@@ -328,11 +328,11 @@ export default function Tasks() {
                         <select
                           id="edit-priority-select"
                           defaultValue={editTask.priority}
-                          className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold uppercase appearance-none w-full"
+                          className="glass-input h-12 bg-[#1c1c1e] text-white border-white/10 focus:ring-2 focus:ring-accent/50 font-bold uppercase appearance-none w-full"
                         >
-                          <option value="high">🔴 Hoch</option>
-                          <option value="medium">🟡 Mittel</option>
-                          <option value="low">🟢 Niedrig</option>
+                          <option value="high" className="bg-[#1c1c1e] text-white">🔴 Hoch</option>
+                          <option value="medium" className="bg-[#1c1c1e] text-white">🟡 Mittel</option>
+                          <option value="low" className="bg-[#1c1c1e] text-white">🟢 Niedrig</option>
                         </select>
                         <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none" />
                       </div>
@@ -352,21 +352,53 @@ export default function Tasks() {
                   <div className="space-y-4">
                     <div className="flex flex-col gap-1.5">
                       <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Datum</label>
-                      <input
-                        type="date"
-                        id="edit-date-input"
-                        defaultValue={editTask.dueDate ? format(new Date(editTask.dueDate), 'yyyy-MM-dd') : ''}
-                        className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold"
-                      />
+                      <div className="relative">
+                        <input
+                          type="date"
+                          id="edit-date-input"
+                          defaultValue={editTask.dueDate ? format(new Date(editTask.dueDate), 'yyyy-MM-dd') : ''}
+                          className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full"
+                        />
+                        <CalendarIcon 
+                          size={18} 
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted cursor-pointer hover:text-brand" 
+                          onClick={() => {
+                            const input = document.getElementById('edit-date-input') as any;
+                            if (input) {
+                              if (document.activeElement === input) {
+                                input.blur();
+                              } else {
+                                input.showPicker?.() || input.focus();
+                              }
+                            }
+                          }}
+                        />
+                      </div>
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Uhrzeit</label>
-                      <input
-                        type="time"
-                        id="edit-time-input"
-                        defaultValue={editTask.dueDate ? format(new Date(editTask.dueDate), 'HH:mm') : ''}
-                        className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold"
-                      />
+                      <div className="relative">
+                        <input
+                          type="time"
+                          id="edit-time-input"
+                          defaultValue={editTask.dueDate ? format(new Date(editTask.dueDate), 'HH:mm') : ''}
+                          className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full"
+                        />
+                        <Clock 
+                          size={18} 
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted cursor-pointer hover:text-brand"
+                          onClick={() => {
+                            const input = document.getElementById('edit-time-input') as any;
+                            if (input) {
+                              if (document.activeElement === input) {
+                                input.blur();
+                              } else {
+                                input.showPicker?.() || input.focus();
+                              }
+                            }
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -437,11 +469,11 @@ export default function Tasks() {
                       <select
                         value={priority}
                         onChange={(e) => setPriority(e.target.value as any)}
-                        className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold uppercase appearance-none w-full"
+                        className="glass-input h-12 bg-[#1c1c1e] text-white border-white/10 focus:ring-2 focus:ring-accent/50 font-bold uppercase appearance-none w-full"
                       >
-                        <option value="high">🔴 Hoch</option>
-                        <option value="medium">🟡 Mittel</option>
-                        <option value="low">🟢 Niedrig</option>
+                        <option value="high" className="bg-[#1c1c1e] text-white">🔴 Hoch</option>
+                        <option value="medium" className="bg-[#1c1c1e] text-white">🟡 Mittel</option>
+                        <option value="low" className="bg-[#1c1c1e] text-white">🟢 Niedrig</option>
                       </select>
                       <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none" />
                     </div>
@@ -461,21 +493,55 @@ export default function Tasks() {
                 <div className="space-y-4">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Datum</label>
-                    <input
-                      type="date"
-                      value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold"
-                    />
+                    <div className="relative">
+                      <input
+                        type="date"
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                        id="add-task-date"
+                        className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full"
+                      />
+                      <CalendarIcon 
+                        size={18} 
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted cursor-pointer hover:text-brand"
+                        onClick={() => {
+                          const input = document.getElementById('add-task-date') as any;
+                          if (input) {
+                            if (document.activeElement === input) {
+                              input.blur();
+                            } else {
+                              input.showPicker?.() || input.focus();
+                            }
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Uhrzeit</label>
-                    <input
-                      type="time"
-                      value={time}
-                      onChange={(e) => setTime(e.target.value)}
-                      className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold"
-                    />
+                    <div className="relative">
+                      <input
+                        type="time"
+                        value={time}
+                        onChange={(e) => setTime(e.target.value)}
+                        id="add-task-time"
+                        className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full"
+                      />
+                      <Clock 
+                        size={18} 
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted cursor-pointer hover:text-brand"
+                        onClick={() => {
+                          const input = document.getElementById('add-task-time') as any;
+                          if (input) {
+                            if (document.activeElement === input) {
+                              input.blur();
+                            } else {
+                              input.showPicker?.() || input.focus();
+                            }
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -492,17 +558,17 @@ export default function Tasks() {
                       )}
                     >
                       {isRecurring ? <Check size={14} strokeWidth={3} /> : null}
-                      <span>Wiederholung {isRecurring ? 'An' : 'Aus'}</span>
+                      <span>{isRecurring ? 'An' : 'Aus'}</span>
                     </button>
                     {isRecurring && (
                       <select
                         value={recurrenceInterval}
                         onChange={(e) => setRecurrenceInterval(e.target.value as any)}
-                        className="flex-1 h-12 glass-input px-4 text-xs font-black uppercase tracking-wider bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50"
+                        className="flex-1 h-12 bg-[#1c1c1e] text-white border-white/10 focus:ring-accent/30 font-bold uppercase appearance-none px-4 text-xs tracking-wider"
                       >
-                        <option value="daily">Täglich</option>
-                        <option value="weekly">Wöchentlich</option>
-                        <option value="monthly">Monatlich</option>
+                        <option value="daily" className="bg-[#1c1c1e] text-white">Täglich</option>
+                        <option value="weekly" className="bg-[#1c1c1e] text-white">Wöchentlich</option>
+                        <option value="monthly" className="bg-[#1c1c1e] text-white">Monatlich</option>
                       </select>
                     )}
                 </div>

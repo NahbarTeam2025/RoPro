@@ -8,7 +8,7 @@ import {
   isSunday, parseISO, setHours, setMinutes
 } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight, Check, Calendar as CalendarIcon, X, Plus, Trash2, Search, Edit2, Cake } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Calendar as CalendarIcon, Clock, X, Plus, Trash2, Search, Edit2, Cake } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Link } from 'react-router-dom';
 import Holidays from 'date-holidays';
@@ -459,26 +459,60 @@ export default function Calendar() {
                   <div className="flex flex-col sm:flex-row gap-4">
                     <div className="flex-1 space-y-1.5">
                       <label className="block text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Datum</label>
-                      <input
-                        type="date"
-                        value={format(selectedDay.date, 'yyyy-MM-dd')}
-                        onChange={(e) => {
-                          const newDate = new Date(e.target.value);
-                          if (!isNaN(newDate.getTime())) {
-                            setSelectedDay({ ...selectedDay, date: newDate });
-                          }
-                        }}
-                        className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full"
-                      />
+                      <div className="relative">
+                        <input
+                          type="date"
+                          id="cal-date-input"
+                          value={format(selectedDay.date, 'yyyy-MM-dd')}
+                          onChange={(e) => {
+                            const newDate = new Date(e.target.value);
+                            if (!isNaN(newDate.getTime())) {
+                              setSelectedDay({ ...selectedDay, date: newDate });
+                            }
+                          }}
+                          className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full"
+                        />
+                        <CalendarIcon 
+                          size={18} 
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted cursor-pointer hover:text-brand" 
+                          onClick={() => {
+                            const input = document.getElementById('cal-date-input') as any;
+                            if (input) {
+                              if (document.activeElement === input) {
+                                input.blur();
+                              } else {
+                                input.showPicker?.() || input.focus();
+                              }
+                            }
+                          }}
+                        />
+                      </div>
                     </div>
                     <div className="space-y-1.5">
                       <label className="block text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Uhrzeit</label>
-                      <input
-                        type="time"
-                        value={newTaskTime}
-                        onChange={(e) => setNewTaskTime(e.target.value)}
-                        className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full"
-                      />
+                      <div className="relative">
+                        <input
+                          type="time"
+                          id="cal-time-input"
+                          value={newTaskTime}
+                          onChange={(e) => setNewTaskTime(e.target.value)}
+                          className="glass-input h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full"
+                        />
+                        <Clock 
+                          size={18} 
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted cursor-pointer hover:text-brand" 
+                          onClick={() => {
+                            const input = document.getElementById('cal-time-input') as any;
+                            if (input) {
+                              if (document.activeElement === input) {
+                                input.blur();
+                              } else {
+                                input.showPicker?.() || input.focus();
+                              }
+                            }
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -221,14 +221,14 @@ export default function Layout() {
   return (
     <div className="flex min-h-screen font-sans relative bg-transparent overflow-hidden">
       {/* Background Image */}
-      <div className="fixed inset-0 z-0 bg-black">
+      <div className="fixed inset-0 z-0 bg-[#0a0a0a]">
         <img
           src="https://meine-assets.pages.dev/b1.webp"
           alt="Background"
-          className="w-full h-full object-cover opacity-25"
+          className="w-full h-full object-cover opacity-100"
         />
         {/* Overlay to ensure readability and glass effect works well */}
-        <div className="absolute inset-0 bg-black/10" />
+        <div className="absolute inset-0 bg-white/5 dark:bg-black/40 backdrop-blur-[2px]" />
       </div>
 
       {/* Mobile sidebar overlay */}
