@@ -21,7 +21,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { cn } from '../lib/utils';
 import * as Icons from 'lucide-react';
 
-function SortableCategoryItem({ category, toggleCategory, onEdit }: { category: MenuCategoryConfig, toggleCategory: (id: string) => void, onEdit: (cat: MenuCategoryConfig) => void }) {
+function SortableCategoryItem({ category, toggleCategory, onEdit, onDelete }: { category: MenuCategoryConfig, toggleCategory: (id: string) => void, onEdit: (cat: MenuCategoryConfig) => void, onDelete: (id: string) => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: category.id });
   const style = { transform: CSS.Transform.toString(transform), transition };
   const Icon = (Icons as any)[category.iconName] || Icons.Cloud;
@@ -46,6 +46,12 @@ function SortableCategoryItem({ category, toggleCategory, onEdit }: { category: 
         </div>
       </div>
       <div className="flex items-center gap-2">
+        <button
+          onClick={() => onDelete(category.id)}
+          className="p-2 rounded-xl transition-colors text-red-500/80 hover:bg-red-500/10"
+        >
+          <Trash2 size={16} />
+        </button>
         <button
           onClick={() => onEdit(category)}
           className="p-2 rounded-xl transition-colors text-brand-muted hover:bg-black/10 dark:hover:bg-white/10"
@@ -92,14 +98,13 @@ function SortableLinkItem({ link, toggleLink, onDelete }: { link: MenuLinkConfig
         </div>
       </div>
       <div className="flex items-center gap-1 shrink-0">
-        {link.isCustom && (
-          <button
-            onClick={() => onDelete(link.id)}
-            className="p-1.5 rounded-lg transition-colors text-red-500/80 hover:bg-red-500/10"
-          >
-            <Trash2 size={16} />
-          </button>
-        )}
+        <button
+          onClick={() => onDelete(link.id)}
+          className="p-1.5 rounded-lg transition-colors text-red-500/80 hover:bg-red-500/10"
+          title="Verknüpfung löschen"
+        >
+          <Trash2 size={16} />
+        </button>
         <button
           onClick={() => toggleLink(link.id)}
           className={cn(
@@ -124,6 +129,7 @@ export default function MenuCategorySettings({ expandedSection, setExpandedSecti
   const [isAddingLink, setIsAddingLink] = useState(false);
   const [newLinkName, setNewLinkName] = useState('');
   const [newLinkUrl, setNewLinkUrl] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'category' | 'link'; id: string; name: string } | null>(null);
 
   useEffect(() => {
     setCategories(menuCategories);
@@ -179,11 +185,35 @@ export default function MenuCategorySettings({ expandedSection, setExpandedSecti
   };
 
   const deleteLink = (linkId: string) => {
-    if (!editingCategory) return;
-    const newLinks = editingCategory.links.filter(l => l.id !== linkId);
-    const newCategories = categories.map(cat => cat.id === editingCategory.id ? { ...cat, links: newLinks } : cat);
-    setCategories(newCategories);
-    updateMenuCategories(newCategories);
+    const link = editingCategory?.links.find(l => l.id === linkId);
+    if (link) {
+      setDeleteConfirm({ type: 'link', id: link.id, name: link.name });
+    }
+  };
+
+  const deleteCategory = (catId: string) => {
+    const category = categories.find(c => c.id === catId);
+    if (category) {
+      setDeleteConfirm({ type: 'category', id: category.id, name: category.name });
+    }
+  };
+
+  const confirmDelete = () => {
+    if (!deleteConfirm) return;
+    if (deleteConfirm.type === 'category') {
+      const newItems = categories.filter(c => c.id !== deleteConfirm.id);
+      setCategories(newItems);
+      updateMenuCategories(newItems);
+      if (editingCategory?.id === deleteConfirm.id) setEditingCategory(null);
+    } else {
+      if (!editingCategory) return;
+      const newLinks = editingCategory.links.filter(l => l.id !== deleteConfirm.id);
+      const newCategories = categories.map(cat => cat.id === editingCategory.id ? { ...cat, links: newLinks } : cat);
+      setCategories(newCategories);
+      updateMenuCategories(newCategories);
+      setEditingCategory(prev => prev ? { ...prev, links: newLinks } : null);
+    }
+    setDeleteConfirm(null);
   };
 
   const addCustomLink = () => {
@@ -279,12 +309,36 @@ export default function MenuCategorySettings({ expandedSection, setExpandedSecti
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndCategories}>
                 <SortableContext items={categories} strategy={verticalListSortingStrategy}>
                   {categories.map(cat => (
-                    <SortableCategoryItem key={cat.id} category={cat} toggleCategory={toggleCategory} onEdit={setEditingCategory} />
+                    <SortableCategoryItem key={cat.id} category={cat} toggleCategory={toggleCategory} onEdit={setEditingCategory} onDelete={deleteCategory} />
                   ))}
                 </SortableContext>
               </DndContext>
             </div>
           )}
+        </div>
+      )}
+
+      {deleteConfirm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-[320px] bg-white dark:bg-[#1C1C1E] rounded-3xl p-6 shadow-2xl border border-black/5 dark:border-white/10 animate-in zoom-in-95 duration-200">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-12 h-12 rounded-full bg-red-500/20 text-red-500 flex items-center justify-center mb-4">
+                <Trash2 size={24} />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Löschen?</h3>
+              <p className="text-sm text-brand-muted mb-6">
+                Möchtest du <strong>{deleteConfirm.name}</strong> unwiderruflich aus der Sidebar entfernen?
+              </p>
+              <div className="flex flex-col gap-2 w-full">
+                <button onClick={confirmDelete} className="w-full py-3 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 transition-colors">
+                  Ja, löschen
+                </button>
+                <button onClick={() => setDeleteConfirm(null)} className="w-full py-3 rounded-xl font-bold text-slate-900 dark:text-white bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 transition-colors">
+                  Abbrechen
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

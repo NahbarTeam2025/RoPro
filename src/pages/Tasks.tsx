@@ -244,14 +244,14 @@ export default function Tasks() {
                />
             </div>
           </div>
+          <div className="px-4 py-2 flex items-center justify-between z-20 bg-white/40 dark:bg-[#1C1C1E]/40 backdrop-blur-md border-b border-slate-200/50 dark:border-white/10 shrink-0">
+            <span className="text-xs font-black text-brand-muted uppercase tracking-widest">Aktiv</span>
+            <span className="text-xs font-black text-brand-muted px-2 py-0.5 rounded-full bg-slate-500/10">
+              {activeTodos.length}
+            </span>
+          </div>
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             <div className="space-y-1">
-              <div className="px-4 py-2 flex items-center justify-between sticky top-0 z-10 bg-white/10 dark:bg-black/20 backdrop-blur-md">
-                <span className="text-xs font-black text-brand-muted uppercase tracking-widest">Aktiv</span>
-                <span className="text-xs font-black text-brand-muted px-2 py-0.5 rounded-full bg-slate-500/10">
-                  {activeTodos.length}
-                </span>
-              </div>
               {activeTodos.length === 0 ? (
                 <div className="p-8 text-center text-xs uppercase font-bold text-brand-muted tracking-widest">Keine Aufgaben</div>
               ) : (
@@ -276,7 +276,7 @@ export default function Tasks() {
         {/* Completed Tasks Card */}
         {completedTodos.length > 0 && (
           <div className="max-h-[33%] min-h-[150px] flex flex-col glass-card rounded-3xl overflow-hidden flex-shrink-0">
-            <div className="px-4 py-3 border-b border-slate-200/50 dark:border-white/10 flex items-center justify-between sticky top-0 z-10 bg-white/50 dark:bg-black/20 backdrop-blur-md">
+            <div className="px-4 py-3 border-b border-slate-200/50 dark:border-white/10 flex items-center justify-between z-20 bg-white/40 dark:bg-[#1C1C1E]/40 backdrop-blur-md shrink-0">
               <span className="text-xs font-black text-brand uppercase tracking-widest">Erledigt</span>
               <span className="text-xs font-black text-brand-muted px-2 py-0.5 rounded-full bg-slate-500/10">
                 {completedTodos.length}
@@ -616,7 +616,7 @@ function TaskItem({ todo, isActive, onToggle, onDelete, onEdit, categories }: { 
           onClick={(e) => { e.stopPropagation(); onToggle(); }}
           className={cn(
             "flex-shrink-0 w-4 h-4 rounded border mt-0.5 flex items-center justify-center transition-all cursor-pointer",
-            todo.completed ? "bg-accent border-accent text-white" : "border-slate-300 dark:border-white/10 text-transparent hover:border-accent bg-transparent"
+            todo.completed ? "bg-green-500 border-green-500 text-white" : "border-slate-300 dark:border-white/10 text-transparent hover:border-green-500 bg-transparent"
           )}
         >
           <Check size={10} className="stroke-[4]" />

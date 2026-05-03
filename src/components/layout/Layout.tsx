@@ -41,7 +41,6 @@ export default function Layout() {
   const [isRolling, setIsRolling] = useState(false);
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({
     google: false,
-    performance: false,
     ai: false,
     tools: false,
     social: false

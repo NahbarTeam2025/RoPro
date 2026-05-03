@@ -75,11 +75,11 @@ function SortableItem({ item, toggleItem, deleteItem }: { item: ShoppingItem; to
       <button
         onClick={() => toggleItem(item)}
         className={cn(
-          "w-6 h-6 rounded-md border-2 flex items-center justify-center shrink-0 transition-all cursor-pointer",
-          item.completed ? "bg-brand border-brand text-white" : "border-[#86868B]/30 text-transparent hover:border-brand/50"
+          "w-6 h-6 rounded border-2 flex items-center justify-center shrink-0 transition-all cursor-pointer",
+          item.completed ? "bg-green-500 border-green-500 text-white" : "border-[#86868B]/30 text-transparent hover:border-green-500 bg-transparent"
         )}
       >
-        <Check size={14} className={item.completed ? "opacity-100" : "opacity-0"} />
+        <Check size={14} className="stroke-[3]" />
       </button>
 
       <span className={cn(

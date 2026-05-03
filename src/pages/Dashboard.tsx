@@ -299,7 +299,7 @@ export default function Dashboard() {
                         onClick={(e) => handleToggleTodo(e, todo)} 
                         className={cn(
                           "flex-shrink-0 w-4 h-4 rounded border flex items-center justify-center transition-all cursor-pointer ml-1 relative z-30", 
-                          todo.completed ? "bg-accent border-accent text-white" : "border-slate-300 dark:border-white/10 text-transparent hover:border-accent bg-transparent"
+                          todo.completed ? "bg-green-500 border-green-500 text-white" : "border-slate-300 dark:border-white/10 text-transparent hover:border-green-500 bg-transparent"
                         )}
                       >
                         <Check size={10} className="stroke-[4]" />
@@ -828,7 +828,7 @@ function NewsWidget() {
         const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent('https://www.tagesschau.de/xml/rss2/')}`);
         const data = await res.json();
         if (data.items) {
-          setItems(data.items.slice(0, 3));
+          setItems(data.items.slice(0, 15));
         }
       } catch (err) {
         console.error(err);
@@ -839,9 +839,9 @@ function NewsWidget() {
   }, []);
 
   return (
-    <div className="w-full max-w-[480px] mx-auto md:max-w-none">
+    <div className="w-full max-w-[480px] mx-auto md:max-w-none h-full max-h-[400px] flex flex-col">
       <div className="glass-card flex flex-col rounded-[2.5rem] overflow-hidden h-full border border-black/5 dark:border-white/[0.06] shadow-sm hover:shadow-md transition-shadow">
-        <div className="px-6 py-5 flex justify-between items-center">
+        <div className="px-6 py-5 flex justify-between items-center shrink-0">
           <Link to="/news" className="flex items-center gap-3">
              <div style={{ color: '#FF9500' }} className="shrink-0">
                <Rss size={20} />
@@ -849,7 +849,7 @@ function NewsWidget() {
              <h2 className="pro-heading">Nachrichten</h2>
           </Link>
         </div>
-        <div className="px-6 pb-6 pt-0 flex-1 flex flex-col gap-3">
+        <div className="px-6 pb-6 pt-0 flex-1 flex flex-col gap-3 overflow-y-auto custom-scrollbar">
           {loading ? (
              <div className="space-y-4">
                {[1,2,3].map(i => (
@@ -859,7 +859,7 @@ function NewsWidget() {
           ) : items.length > 0 ? (
              <div className="flex flex-col gap-3">
                {items.map((item, i) => (
-                 <a key={i} href={item.link} target="_blank" rel="noopener noreferrer" className="block group hover:bg-black/5 dark:hover:bg-white/5 p-2 -mx-2 rounded-xl transition-colors">
+                 <a key={i} href={item.link} target="_blank" rel="noopener noreferrer" className="block group hover:bg-black/5 dark:hover:bg-white/5 p-2 -mx-2 rounded-xl transition-colors shrink-0">
                    <h3 className="text-[13px] font-bold text-slate-900 dark:text-white leading-tight line-clamp-2">{item.title}</h3>
                    <div className="flex items-center gap-1.5 mt-1.5 opacity-70">
                      <span className="text-[10px] font-bold uppercase tracking-wider text-brand">Tagesschau</span>

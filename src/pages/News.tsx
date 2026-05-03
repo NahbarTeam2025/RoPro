@@ -27,7 +27,7 @@ interface FeedItem {
 }
 
 export default function News() {
-  const [activeFeed, setActiveFeed] = useState(FEEDS[0].id);
+  const [activeFeed, setActiveFeed] = useState('all');
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -47,19 +47,46 @@ export default function News() {
   const fetchNews = async (feedId: string) => {
     setLoading(true);
     try {
-      const feed = FEEDS.find(f => f.id === feedId)!;
-      const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}`);
-      const data = await res.json();
-      
-      if (data.items) {
-        setItems(data.items.map((item: any, i: number) => ({
-          id: `${feedId}-${i}`,
-          title: item.title,
-          link: item.link,
-          pubDate: item.pubDate,
-          description: stripHtml(item.description),
-          source: feed.name
-        })));
+      if (feedId === 'all') {
+        const promises = FEEDS.map(async feed => {
+          try {
+            const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}`);
+            const data = await res.json();
+            if (data.items) {
+               return data.items.map((item: any, i: number) => ({
+                 id: `${feed.id}-${i}`,
+                 title: item.title,
+                 link: item.link,
+                 pubDate: item.pubDate,
+                 description: stripHtml(item.description),
+                 source: feed.name
+               }));
+            }
+            return [];
+          } catch (e) {
+            return [];
+          }
+        });
+        const results = await Promise.all(promises);
+        const allItems = results.flat().sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime());
+        setItems(allItems.slice(0, 50));
+      } else {
+        const feed = FEEDS.find(f => f.id === feedId)!;
+        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}`);
+        const data = await res.json();
+        
+        if (data.items) {
+          setItems(data.items.map((item: any, i: number) => ({
+            id: `${feedId}-${i}`,
+            title: item.title,
+            link: item.link,
+            pubDate: item.pubDate,
+            description: stripHtml(item.description),
+            source: feed.name
+          })));
+        } else {
+          setItems([]);
+        }
       }
     } catch (err) {
       console.error('Failed to fetch news', err);
@@ -105,13 +132,13 @@ export default function News() {
         </button>
       </div>
 
-      <div className="mb-6 relative" ref={dropdownRef}>
+      <div className="mb-6 relative z-50" ref={dropdownRef}>
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="w-full h-12 px-4 rounded-xl font-bold text-sm bg-[#1D1D1F] dark:bg-black text-white border-none cursor-pointer outline-none flex items-center justify-between"
+          className="glass-input cursor-pointer font-bold flex items-center justify-between shadow-sm"
         >
-          {FEEDS.find(f => f.id === activeFeed)?.name}
-          <ChevronDown size={16} className={`transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+          {activeFeed === 'all' ? 'Alle Nachrichten' : FEEDS.find(f => f.id === activeFeed)?.name}
+          <ChevronDown size={16} className={`transition-transform text-brand-muted ${isDropdownOpen ? 'rotate-180' : ''}`} />
         </button>
         
         <AnimatePresence>
@@ -120,9 +147,21 @@ export default function News() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="absolute top-14 left-0 w-full bg-[#1D1D1F] dark:bg-black rounded-xl border border-white/10 overflow-auto z-50 shadow-xl custom-scrollbar" 
+              className="absolute top-14 left-0 w-full bg-white/40 dark:bg-[#1C1C1E]/40 backdrop-blur-xl rounded-xl border border-black/5 dark:border-white/10 overflow-auto z-50 shadow-[0_8px_32px_rgba(0,0,0,0.12)] custom-scrollbar" 
               style={{ maxHeight: '240px' }}
             >
+              <button
+                onClick={() => {
+                  setActiveFeed('all');
+                  setIsDropdownOpen(false);
+                }}
+                className={cn(
+                  "w-full text-left px-4 py-3 text-sm font-bold text-slate-900 dark:text-white transition-colors block border-b border-black/5 dark:border-white/5",
+                  activeFeed === 'all' ? "bg-black/5 dark:bg-white/10" : "hover:bg-black/5 dark:hover:bg-white/5"
+                )}
+              >
+                Alle Nachrichten
+              </button>
               {FEEDS.map(feed => (
                 <button
                   key={feed.id}
@@ -131,8 +170,8 @@ export default function News() {
                     setIsDropdownOpen(false);
                   }}
                   className={cn(
-                    "w-full text-left px-4 py-3 text-sm font-bold text-white transition-colors block",
-                    activeFeed === feed.id ? "bg-white/10" : "hover:bg-white/5"
+                    "w-full text-left px-4 py-3 text-sm font-bold text-slate-900 dark:text-white transition-colors block",
+                    activeFeed === feed.id ? "bg-black/5 dark:bg-white/10" : "hover:bg-black/5 dark:hover:bg-white/5"
                   )}
                 >
                   {feed.name}

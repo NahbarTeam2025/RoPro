@@ -68,18 +68,6 @@ export const DEFAULT_MENU_CATEGORIES: MenuCategoryConfig[] = [
     ]
   },
   {
-    id: 'performance',
-    name: 'Performance',
-    iconName: 'Gauge',
-    enabled: true,
-    order: 1,
-    links: [
-      { id: 'yellowlabs', name: 'Yellow Labs', iconName: 'Activity', url: 'https://yellowlab.tools', enabled: true, order: 0 },
-      { id: 'pagespeed', name: 'PageSpeed Insights', iconName: 'Gauge', url: 'https://pagespeed.web.dev', enabled: true, order: 1 },
-      { id: 'seobility', name: 'Seobility', iconName: 'Shield', url: 'https://www.seobility.net', enabled: true, order: 2 },
-    ]
-  },
-  {
     id: 'ai',
     name: 'KI Tools',
     iconName: 'Brain',
@@ -221,6 +209,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
           });
           
           savedCats.forEach(saved => {
+             if (saved.id === 'performance') return;
              if (!mergedCats.find(m => m.id === saved.id)) {
                mergedCats.push(saved);
              }

@@ -334,9 +334,9 @@ export default function Calendar() {
       <div className="flex justify-center mt-8 px-4">
         <button 
           onClick={() => handleDayClick(new Date(), null)}
-          className="btn-blue-glow w-full sm:w-auto px-12 h-16 rounded-[2rem] flex items-center justify-center gap-4 font-black text-sm uppercase tracking-[0.15em] transition-all active:scale-95"
+          className="btn-blue-glow w-full sm:w-auto px-12 h-16 rounded-[2rem] flex items-center justify-center gap-4 font-black text-sm uppercase tracking-[0.15em] transition-all active:scale-95 !text-white"
         >
-          <Plus size={20} strokeWidth={4} />
+          <Plus size={20} className="text-white" strokeWidth={4} />
           <span>Hinzufügen</span>
         </button>
       </div>
@@ -517,7 +517,7 @@ export default function Calendar() {
                   <button 
                     type="submit" 
                     disabled={!newTaskText.trim() || isAddingTask}
-                    className="btn-green-glow w-full !h-14 disabled:opacity-50"
+                    className="btn-green-glow w-full !h-14 disabled:opacity-50 !text-white"
                   >
                     {isAddingTask ? 'Speichert...' : (editingAppointment ? 'Speichern' : 'Hinzufügen')}
                   </button>

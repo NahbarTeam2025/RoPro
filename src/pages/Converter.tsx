@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ArrowUpDown, RefreshCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion } from 'motion/react';
+import { CustomSelect } from '../components/CustomSelect';
 
 const CATEGORIES = {
   length: { name: 'Länge', units: { km: 1000, m: 1, cm: 0.01, mm: 0.001, Meilen: 1609.34, Fuß: 0.3048, Zoll: 0.0254 } },
@@ -102,17 +103,12 @@ export default function Converter() {
         </div>
       </div>
 
-      <div className="mb-6">
-        <select
+      <div className="mb-6 relative z-30">
+        <CustomSelect
           value={activeCategory}
-          onChange={(e) => setActiveCategory(e.target.value as any)}
-          className="w-full h-12 px-4 rounded-xl font-bold text-sm bg-[#1D1D1F] dark:bg-black text-white border-none cursor-pointer outline-none ring-0 appearance-none"
-          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 16px center' }}
-        >
-          {Object.entries(CATEGORIES).map(([key, cat]) => (
-            <option key={key} value={key} className="bg-[#1D1D1F] dark:bg-black text-white">{cat.name}</option>
-          ))}
-        </select>
+          onChange={(val) => setActiveCategory(val as any)}
+          options={Object.entries(CATEGORIES).map(([key, cat]) => ({ value: key, label: cat.name }))}
+        />
       </div>
 
       <div className="glass-panel p-6 rounded-[32px] sm:flex sm:items-center sm:gap-6 relative">
@@ -127,17 +123,16 @@ export default function Converter() {
               placeholder="0"
               className="glass-input flex-1 font-mono text-lg font-medium"
             />
-            <select 
-              value={fromUnit}
-              onChange={e => {
-                setFromUnit(e.target.value);
-                setToValue(calculate(fromValue, e.target.value, toUnit));
-              }}
-              className="w-28 px-3 rounded-xl font-bold text-sm bg-[#1D1D1F] dark:bg-black text-white border-none cursor-pointer outline-none ring-0 appearance-none"
-              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
-            >
-              {Object.keys(CATEGORIES[activeCategory].units).map(u => <option key={u} value={u} className="bg-[#1D1D1F] dark:bg-black text-white">{u}</option>)}
-            </select>
+            <div className="w-32 shrink-0 relative z-20">
+              <CustomSelect 
+                value={fromUnit}
+                onChange={val => {
+                  setFromUnit(val);
+                  setToValue(calculate(fromValue, val, toUnit));
+                }}
+                options={Object.keys(CATEGORIES[activeCategory].units).map(u => ({ value: u, label: u }))}
+              />
+            </div>
           </div>
         </div>
 
@@ -162,17 +157,16 @@ export default function Converter() {
               placeholder="0"
               className="glass-input flex-1 font-mono text-lg font-medium"
             />
-            <select 
-              value={toUnit}
-              onChange={e => {
-                setToUnit(e.target.value);
-                setToValue(calculate(fromValue, fromUnit, e.target.value));
-              }}
-              className="w-28 px-3 rounded-xl font-bold text-sm bg-[#1D1D1F] dark:bg-black text-white border-none cursor-pointer outline-none ring-0 appearance-none"
-              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
-            >
-              {Object.keys(CATEGORIES[activeCategory].units).map(u => <option key={u} value={u} className="bg-[#1D1D1F] dark:bg-black text-white">{u}</option>)}
-            </select>
+            <div className="w-32 shrink-0 relative z-10">
+              <CustomSelect 
+                value={toUnit}
+                onChange={val => {
+                  setToUnit(val);
+                  setToValue(calculate(fromValue, fromUnit, val));
+                }}
+                options={Object.keys(CATEGORIES[activeCategory].units).map(u => ({ value: u, label: u }))}
+              />
+            </div>
           </div>
         </div>
       </div>
