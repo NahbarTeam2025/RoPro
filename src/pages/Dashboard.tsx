@@ -15,6 +15,8 @@ import { PromptEditor } from '../components/PromptEditor';
 import { CategorySelect } from '../components/CategorySelect';
 import { createPortal } from 'react-dom';
 
+import { CustomSelect } from '../components/CustomSelect';
+
 const hd = new Holidays('DE', 'BB');
 
 function LiveClock() {
@@ -574,15 +576,20 @@ function TaskEditForm({ todo, onBack }: { todo: any, onBack: () => void }) {
         </div>
         <div className="space-y-1.5 flex flex-col">
           <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Priorität</label>
-          <select value={priority} onChange={(e) => setPriority(e.target.value as any)} className="glass-input h-12 focus:ring-accent/30 font-bold uppercase appearance-none w-full">
-            <option value="high" className="bg-[#1c1c1e] text-white">🔴 Hoch</option>
-            <option value="medium" className="bg-[#1c1c1e] text-white">🟡 Mittel</option>
-            <option value="low" className="bg-[#1c1c1e] text-white">🟢 Niedrig</option>
-          </select>
+          <CustomSelect 
+            value={priority} 
+            onChange={(val) => setPriority(val as any)} 
+            options={[
+              { value: 'high', label: '🔴 Hoch' },
+              { value: 'medium', label: '🟡 Mittel' },
+              { value: 'low', label: '🟢 Niedrig' }
+            ]}
+            placeholder="Priorität wählen"
+          />
         </div>
         <div className="space-y-1.5 flex flex-col">
           <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Kategorie</label>
-          <CategorySelect type="task" value={categoryId} onChange={setCategoryId} className="glass-input h-12" />
+          <CategorySelect type="task" value={categoryId} onChange={setCategoryId} className="h-12" />
         </div>
         <div className="space-y-4">
           <div className="space-y-1.5 flex flex-col">
@@ -805,7 +812,7 @@ function LinkEditForm({ link, onBack }: { link: any, onBack: () => void }) {
         </div>
         <div className="space-y-1.5 flex flex-col">
           <label className="text-xs font-bold text-brand-muted uppercase tracking-wider">Kategorie</label>
-          <CategorySelect type="link" value={categoryId} onChange={setCategoryId} className="h-12 border-none px-0" />
+          <CategorySelect type="link" value={categoryId} onChange={setCategoryId} className="h-12" />
         </div>
         <div className="space-y-1.5 flex flex-col">
           <label className="text-xs font-bold text-brand-muted uppercase tracking-wider mb-2">Farbe</label>

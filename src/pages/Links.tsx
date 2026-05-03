@@ -9,6 +9,7 @@ import { CategorySelect } from '../components/CategorySelect';
 import { CategoryManager } from '../components/CategoryManager';
 import { useCategories } from '../lib/categories';
 import { cn } from '../lib/utils';
+import { CustomSelect } from '../components/CustomSelect';
 
 interface LinkItem {
   id: string;
@@ -221,24 +222,27 @@ export default function Links() {
             </div>
           </div>
           <div className="flex gap-2">
-             <select 
+             <CustomSelect 
                 value={filterCategory} 
-                onChange={(e) => setFilterCategory(e.target.value)}
-                className="glass-input h-10 flex-1 appearance-none text-xs font-bold uppercase tracking-wider px-2"
-             >
-               <option value="all">Kategorie</option>
-               {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-             </select>
-             <select 
+                onChange={setFilterCategory}
+                options={[
+                  { value: 'all', label: 'Kategorie' },
+                  ...categories.map(c => ({ value: c.id, label: c.name }))
+                ]}
+                className="flex-1"
+             />
+             <CustomSelect 
                 value={filterMonth} 
-                onChange={(e) => setFilterMonth(e.target.value)}
-                className="glass-input h-10 flex-1 appearance-none text-xs font-bold uppercase tracking-wider px-2"
-             >
-               <option value="all">Zeitraum</option>
-               {availableMonths.map(m => (
-                 <option key={m} value={m}>{format(new Date(`${m}-01`), 'MMM yy', { locale: de })}</option>
-               ))}
-             </select>
+                onChange={setFilterMonth}
+                options={[
+                  { value: 'all', label: 'Zeitraum' },
+                  ...availableMonths.map(m => ({ 
+                    value: m, 
+                    label: format(new Date(`${m}-01`), 'MMM yy', { locale: de }) 
+                  }))
+                ]}
+                className="flex-1"
+             />
           </div>
         </div>
         <div className="flex-1 bg-transparent rounded-[2rem] m-4 mt-0 overflow-hidden">
@@ -364,7 +368,7 @@ export default function Links() {
                       type="link" 
                       value={editCategoryId} 
                       onChange={setEditCategoryId}
-                      className="h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all px-4 uppercase text-xs"
+                      className="h-12 w-full"
                     />
                   </div>
                   <div className="space-y-2 flex flex-col">
@@ -447,7 +451,7 @@ export default function Links() {
                       type="link" 
                       value={categoryId} 
                       onChange={setCategoryId}
-                      className="h-12 bg-accent/[0.03] dark:bg-white/[0.03] border-none focus:ring-2 focus:ring-accent/50 font-bold w-full transition-all px-4 uppercase text-xs"
+                      className="h-12 w-full"
                     />
                   </div>
                   <div className="space-y-2 flex flex-col">

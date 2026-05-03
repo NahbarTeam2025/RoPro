@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useCategories } from '../lib/categories';
-import { Plus, Tag, X, ChevronDown } from 'lucide-react';
+import { Plus, Tag, X } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { CustomSelect } from './CustomSelect';
 
 interface CategorySelectProps {
   type: 'note' | 'task' | 'link' | 'prompt' | 'household';
@@ -15,7 +16,7 @@ interface CategorySelectProps {
 }
 
 export function CategorySelect({ type, value, defaultValue, id, onChange, className, readOnly, hideIcon }: CategorySelectProps) {
-  const { categories, addCategory, deleteCategory } = useCategories(type);
+  const { categories, addCategory } = useCategories(type);
   const [isAdding, setIsAdding] = useState(false);
   const [newCatName, setNewCatName] = useState('');
 
@@ -33,6 +34,13 @@ export function CategorySelect({ type, value, defaultValue, id, onChange, classN
     setIsAdding(false);
     setNewCatName('');
   };
+
+  const options = [
+    { value: 'none', label: 'Keine Kategorie' },
+    ...categories.map(c => ({ value: c.id, label: c.name }))
+  ];
+
+  const currentValue = value || defaultValue || 'none';
 
   return (
     <div className={cn("relative flex items-center gap-2 font-sans", className)} onClick={e => e.stopPropagation()}>
@@ -54,13 +62,13 @@ export function CategorySelect({ type, value, defaultValue, id, onChange, classN
             }}
             placeholder="Kategorie..."
             aria-label="Name der neuen Kategorie"
-            className="flex-1 min-w-0 border border-slate-200 dark:border-white/10 rounded px-2 py-1 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-green-500"
+            className="flex-1 min-w-0 border border-black/5 dark:border-white/10 rounded-xl px-3 py-1.5 h-10 text-sm bg-white/20 dark:bg-white/5 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-white/20"
             autoFocus
           />
           <button 
             type="button" 
             onClick={handleAdd} 
-            className="p-1 text-green-500 hover:bg-green-500/10 rounded shrink-0 cursor-pointer font-bold text-xs px-2 uppercase" 
+            className="h-10 px-3 bg-white/10 dark:bg-white/10 hover:bg-white/20 text-slate-900 dark:text-white rounded-xl shrink-0 cursor-pointer text-xs font-bold uppercase transition-colors" 
             aria-label="Hinzufügen"
           >
             Hinzufügen
@@ -68,52 +76,39 @@ export function CategorySelect({ type, value, defaultValue, id, onChange, classN
           <button 
             type="button" 
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsAdding(false); }} 
-            className="p-1 text-red-500 hover:bg-red-500/10 rounded shrink-0 cursor-pointer font-bold text-xs px-2 uppercase" 
+            className="h-10 w-10 flex items-center justify-center bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl shrink-0 cursor-pointer transition-colors" 
             aria-label="Abbrechen"
           >
-            Abbrechen
+            <X size={16} />
           </button>
         </div>
       ) : (
         <div className="flex items-center gap-2 flex-1 min-w-0 relative group">
-          <select
-            id={id}
-            value={value}
-            defaultValue={defaultValue}
-            onChange={(e) => onChange?.(e.target.value)}
-            aria-label="Kategorie auswählen"
-            className="flex-1 min-w-0 !bg-transparent border-none focus:border-none text-xs font-bold text-slate-900 dark:text-white cursor-pointer outline-none focus:outline-none focus-visible:outline-none focus:!ring-0 focus:!ring-offset-0 focus-visible:!ring-0 focus-visible:!outline-none uppercase tracking-wider appearance-none pr-6"
-            style={{ outline: "none", boxShadow: "none", background: "transparent" }}
-            title={(value || defaultValue) ? categories.find(c => c.id === (value || defaultValue))?.name : "Kategorie wählen..."}
-          >
-            <option value="" disabled hidden>Wähle Kategorie</option>
-            <option value="" className="bg-white dark:bg-[#050505] text-slate-900 dark:text-white">Keine Kategorie</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id} className="bg-white dark:bg-[#050505] text-slate-900 dark:text-white">
-                {cat.name}
-              </option>
-            ))}
-          </select>
-          <ChevronDown size={14} className={cn("absolute top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none transition-colors", readOnly ? "right-2" : "right-8")} />
-          <button 
-            type="button"
-            onClick={(e) => { 
-              if (readOnly) return;
-              e.preventDefault(); 
-              e.stopPropagation(); 
-              setIsAdding(true); 
-            }} 
-            className={cn(
-              "p-1 rounded-md transition-colors shrink-0 cursor-pointer text-brand-muted hover:text-green-500 hover:bg-green-500/10",
-              readOnly && "hidden"
-            )}
-            title="Neue Kategorie anlegen"
-            aria-label="Neue Kategorie anlegen"
-          >
-            <Plus size={14} />
-          </button>
+          <CustomSelect
+            value={currentValue === 'none' ? '' : currentValue}
+            options={options.map(o => o.value === 'none' ? { ...o, value: '' } : o)}
+            onChange={(val) => onChange?.(val)}
+            placeholder="Kategorie wählen..."
+            className="flex-1 min-w-0"
+          />
+          {!readOnly && (
+            <button 
+              type="button"
+              onClick={(e) => { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+                setIsAdding(true); 
+              }} 
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/10 dark:bg-white/5 border border-black/5 dark:border-white/10 text-slate-900 dark:text-white hover:bg-white/20 transition-all shrink-0 shadow-sm"
+              title="Neue Kategorie anlegen"
+              aria-label="Neue Kategorie anlegen"
+            >
+              <Plus size={16} />
+            </button>
+          )}
         </div>
       )}
     </div>
   );
 }
+

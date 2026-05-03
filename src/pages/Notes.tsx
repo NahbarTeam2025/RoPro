@@ -11,6 +11,7 @@ import { cn } from '../lib/utils';
 import { CategorySelect } from '../components/CategorySelect';
 import { CategoryManager } from '../components/CategoryManager';
 import { useCategories } from '../lib/categories';
+import { CustomSelect } from '../components/CustomSelect';
 
 interface Note {
   id: string;
@@ -156,24 +157,27 @@ export default function Notes() {
             </div>
           </div>
           <div className="flex gap-2">
-             <select 
+             <CustomSelect 
                 value={filterCategory} 
-                onChange={(e) => setFilterCategory(e.target.value)}
-                className="glass-input h-10 flex-1 appearance-none text-xs font-bold uppercase tracking-wider px-2"
-             >
-               <option value="all">Alle</option>
-               {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-             </select>
-             <select 
+                onChange={setFilterCategory}
+                options={[
+                  { value: 'all', label: 'Alle' },
+                  ...categories.map(c => ({ value: c.id, label: c.name }))
+                ]}
+                className="flex-1"
+             />
+             <CustomSelect 
                 value={filterMonth} 
-                onChange={(e) => setFilterMonth(e.target.value)}
-                className="glass-input h-10 flex-1 appearance-none text-xs font-bold uppercase tracking-wider px-2"
-             >
-               <option value="all">Datum</option>
-               {availableMonths.map(m => (
-                 <option key={m} value={m}>{format(new Date(`${m}-01`), 'MMMM', { locale: de })}</option>
-               ))}
-             </select>
+                onChange={setFilterMonth}
+                options={[
+                  { value: 'all', label: 'Datum' },
+                  ...availableMonths.map(m => ({ 
+                    value: m, 
+                    label: format(new Date(`${m}-01`), 'MMMM', { locale: de }) 
+                  }))
+                ]}
+                className="flex-1"
+             />
           </div>
         </div>
         <div className="flex-1 bg-transparent rounded-[2rem] m-4 mt-0 overflow-hidden">

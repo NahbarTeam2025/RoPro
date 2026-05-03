@@ -10,6 +10,8 @@ import { CategorySelect } from '../components/CategorySelect';
 import { CategoryManager } from '../components/CategoryManager';
 import { useCategories } from '../lib/categories';
 
+import { CustomSelect } from '../components/CustomSelect';
+
 interface Todo {
   id: string;
   task: string;
@@ -217,24 +219,27 @@ export default function Tasks() {
               </div>
             </div>
             <div className="flex gap-2">
-               <select 
+               <CustomSelect
                   value={filterCategory} 
-                  onChange={(e) => setFilterCategory(e.target.value)}
-                  className="glass-input h-10 flex-1 appearance-none text-xs font-bold uppercase tracking-wider px-2"
-               >
-                 <option value="all">Kategorie</option>
-                 {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-               </select>
-               <select 
+                  onChange={setFilterCategory}
+                  options={[
+                    { value: 'all', label: 'Kategorie' },
+                    ...categories.map(c => ({ value: c.id, label: c.name }))
+                  ]}
+                  className="flex-1"
+               />
+               <CustomSelect
                   value={filterMonth} 
-                  onChange={(e) => setFilterMonth(e.target.value)}
-                  className="glass-input h-10 flex-1 appearance-none text-xs font-bold uppercase tracking-wider px-2"
-               >
-                 <option value="all">Zeitraum</option>
-                 {availableMonths.map(m => (
-                   <option key={m} value={m}>{format(new Date(`${m}-01`), 'MMM yy', { locale: de })}</option>
-                 ))}
-               </select>
+                  onChange={setFilterMonth}
+                  options={[
+                    { value: 'all', label: 'Zeitraum' },
+                    ...availableMonths.map(m => ({ 
+                      value: m, 
+                      label: format(new Date(`${m}-01`), 'MMM yy', { locale: de }) 
+                    }))
+                  ]}
+                  className="flex-1"
+               />
             </div>
           </div>
           <div className="flex-1 overflow-y-auto custom-scrollbar">
@@ -324,18 +329,19 @@ export default function Tasks() {
                   <div className="space-y-4">
                     <div className="flex flex-col gap-1.5">
                       <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Priorität</label>
-                      <div className="relative">
-                        <select
-                          id="edit-priority-select"
-                          defaultValue={editTask.priority}
-                          className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold uppercase appearance-none w-full"
-                        >
-                          <option value="high" className="bg-[#1c1c1e] text-white">🔴 Hoch</option>
-                          <option value="medium" className="bg-[#1c1c1e] text-white">🟡 Mittel</option>
-                          <option value="low" className="bg-[#1c1c1e] text-white">🟢 Niedrig</option>
-                        </select>
-                        <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none" />
-                      </div>
+                      <CustomSelect
+                        value={editTask.priority}
+                        onChange={(val) => {
+                          const prioritySelect = document.getElementById('edit-priority-select') as HTMLInputElement;
+                          if (prioritySelect) prioritySelect.value = val;
+                        }}
+                        options={[
+                          { value: 'high', label: '🔴 Hoch' },
+                          { value: 'medium', label: '🟡 Mittel' },
+                          { value: 'low', label: '🟢 Niedrig' }
+                        ]}
+                      />
+                      <input type="hidden" id="edit-priority-select" defaultValue={editTask.priority} />
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Kategorie</label>
@@ -343,7 +349,7 @@ export default function Tasks() {
                         type="task" 
                         defaultValue={editTask.categoryId}
                         id="edit-category-select"
-                        className="glass-input h-12 focus-within:ring-2 focus-within:ring-accent/50 font-bold uppercase w-full"
+                        className="w-full h-12"
                         readOnly
                         hideIcon
                       />
@@ -465,18 +471,15 @@ export default function Tasks() {
                 <div className="space-y-4">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Priorität</label>
-                    <div className="relative">
-                      <select
-                        value={priority}
-                        onChange={(e) => setPriority(e.target.value as any)}
-                        className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold uppercase appearance-none w-full"
-                      >
-                        <option value="high" className="bg-[#1c1c1e] text-white">🔴 Hoch</option>
-                        <option value="medium" className="bg-[#1c1c1e] text-white">🟡 Mittel</option>
-                        <option value="low" className="bg-[#1c1c1e] text-white">🟢 Niedrig</option>
-                      </select>
-                      <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none" />
-                    </div>
+                    <CustomSelect
+                      value={priority}
+                      onChange={(val) => setPriority(val as any)}
+                      options={[
+                        { value: 'high', label: '🔴 Hoch' },
+                        { value: 'medium', label: '🟡 Mittel' },
+                        { value: 'low', label: '🟢 Niedrig' }
+                      ]}
+                    />
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Kategorie</label>
@@ -484,7 +487,7 @@ export default function Tasks() {
                       type="task" 
                       value={categoryId} 
                       onChange={setCategoryId}
-                      className="glass-input h-12 focus-within:ring-2 focus-within:ring-accent/50 font-bold uppercase w-full"
+                      className="w-full h-12"
                       readOnly
                       hideIcon
                     />
@@ -561,15 +564,16 @@ export default function Tasks() {
                       <span>{isRecurring ? 'An' : 'Aus'}</span>
                     </button>
                     {isRecurring && (
-                      <select
+                      <CustomSelect
                         value={recurrenceInterval}
-                        onChange={(e) => setRecurrenceInterval(e.target.value as any)}
-                        className="flex-1 h-12 bg-[#1c1c1e] text-white border-white/10 focus:ring-accent/30 font-bold uppercase appearance-none px-4 text-xs tracking-wider"
-                      >
-                        <option value="daily" className="bg-[#1c1c1e] text-white">Täglich</option>
-                        <option value="weekly" className="bg-[#1c1c1e] text-white">Wöchentlich</option>
-                        <option value="monthly" className="bg-[#1c1c1e] text-white">Monatlich</option>
-                      </select>
+                        onChange={(val) => setRecurrenceInterval(val as any)}
+                        options={[
+                          { value: 'daily', label: 'Täglich' },
+                          { value: 'weekly', label: 'Wöchentlich' },
+                          { value: 'monthly', label: 'Monatlich' }
+                        ]}
+                        className="flex-1"
+                      />
                     )}
                 </div>
               </div>

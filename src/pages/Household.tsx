@@ -25,6 +25,7 @@ import { cn } from '../lib/utils';
 import { CategorySelect } from '../components/CategorySelect';
 import { CategoryManager } from '../components/CategoryManager';
 import { useCategories } from '../lib/categories';
+import { CustomSelect } from '../components/CustomSelect';
 import { 
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip,
   LineChart, Line, XAxis, YAxis, CartesianGrid, AreaChart, Area
@@ -689,19 +690,16 @@ export default function Household() {
           
           <div className="w-px h-6 bg-slate-200 dark:bg-white/10 self-center mx-1" />
           
-          <div className="flex-1 sm:flex-none relative h-11 group">
-            <select 
+          <div className="flex-1 sm:flex-none relative h-11 shrink-0">
+            <CustomSelect 
               value={filterMonth} 
-              onChange={(e) => setFilterMonth(e.target.value)}
-              className="w-full h-full appearance-none bg-transparent font-bold text-sm tracking-tight px-6 pr-10 text-slate-900 dark:text-white cursor-pointer focus:outline-none"
-            >
-              {availableMonths.map(m => (
-                <option key={m} value={m} className="bg-white dark:bg-slate-900">
-                  {format(new Date(`${m}-01`), 'MMMM yyyy', { locale: de })}
-                </option>
-              ))}
-            </select>
-            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-brand transition-colors" />
+              onChange={setFilterMonth}
+              options={availableMonths.map(m => ({ 
+                value: m, 
+                label: format(new Date(`${m}-01`), 'MMMM yyyy', { locale: de }) 
+              }))}
+              triggerClassName="!h-11 !bg-transparent !border-none !text-sm"
+            />
           </div>
         </div>
       </header>
@@ -777,14 +775,15 @@ export default function Household() {
                   <span>Ja</span>
                 </button>
                 {isRecurring && (
-                  <select
+                  <CustomSelect
                     value={interval}
-                    onChange={(e) => setInterval(e.target.value as any)}
-                    className="flex-1 h-12 bg-brand/10 border-none rounded-2xl px-2 text-xs font-black uppercase tracking-widest text-brand dark:text-white"
-                  >
-                    <option value="monthly" className="bg-[#1C1C1E]">Monatlich</option>
-                    <option value="yearly" className="bg-[#1C1C1E]">Jährlich</option>
-                  </select>
+                    onChange={(val) => setInterval(val as any)}
+                    options={[
+                      { value: 'monthly', label: 'Monatlich' },
+                      { value: 'yearly', label: 'Jährlich' }
+                    ]}
+                    className="flex-1"
+                  />
                 )}
               </div>
             </div>
