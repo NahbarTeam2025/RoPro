@@ -230,7 +230,7 @@ export function NoteEditor({ note, onBack, onSave }: { note: Note, onBack: () =>
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/80 backdrop-blur-xl">
           <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] p-10 shadow-2xl">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
-            <p className="text-sm text-[#86868B] mb-8">Diese Notiz wird unwiderruflich entfernt.</p>
+            <p className="text-sm text-brand-muted mb-8">Diese Notiz wird unwiderruflich entfernt.</p>
             <div className="flex flex-col gap-3">
               <button onClick={handleDelete} className="btn-cancel w-full">Löschen</button>
               <button onClick={() => setDeleteModal(null)} className="glass-button-secondary w-full">Behalten</button>

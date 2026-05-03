@@ -305,7 +305,7 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                               </h4>
                               {result.metadata?.priority === 'high' && <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]" />}
                             </div>
-                            <p className="text-xs font-medium text-brand-muted truncate uppercase tracking-wide opacity-70">
+                            <p className="text-xs font-medium text-brand-muted truncate uppercase tracking-wide">
                               {result.subtitle}
                             </p>
                           </div>

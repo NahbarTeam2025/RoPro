@@ -681,7 +681,7 @@ export default function Household() {
                 ? "bg-red-500 text-white shadow-lg shadow-red-500/20" 
                 : showAdd 
                   ? "bg-blue-500/20 text-blue-700 dark:bg-blue-500/30 dark:text-blue-300 shadow-sm"
-                  : "text-slate-600 dark:text-slate-400 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400 dark:hover:bg-blue-500/20"
+                  : "text-brand-muted hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400 dark:hover:bg-blue-500/20"
             )}
           >
             <Plus size={18} className={cn("transition-transform", showAdd && !editingId && "rotate-45")} />
@@ -866,7 +866,7 @@ export default function Household() {
               value={savingsInput}
               onChange={(e) => setSavingsInput(e.target.value)}
               placeholder="Betrag"
-              className="h-8 text-xs w-full px-2 bg-slate-900 dark:bg-black/40 text-white placeholder:text-white/40 rounded-lg border border-white/10"
+              className="h-8 text-xs w-full px-2 bg-slate-900 dark:bg-black/40 text-white placeholder:text-brand-muted rounded-lg border border-white/10"
             />
             <button 
               type="button"
@@ -899,15 +899,15 @@ export default function Household() {
             <div className="flex items-center gap-3">
                <div className="flex items-center gap-1.5 outline-none" title="Der aktuelle Kontostand im Zeitverlauf">
                   <div className="w-2 h-2 rounded-full bg-blue-500" />
-                  <span className="text-[8px] font-bold text-brand-muted uppercase">Netto-Bilanz</span>
+                  <span className="text-[10px] font-bold text-brand-muted uppercase">Netto-Bilanz</span>
                </div>
                <div className="flex items-center gap-1.5 outline-none" title="Alle Einnahmen aufsummiert">
                   <div className="w-2 h-2 rounded-full bg-green-500/40" />
-                  <span className="text-[8px] font-bold text-brand-muted uppercase">Einnahmen (kum.)</span>
+                  <span className="text-[10px] font-bold text-brand-muted uppercase">Einnahmen (kum.)</span>
                </div>
                <div className="flex items-center gap-1.5 outline-none" title="Alle Ausgaben aufsummiert">
                   <div className="w-2 h-2 rounded-full bg-red-500/40" />
-                  <span className="text-[8px] font-bold text-brand-muted uppercase">Ausgaben (kum.)</span>
+                  <span className="text-[10px] font-bold text-brand-muted uppercase">Ausgaben (kum.)</span>
                </div>
             </div>
           </div>
@@ -1206,14 +1206,14 @@ export default function Household() {
                     return (
                       <div key={t.id} className="px-4 py-2 flex items-center justify-between group">
                         <div className="flex items-center gap-4 flex-1 min-w-0">
-                          <div className="w-10 h-10 flex items-center justify-center shrink-0 text-brand-muted/40">
+                          <div className="w-10 h-10 flex items-center justify-center shrink-0 text-brand-muted">
                             {t.type === 'income' ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
                           </div>
                           <div className="flex flex-col items-start min-w-0">
                             <span className="font-bold text-brand text-sm whitespace-nowrap truncate w-full">{t.description}</span>
                             <div className="flex flex-col gap-0.5 mt-0.5">
                               {t.isRecurring && (
-                                <span className="text-[8px] font-black text-accent uppercase tracking-tighter whitespace-nowrap">
+                                <span className="text-[10px] font-black text-accent uppercase tracking-tighter whitespace-nowrap">
                                   {t.interval === 'yearly' ? 'Jährlich' : 'Monatlich'}
                                 </span>
                               )}
@@ -1281,7 +1281,7 @@ export default function Household() {
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl">
           <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
-            <p className="text-sm text-[#86868B] mb-8">Dieser Eintrag wird unwiderruflich entfernt.</p>
+            <p className="text-sm text-brand-muted mb-8">Dieser Eintrag wird unwiderruflich entfernt.</p>
             <div className="flex flex-col gap-3">
               <button 
                 type="button"

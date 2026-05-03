@@ -64,7 +64,7 @@ export function SortableItem(props: { module: ModuleConfig; toggleModule: (id: s
           disabled={isDashboard}
           className={cn(
             "p-2 rounded-xl transition-colors",
-            isDashboard ? "opacity-50 cursor-not-allowed text-brand-muted" : 
+            isDashboard ? "cursor-not-allowed text-brand-muted opacity-50 text-brand-muted" : 
             props.module.enabled ? "text-accent bg-accent/10 hover:bg-accent/20" : "text-brand-muted hover:bg-black/10 dark:hover:bg-white/10"
           )}
         >

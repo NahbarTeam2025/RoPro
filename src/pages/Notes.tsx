@@ -226,9 +226,9 @@ export default function Notes() {
                           {catName}
                         </span>
                         {note.isDraft && (
-                          <span className="text-[8px] font-black text-brand uppercase tracking-tighter ml-auto">Neu</span>
+                          <span className="text-[10px] font-black text-brand uppercase tracking-tighter ml-auto">Neu</span>
                         )}
-                        <span className="text-xs font-bold text-brand-muted/50 truncate ml-auto uppercase tracking-tighter">
+                        <span className="text-xs font-bold text-brand-muted truncate ml-auto uppercase tracking-tighter">
                           {note.updatedAt?.toDate ? format(note.updatedAt.toDate(), 'd. MMM yyyy') : 'Gerade eben'}
                         </span>
                       </div>
@@ -268,7 +268,7 @@ export default function Notes() {
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl">
           <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
-            <p className="text-sm text-[#86868B] mb-8">Diese Notiz wird unwiderruflich entfernt.</p>
+            <p className="text-sm text-brand-muted mb-8">Diese Notiz wird unwiderruflich entfernt.</p>
             <div className="flex flex-col gap-3">
               <button 
                 type="button"

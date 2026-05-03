@@ -283,13 +283,13 @@ export default function Links() {
                         )}
                       </div>
                       <div className="flex items-center justify-between mt-1">
-                        <span className="pro-heading !text-[8px] uppercase tracking-widest">{catName}</span>
+                        <span className="pro-heading !text-[10px] uppercase tracking-widest">{catName}</span>
                          <a 
                           href={link.url} 
                           target="_blank" 
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
-                          className="text-brand-muted/50 hover:text-brand transition-colors"
+                          className="text-brand-muted hover:text-brand transition-colors"
                           title="Öffnen"
                         >
                           <ExternalLink size={12} />
@@ -508,7 +508,7 @@ export default function Links() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-xl">
           <div className="glass-card w-full max-w-sm rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
-            <p className="text-sm text-[#86868B] mb-8">Dieser Link wird unwiderruflich entfernt.</p>
+            <p className="text-sm text-brand-muted mb-8">Dieser Link wird unwiderruflich entfernt.</p>
             <div className="flex flex-col gap-3">
               <button 
                 type="button"

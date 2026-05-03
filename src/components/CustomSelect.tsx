@@ -80,7 +80,7 @@ export function CustomSelect({
           >
             <div className="max-h-[148px] overflow-y-auto py-2 custom-scrollbar">
               {options.length === 0 ? (
-                <div className="px-5 py-3 text-sm text-white/40 italic flex items-center justify-center">
+                <div className="px-5 py-3 text-sm text-brand-muted italic flex items-center justify-center">
                   Keine Optionen
                 </div>
               ) : (

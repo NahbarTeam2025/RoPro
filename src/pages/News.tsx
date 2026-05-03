@@ -99,7 +99,7 @@ export default function News() {
         <button 
           onClick={() => fetchNews(activeFeed)}
           disabled={loading}
-          className="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/5 text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white flex items-center justify-center transition-colors disabled:opacity-50"
+          className="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/5 text-brand-muted hover:text-[#1D1D1F] dark:hover:text-white flex items-center justify-center transition-colors disabled:opacity-50"
         >
           <RefreshCcw size={18} className={cn(loading && "animate-spin")} />
         </button>

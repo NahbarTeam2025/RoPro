@@ -510,7 +510,7 @@ export default function Passwords() {
             </button>
           </div>
 
-          <div className="flex items-center gap-3 text-xs font-black text-brand-muted/40 uppercase tracking-[0.3em] pt-6 group">
+          <div className="flex items-center gap-3 text-xs font-black text-brand-muted uppercase tracking-[0.3em] pt-6 group">
             <Shield size={14} className="group-hover:text-brand transition-colors" />
             <span>AES-256-GCM Verschlüsselt</span>
           </div>
@@ -592,7 +592,7 @@ export default function Passwords() {
                     <div className={cn("font-bold truncate tracking-tight text-xs", selectedEntry?.id === entry.id ? "text-brand" : "text-slate-900 dark:text-white")}>
                       {entry.name || entry.url}
                     </div>
-                    <div className="text-xs truncate font-medium uppercase tracking-tighter text-brand-muted opacity-70">
+                    <div className="text-xs truncate font-medium uppercase tracking-tighter text-brand-muted">
                       {entry.category || 'Allgemein'}
                     </div>
                   </div>

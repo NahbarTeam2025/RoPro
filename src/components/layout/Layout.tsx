@@ -236,7 +236,7 @@ export default function Layout() {
             {!isSidebarCollapsed && (
               <div className="flex-1 min-w-0 flex flex-col justify-center">
                 <span className="text-sm font-bold text-[#1D1D1F] dark:text-[#F5F5F7] truncate">{user?.displayName || 'Benutzer'}</span>
-                <span className="text-[10px] text-[#86868B] truncate group-hover:text-red-500 transition-colors uppercase tracking-wider font-bold">Abmelden</span>
+                <span className="text-[10px] text-brand-muted truncate group-hover:text-red-500 transition-colors uppercase tracking-wider font-bold">Abmelden</span>
               </div>
             )}
             {isSidebarCollapsed && (
@@ -248,7 +248,7 @@ export default function Layout() {
           
           <button 
             type="button"
-            className="lg:hidden text-[#86868B] ml-2 hover:text-[#1D1D1F] transition-colors focus-visible:ring-2 rounded-lg flex items-center justify-center w-10 h-10 shrink-0" 
+            className="lg:hidden text-brand-muted ml-2 hover:text-[#1D1D1F] transition-colors focus-visible:ring-2 rounded-lg flex items-center justify-center w-10 h-10 shrink-0" 
             onClick={() => setIsSidebarOpen(false)}
             aria-label="Sidebar schließen"
           >
@@ -258,7 +258,7 @@ export default function Layout() {
 
         <nav className="flex-1 pt-4 pb-2 overflow-y-auto flex flex-col gap-6">
           <div className="space-y-1">
-            {!isSidebarCollapsed && <h3 className="px-4 text-xs font-bold text-[#86868B] uppercase tracking-wider mb-2">Hauptmenü</h3>}
+            {!isSidebarCollapsed && <h3 className="px-4 text-xs font-bold text-brand-muted uppercase tracking-wider mb-2">Hauptmenü</h3>}
             {navItems.map((item) => {
               const Icon = item.icon;
               const content = (
@@ -277,7 +277,7 @@ export default function Layout() {
                     rel="noopener noreferrer"
                     className={cn(
                       "sidebar-item",
-                      isSidebarCollapsed && "justify-center px-0 text-slate-400"
+                      isSidebarCollapsed && "justify-center px-0 text-brand-muted"
                     )}
                     title={isSidebarCollapsed ? item.name : undefined}
                   >
@@ -315,7 +315,7 @@ export default function Layout() {
                   type="button"
                   onClick={() => !isSidebarCollapsed && toggleCategory(cat.id)}
                   className={cn(
-                    "w-full flex items-center text-xs font-bold text-[#86868B] uppercase tracking-wider hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors focus:outline-none",
+                    "w-full flex items-center text-xs font-bold text-brand-muted uppercase tracking-wider hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-colors focus:outline-none",
                     isSidebarCollapsed ? "justify-center px-0" : "justify-between px-4 py-3"
                   )}
                   title={isSidebarCollapsed ? cat.name : undefined}
@@ -402,7 +402,7 @@ export default function Layout() {
               to="/settings"
               onClick={() => setIsSidebarOpen(false)}
               className={({ isActive }) => cn(
-                "flex-1 h-10 flex items-center justify-center rounded-xl transition-colors text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white",
+                "flex-1 h-10 flex items-center justify-center rounded-xl transition-colors text-brand-muted hover:text-[#1D1D1F] dark:hover:text-white",
                 isActive ? "text-brand bg-brand/10 dark:text-brand dark:bg-brand/20" : "bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10"
               )}
               title="Einstellungen"
@@ -413,7 +413,7 @@ export default function Layout() {
            <button 
              type="button"
              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-             className="hidden lg:flex w-10 h-10 shrink-0 items-center justify-center rounded-xl bg-white/50 dark:bg-white/5 border border-black/5 dark:border-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-all text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white focus:outline-none"
+             className="hidden lg:flex w-10 h-10 shrink-0 items-center justify-center rounded-xl bg-white/50 dark:bg-white/5 border border-black/5 dark:border-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-all text-brand-muted hover:text-[#1D1D1F] dark:hover:text-white focus:outline-none"
              aria-label={isSidebarCollapsed ? "Menü ausklappen" : "Menü einklappen"}
            >
              {isSidebarCollapsed ? <span className="text-xs font-bold">»</span> : <span className="text-xs font-bold">«</span>}
@@ -427,7 +427,7 @@ export default function Layout() {
           {/* Hamburger Menu */}
           <div className="flex items-center shrink-0 z-20 bg-transparent">
             <button 
-              className="w-10 h-10 flex items-center justify-center -ml-2 text-[#86868B] hover:text-[#1D1D1F] rounded-lg transition-colors"
+              className="w-10 h-10 flex items-center justify-center -ml-2 text-brand-muted hover:text-[#1D1D1F] rounded-lg transition-colors"
               onClick={() => setIsSidebarOpen(true)}
             >
               <Menu size={28} />
@@ -477,7 +477,7 @@ export default function Layout() {
             <button 
               ref={mobileSearchToggleRef}
               onClick={() => setIsMobileSearchExpanded(!isMobileSearchExpanded)}
-              className={cn("w-10 h-10 flex items-center justify-center rounded-lg transition-colors", isMobileSearchExpanded ? "text-[#1D1D1F] dark:text-white bg-white/20 dark:bg-[#1C1C1E]/40 backdrop-blur-md border border-black/5 dark:border-white/5 shadow-sm" : "text-[#86868B] hover:bg-black/5 dark:hover:bg-white/10")}
+              className={cn("w-10 h-10 flex items-center justify-center rounded-lg transition-colors", isMobileSearchExpanded ? "text-[#1D1D1F] dark:text-white bg-white/20 dark:bg-[#1C1C1E]/40 backdrop-blur-md border border-black/5 dark:border-white/5 shadow-sm" : "text-brand-muted hover:bg-black/5 dark:hover:bg-white/10")}
             >
                {isMobileSearchExpanded ? <X size={20} /> : <Search size={22} />}
             </button>

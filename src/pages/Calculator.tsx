@@ -70,7 +70,7 @@ export default function Calculator() {
     <div className="max-w-md mx-auto pt-4 sm:pt-10">
       <div className="glass-panel p-6 rounded-[32px] flex flex-col gap-6 shadow-2xl">
         <div className="h-24 flex flex-col items-end justify-end p-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5">
-          <div className="h-6 text-sm text-[#86868B] flex items-center justify-end font-medium">
+          <div className="h-6 text-sm text-brand-muted flex items-center justify-end font-medium">
             {previousValue} {operation}
           </div>
           <motion.div 

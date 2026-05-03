@@ -101,7 +101,7 @@ export default function WeatherModal({ isOpen, onClose, data, locationName }: We
                       <div className="text-lg font-bold text-brand-muted">
                         {getWeatherInfo(data.current.weatherCode).label}
                       </div>
-                      <div className="text-sm font-medium text-brand-muted/70 mt-1">
+                      <div className="text-sm font-medium text-brand-muted mt-1">
                         Gefühlt wie {Math.round(data.current.apparentTemp)}°
                       </div>
                     </div>

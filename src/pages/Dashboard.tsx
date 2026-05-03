@@ -32,7 +32,7 @@ function LiveClock() {
       <h1 className="text-4xl sm:text-5xl font-black tracking-tighter text-white leading-none">
         {format(currentTime, 'HH:mm')}
       </h1>
-      <p className="text-xs font-medium text-[#86868B] mt-2 sm:mt-3 capitalize">
+      <p className="text-xs font-medium text-brand-muted mt-2 sm:mt-3 capitalize">
         {format(currentTime, 'EEEE, d. MMMM', { locale: de })}
       </p>
     </div>
@@ -249,7 +249,7 @@ export default function Dashboard() {
                   <div key={app.id} className="refined-list-item h-[74px] shrink-0 flex items-center gap-4 px-6 relative group border-l-[3px] rounded-none" style={{ borderLeftColor: app.color || '#60A5FA' }}>
                     <div className="w-10 h-10 flex flex-col items-center justify-center shrink-0 ml-1">
                        <span className="text-xs font-black text-slate-900 dark:text-white leading-none">{format(app.dueDate?.toDate?.() || new Date(app.dueDate), 'dd')}</span>
-                       <span className="text-[8px] font-bold text-brand-muted uppercase tracking-tighter" style={{ opacity: 0.7 }}>{format(app.dueDate?.toDate?.() || new Date(app.dueDate), 'MMM', { locale: de })}</span>
+                       <span className="text-[10px] font-bold text-brand-muted uppercase tracking-tighter">{format(app.dueDate?.toDate?.() || new Date(app.dueDate), 'MMM', { locale: de })}</span>
                     </div>
                     <div className="flex-1 min-w-0 pr-10">
                       <span className="text-xs font-bold text-brand block truncate tracking-tight">{app.task}</span>
@@ -263,17 +263,17 @@ export default function Dashboard() {
                 ))}
                </div>
             ) : (
-               <div className="text-center py-10 opacity-20 flex flex-col items-center">
+               <div className="text-center py-10 text-brand-muted flex flex-col items-center">
                  <CalendarIcon size={40} strokeWidth={1} />
                  <span className="text-xs font-bold uppercase mt-3 tracking-widest text-xs">Frei</span>
                </div>
             )}
             {nextHoliday && (
               <div className="mt-auto pt-6 border-t border-black/5 dark:border-white/5 flex justify-between items-center -mx-6 -mb-6 p-6">
-                 <span className="text-xs font-bold text-[#86868B] uppercase tracking-wider">Feiertag</span>
+                 <span className="text-xs font-bold text-brand-muted uppercase tracking-wider">Feiertag</span>
                  <div className="text-right">
                     <div className="text-sm font-bold text-brand dark:text-white">{nextHoliday.name}</div>
-                    <div className="text-xs font-medium text-[#86868B]">{format(nextHoliday.date, 'dd.MM')}</div>
+                    <div className="text-xs font-medium text-brand-muted">{format(nextHoliday.date, 'dd.MM')}</div>
                  </div>
               </div>
             )}
@@ -309,7 +309,7 @@ export default function Dashboard() {
                         onClick={() => setEditItem({ type: 'todos', data: todo })}
                       >
                         <div className="flex items-center gap-2">
-                          <span className={cn("text-xs font-bold block truncate tracking-tight", todo.completed ? "text-brand-muted line-through opacity-60" : "text-slate-900 dark:text-white")}>{todo.task}</span>
+                          <span className={cn("text-xs font-bold block truncate tracking-tight", todo.completed ? "text-brand-muted line-through" : "text-slate-900 dark:text-white")}>{todo.task}</span>
                         </div>
                         {todo.dueDate && (
                           <div className="flex items-center gap-1 mt-0.5">
@@ -327,7 +327,7 @@ export default function Dashboard() {
                   ))}
                </div>
             ) : (
-               <div className="text-center py-10 opacity-20 flex flex-col items-center">
+               <div className="text-center py-10 text-brand-muted flex flex-col items-center">
                  <CheckSquare size={40} strokeWidth={1} />
                  <span className="text-xs font-bold uppercase mt-3 tracking-widest text-xs">Gute Arbeit</span>
                </div>
@@ -344,7 +344,7 @@ export default function Dashboard() {
                     <div className="flex items-center gap-3 overflow-hidden ml-1">
                       <div className="min-w-0">
                         <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate tracking-tight">{note.title || 'Ohne Titel'}</h4>
-                        <span className="text-xs font-bold text-brand-muted/70 block mt-0.5 uppercase tracking-tighter">
+                        <span className="text-xs font-bold text-brand-muted block mt-0.5 uppercase tracking-tighter">
                           {format(note.updatedAt?.toDate?.() || (note.updatedAt ? new Date(note.updatedAt) : new Date()), 'dd. MMM', { locale: de })}
                         </span>
                       </div>
@@ -357,7 +357,7 @@ export default function Dashboard() {
                 ))}
                </div>
             ) : (
-               <div className="text-center py-10 opacity-20 flex flex-col items-center">
+               <div className="text-center py-10 text-brand-muted flex flex-col items-center">
                  <FileText size={40} strokeWidth={1} />
                  <span className="text-xs font-bold uppercase mt-3 tracking-widest text-xs">Leer</span>
                </div>
@@ -369,15 +369,15 @@ export default function Dashboard() {
           <DashboardCard key="household" title="Haushaltsbuch" icon={Wallet} to="/household" color="#34C759">
             <div className="grid grid-cols-3 gap-2 mb-2 p-3">
               <div className="text-center">
-                <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Plus</div>
+                <div className="text-[10px] font-bold text-brand-muted uppercase tracking-wider mb-0.5">Plus</div>
                 <div className="text-xs font-black text-slate-900 dark:text-white">{formatEuro(stats.income || 0)}€</div>
               </div>
               <div className="text-center border-x border-black/5 dark:border-white/5">
-                <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Minus</div>
+                <div className="text-[10px] font-bold text-brand-muted uppercase tracking-wider mb-0.5">Minus</div>
                 <div className="text-xs font-black text-slate-900 dark:text-white">{formatEuro(stats.expenses || 0)}€</div>
               </div>
               <div className="text-center">
-                <div className="text-[8px] font-bold text-[#86868B] uppercase tracking-wider mb-0.5">Bilanz</div>
+                <div className="text-[10px] font-bold text-brand-muted uppercase tracking-wider mb-0.5">Bilanz</div>
                 <div className="text-xs font-black text-slate-900 dark:text-white">{formatEuro(balance || 0)}€</div>
               </div>
             </div>
@@ -390,7 +390,7 @@ export default function Dashboard() {
                      </div>
                      <div className="flex-1 min-w-0">
                        <div className="text-xs font-bold text-[#1D1D1F] dark:text-[#F5F5F7]"> {t.description}</div>
-                       <div className="text-xs font-medium text-[#86868B]">
+                       <div className="text-xs font-medium text-brand-muted">
                         {format(t.date?.toDate?.() || (t.date ? new Date(t.date) : new Date()), 'dd.MM')}
                       </div>
                      </div>
@@ -404,7 +404,7 @@ export default function Dashboard() {
                  ))}
                </div>
             ) : (
-               <div className="text-center py-10 opacity-20 flex flex-col items-center">
+               <div className="text-center py-10 text-brand-muted flex flex-col items-center">
                  <Wallet size={40} strokeWidth={1} />
                  <span className="text-xs font-bold uppercase mt-3 tracking-widest text-xs">Keine Einträge</span>
                </div>
@@ -432,7 +432,7 @@ export default function Dashboard() {
                 ))}
                </div>
             ) : (
-               <div className="text-center py-10 opacity-20 flex flex-col items-center">
+               <div className="text-center py-10 text-brand-muted flex flex-col items-center">
                  <MessageSquare size={40} strokeWidth={1} />
                  <span className="text-xs font-bold uppercase mt-3 tracking-widest text-xs">Keine</span>
                </div>
@@ -455,14 +455,14 @@ export default function Dashboard() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <span className="text-xs font-bold text-brand block truncate tracking-tight">{link.title}</span>
-                        <span className="text-xs text-brand-muted block font-medium uppercase tracking-tighter opacity-70 leading-normal mt-0.5 break-all line-clamp-1">{domain}</span>
+                        <span className="text-xs text-brand-muted block font-medium uppercase tracking-tighter leading-normal mt-0.5 break-all line-clamp-1">{domain}</span>
                       </div>
                     </a>
                   </div>
                 )})}
                </div>
             ) : (
-               <div className="text-center py-10 opacity-20 flex flex-col items-center">
+               <div className="text-center py-10 text-brand-muted flex flex-col items-center">
                  <LinkIcon size={40} strokeWidth={1} />
                  <span className="text-xs font-bold uppercase mt-3 tracking-widest text-xs">Keine</span>
                </div>
@@ -483,13 +483,13 @@ export default function Dashboard() {
                   >
                     <div className="min-w-0 w-full flex flex-col items-center justify-center">
                       <span className="text-base font-bold text-slate-900 dark:text-white block truncate tracking-tight w-full">{contact.name}</span>
-                      {contact.phone && <span className="text-sm text-brand-muted block truncate font-medium uppercase tracking-tighter opacity-70 leading-tight w-full">{contact.phone}</span>}
+                      {contact.phone && <span className="text-sm text-brand-muted block truncate font-medium uppercase tracking-tighter leading-tight w-full">{contact.phone}</span>}
                     </div>
                   </Link>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-10 opacity-20 flex flex-col items-center">
+              <div className="text-center py-10 text-brand-muted flex flex-col items-center">
                 <Users size={40} strokeWidth={1} />
                 <span className="text-xs font-bold uppercase mt-3 tracking-widest text-xs">Keine Kontakte</span>
               </div>
@@ -517,7 +517,7 @@ export default function Dashboard() {
                   ))}
                </div>
             ) : (
-               <div className="text-center py-10 opacity-20 flex flex-col items-center">
+               <div className="text-center py-10 text-brand-muted flex flex-col items-center">
                  <ShoppingCart size={40} strokeWidth={1} />
                  <span className="text-[10px] font-bold uppercase mt-3 tracking-widest">Alles erledigt</span>
                </div>
@@ -566,7 +566,7 @@ export default function Dashboard() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
           <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
-            <p className="text-sm text-[#86868B] mb-8">Dieser Eintrag wird unwiderruflich entfernt.</p>
+            <p className="text-sm text-brand-muted mb-8">Dieser Eintrag wird unwiderruflich entfernt.</p>
             <div className="flex flex-col gap-3">
               <button type="button" onClick={handleDelete} className="btn-cancel w-full">Löschen</button>
               <button type="button" onClick={() => setDeleteModal(null)} className="glass-button-secondary w-full">Behalten</button>
@@ -870,7 +870,7 @@ function NewsWidget() {
                ))}
              </div>
           ) : (
-             <div className="text-center py-6 opacity-40 flex flex-col items-center">
+             <div className="text-center py-6 text-brand-muted flex flex-col items-center">
                <Rss size={32} strokeWidth={1.5} />
                <span className="text-[10px] font-bold uppercase mt-2 tracking-widest">Keine News</span>
              </div>

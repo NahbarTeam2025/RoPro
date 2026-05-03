@@ -130,7 +130,7 @@ export function CategoryManager({ type, onClose }: CategoryManagerProps) {
               </div>
             ))}
             {categories.length === 0 && (
-              <div className="text-center py-8 text-brand-muted font-medium opacity-50">
+              <div className="text-center py-8 text-brand-muted font-medium">
                 Noch keine Kategorien angelegt.
               </div>
             )}

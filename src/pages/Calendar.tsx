@@ -219,7 +219,7 @@ export default function Calendar() {
           <div className="flex-1 px-1 sm:px-4 flex justify-center">
             <h1 className="text-lg sm:text-2xl font-black tracking-tighter text-brand capitalize leading-none text-center flex flex-row items-baseline gap-2">
               <span className="block">{format(currentDate, "MMMM", { locale: de })}</span>
-              <span className="text-xs sm:text-sm opacity-40 tracking-widest block">{format(currentDate, "yyyy")}</span>
+              <span className="text-xs sm:text-sm text-brand-muted font-bold tracking-widest block">{format(currentDate, "yyyy")}</span>
             </h1>
           </div>
 
@@ -246,7 +246,7 @@ export default function Calendar() {
           {weekDayNames.map((day, idx) => (
             <div key={day} className={cn(
               "py-4 text-center pro-heading",
-              idx === 6 ? "text-red-500" : "text-brand-muted opacity-60"
+              idx === 6 ? "text-red-500" : "text-brand-muted"
             )}>
               {day}
             </div>
@@ -377,7 +377,7 @@ export default function Calendar() {
                 });
 
                 if (dayAppointments.length === 0 && dayBirthdays.length === 0) {
-                  return <div className="text-center py-10 text-sm text-brand-muted font-medium opacity-40">Keine Termine an diesem Tag.</div>;
+                  return <div className="text-center py-10 text-sm text-brand-muted font-medium">Keine Termine an diesem Tag.</div>;
                 }
 
                 return (
@@ -411,7 +411,7 @@ export default function Calendar() {
                               <Check size={14} className={app.completed ? "opacity-100" : "opacity-0"} />
                             </button>
                             <div className={cn("flex-1 text-sm font-medium", app.completed ? "line-through text-brand-muted" : "text-brand")}>
-                               {app.hasTime && <div className="font-mono text-xs opacity-60 mb-0.5">{format((app.dueDate as any).toDate ? (app.dueDate as any).toDate() : new Date(app.dueDate!), 'HH:mm')}</div>}
+                               {app.hasTime && <div className="font-mono text-xs text-brand-muted mb-0.5">{format((app.dueDate as any).toDate ? (app.dueDate as any).toDate() : new Date(app.dueDate!), 'HH:mm')}</div>}
                                {app.task}
                             </div>
                             <div className="flex items-center gap-1">
@@ -423,13 +423,13 @@ export default function Calendar() {
                                    const appDate = (app.dueDate as any).toDate ? (app.dueDate as any).toDate() : new Date(app.dueDate!);
                                    setNewTaskTime(app.hasTime ? format(appDate, 'HH:mm') : '');
                                  }}
-                                 className="p-1.5 text-slate-400 hover:text-accent hover:bg-accent/10 rounded-lg cursor-pointer transition-colors"
+                                 className="p-1.5 text-brand-muted hover:text-accent hover:bg-accent/10 rounded-lg cursor-pointer transition-colors"
                                >
                                  <Edit2 size={14} />
                                </button>
                                <button 
                                  onClick={(e) => handleDeleteTask(app.id, e)}
-                                 className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg cursor-pointer transition-colors"
+                                 className="p-1.5 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg cursor-pointer transition-colors"
                                >
                                  <Trash2 size={16} />
                                </button>
@@ -540,7 +540,7 @@ export default function Calendar() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md">
           <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
-            <p className="text-sm text-[#86868B] mb-8">Dieser Termin wird unwiderruflich entfernt.</p>
+            <p className="text-sm text-brand-muted mb-8">Dieser Termin wird unwiderruflich entfernt.</p>
             <div className="flex flex-col gap-3">
               <button 
                 type="button"

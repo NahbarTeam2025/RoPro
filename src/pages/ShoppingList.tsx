@@ -65,7 +65,7 @@ function SortableItem({ item, toggleItem, deleteItem }: { item: ShoppingItem; to
       )}
     >
       <button 
-        className="w-8 h-8 flex items-center justify-center text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white cursor-grab active:cursor-grabbing touch-none shrink-0"
+        className="w-8 h-8 flex items-center justify-center text-brand-muted hover:text-[#1D1D1F] dark:hover:text-white cursor-grab active:cursor-grabbing touch-none shrink-0"
         {...attributes}
         {...listeners}
       >
@@ -230,7 +230,7 @@ export default function ShoppingList() {
       </form>
 
       {loading ? (
-        <div className="text-[#86868B] text-center py-4">Laden...</div>
+        <div className="text-brand-muted text-center py-4">Laden...</div>
       ) : (
         <div className="space-y-4">
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>

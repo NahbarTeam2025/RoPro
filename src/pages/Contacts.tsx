@@ -202,7 +202,7 @@ export default function Contacts() {
                         )}
                       </div>
                       {contact.phone && (
-                        <div className="text-sm truncate font-medium uppercase tracking-tighter text-brand-muted opacity-70 mt-0.5">
+                        <div className="text-sm truncate font-medium uppercase tracking-tighter text-brand-muted mt-0.5">
                           {contact.phone}
                         </div>
                       )}
@@ -414,13 +414,13 @@ export default function Contacts() {
                     <h4 className="text-xs font-black text-brand-muted uppercase tracking-[0.2em] mb-4">Kontaktinfo</h4>
                     <div className="space-y-4">
                       <div className="group">
-                        <label className="block text-[8px] font-black text-brand-muted uppercase tracking-wider mb-1 px-1 opacity-50">Telefon</label>
+                        <label className="block text-[10px] font-black text-brand-muted uppercase tracking-wider mb-1 px-1 text-brand-muted">Telefon</label>
                         <div className="text-sm font-black text-brand break-all">
                           {selectedContact.phone || '--'}
                         </div>
                       </div>
                       <div className="group">
-                        <label className="block text-[8px] font-black text-brand-muted uppercase tracking-wider mb-1 px-1 opacity-50">E-Mail</label>
+                        <label className="block text-[10px] font-black text-brand-muted uppercase tracking-wider mb-1 px-1 text-brand-muted">E-Mail</label>
                         <div className="text-sm font-black text-brand break-all">
                           {selectedContact.email || '--'}
                         </div>

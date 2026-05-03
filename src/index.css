@@ -93,12 +93,12 @@ body {
   }
 
   .text-brand-muted {
-    @apply text-[#86868B] dark:text-[#A1A1A6];
+    @apply text-[#5E5E63] dark:text-[#A1A1A6];
   }
   
   /* Custom Inputs for Premium UI */
   .glass-input {
-    @apply w-full px-4 py-3 bg-white/40 dark:bg-[#1c1c1e]/40 backdrop-blur-md border border-black/5 dark:border-white/10 rounded-xl text-sm text-[#1D1D1F] dark:text-[#F5F5F7] focus:outline-none focus:ring-2 focus:ring-accent/40 focus:bg-white/60 dark:focus:bg-black/60 transition-all duration-200 placeholder-[#86868B];
+    @apply w-full px-4 py-3 bg-white/40 dark:bg-[#1c1c1e]/40 backdrop-blur-md border border-black/5 dark:border-white/10 rounded-xl text-sm text-[#1D1D1F] dark:text-[#F5F5F7] focus:outline-none focus:ring-2 focus:ring-accent/40 focus:bg-white/60 dark:focus:bg-black/60 transition-all duration-200 placeholder-[#5E5E63] dark:placeholder-[#A1A1A6];
   }
 
   /* Custom Buttons */

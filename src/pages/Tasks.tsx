@@ -567,7 +567,7 @@ export default function Tasks() {
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl">
           <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.12)]">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
-            <p className="text-sm text-[#86868B] mb-8">Diese Aufgabe wird unwiderruflich entfernt.</p>
+            <p className="text-sm text-brand-muted mb-8">Diese Aufgabe wird unwiderruflich entfernt.</p>
             <div className="flex flex-col gap-3">
               <button 
                 type="button"
@@ -629,13 +629,13 @@ function TaskItem({ todo, isActive, onToggle, onDelete, onEdit, categories }: { 
             {todo.task}
           </h3>
           <div className="flex items-center justify-between mt-1">
-             <span className="pro-heading !text-[8px]">
+             <span className="pro-heading !text-[10px]">
                {catName || 'Aufgabe'}
              </span>
              {todo.dueDate && (
                <span className={cn(
-                 "text-[8px] font-black uppercase tracking-tighter",
-                 isOverdue && !todo.completed ? "text-red-500" : "text-brand-muted/50"
+                 "text-[10px] font-black uppercase tracking-tighter",
+                 isOverdue && !todo.completed ? "text-red-500" : "text-brand-muted"
                )}>
                  {format(todo.dueDate && (todo.dueDate as any).toDate ? (todo.dueDate as any).toDate() : new Date(todo.dueDate), todo.hasTime ? 'd. MMM • HH:mm' : 'd. MMM')}
                </span>

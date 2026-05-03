@@ -179,7 +179,7 @@ export default function Prompts() {
                           {catName}
                         </span>
                         {prompt.isDraft && (
-                          <span className="text-[8px] font-black text-brand uppercase tracking-tighter ml-auto">Neu</span>
+                          <span className="text-[10px] font-black text-brand uppercase tracking-tighter ml-auto">Neu</span>
                         )}
                       </div>
                     </div>
