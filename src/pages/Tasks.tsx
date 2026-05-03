@@ -16,6 +16,7 @@ interface Todo {
   id: string;
   task: string;
   dueDate: string | null;
+  hasTime?: boolean;
   categoryId: string;
   priority: 'high' | 'medium' | 'low';
   color?: string;
@@ -83,6 +84,7 @@ export default function Tasks() {
         categoryId,
         color: '#0055D4', // Default accent color
         dueDate: finalDueDate,
+        hasTime: !!time,
         completed: false,
         isRecurring: isRecurring,
         recurrenceInterval: isRecurring ? recurrenceInterval : null,
@@ -367,17 +369,7 @@ export default function Tasks() {
                         />
                         <CalendarIcon 
                           size={18} 
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted cursor-pointer hover:text-brand" 
-                          onClick={() => {
-                            const input = document.getElementById('edit-date-input') as any;
-                            if (input) {
-                              if (document.activeElement === input) {
-                                input.blur();
-                              } else {
-                                input.showPicker?.() || input.focus();
-                              }
-                            }
-                          }}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none" 
                         />
                       </div>
                     </div>
@@ -387,22 +379,12 @@ export default function Tasks() {
                         <input
                           type="time"
                           id="edit-time-input"
-                          defaultValue={editTask.dueDate ? format(new Date(editTask.dueDate), 'HH:mm') : ''}
+                          defaultValue={editTask.dueDate && editTask.hasTime !== false ? format(new Date(editTask.dueDate), 'HH:mm') : ''}
                           className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold w-full"
                         />
                         <Clock 
                           size={18} 
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted cursor-pointer hover:text-brand"
-                          onClick={() => {
-                            const input = document.getElementById('edit-time-input') as any;
-                            if (input) {
-                              if (document.activeElement === input) {
-                                input.blur();
-                              } else {
-                                input.showPicker?.() || input.focus();
-                              }
-                            }
-                          }}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none"
                         />
                       </div>
                     </div>
@@ -419,6 +401,7 @@ export default function Tasks() {
                       const timeInput = document.getElementById('edit-time-input') as HTMLInputElement;
                       
                       let finalDueDate = null;
+                      const hasTime = !!timeInput.value;
                       if (dateInput.value) {
                          finalDueDate = new Date(`${dateInput.value}T${timeInput.value || '00:00'}:00`).toISOString();
                       }
@@ -428,6 +411,7 @@ export default function Tasks() {
                         task: taskInput.value,
                         priority: prioritySelect.value as any,
                         dueDate: finalDueDate,
+                        hasTime,
                         categoryId: (document.getElementById('edit-category-select') as HTMLSelectElement)?.value || ''
                       });
                     }}
@@ -506,17 +490,7 @@ export default function Tasks() {
                       />
                       <CalendarIcon 
                         size={18} 
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted cursor-pointer hover:text-brand"
-                        onClick={() => {
-                          const input = document.getElementById('add-task-date') as any;
-                          if (input) {
-                            if (document.activeElement === input) {
-                              input.blur();
-                            } else {
-                              input.showPicker?.() || input.focus();
-                            }
-                          }
-                        }}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none"
                       />
                     </div>
                   </div>
@@ -532,17 +506,7 @@ export default function Tasks() {
                       />
                       <Clock 
                         size={18} 
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted cursor-pointer hover:text-brand"
-                        onClick={() => {
-                          const input = document.getElementById('add-task-time') as any;
-                          if (input) {
-                            if (document.activeElement === input) {
-                              input.blur();
-                            } else {
-                              input.showPicker?.() || input.focus();
-                            }
-                          }
-                        }}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none"
                       />
                     </div>
                   </div>
@@ -673,7 +637,7 @@ function TaskItem({ todo, isActive, onToggle, onDelete, onEdit, categories }: { 
                  "text-[8px] font-black uppercase tracking-tighter",
                  isOverdue && !todo.completed ? "text-red-500" : "text-brand-muted/50"
                )}>
-                 {format(new Date(todo.dueDate), 'd. MMM • HH:mm')}
+                 {format(todo.dueDate && (todo.dueDate as any).toDate ? (todo.dueDate as any).toDate() : new Date(todo.dueDate), todo.hasTime ? 'd. MMM • HH:mm' : 'd. MMM')}
                </span>
              )}
           </div>

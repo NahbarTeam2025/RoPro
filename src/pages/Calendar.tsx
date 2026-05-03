@@ -17,6 +17,7 @@ interface Appointment {
   id: string;
   task: string;
   dueDate: string | null;
+  hasTime?: boolean;
   priority: 'high' | 'medium' | 'low';
   color?: string;
   completed: boolean;
@@ -116,6 +117,7 @@ export default function Calendar() {
       await updateDoc(doc(db, 'appointments', editingAppointment.id), {
         task: newTaskText.trim(),
         dueDate: date.toISOString(),
+        hasTime: !!newTaskTime,
         updatedAt: serverTimestamp()
       });
 
@@ -156,6 +158,7 @@ export default function Calendar() {
     
     setIsAddingTask(true);
     let finalDate = selectedDay.date;
+    const hasTime = !!newTaskTime;
     
     if (newTaskTime) {
       const [hours, minutes] = newTaskTime.split(':').map(Number);
@@ -169,6 +172,7 @@ export default function Calendar() {
         color: '#0055D4', // Default accent color
         completed: false,
         dueDate: finalDate.toISOString(),
+        hasTime,
         userId: user.uid,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
@@ -252,7 +256,11 @@ export default function Calendar() {
         {/* Days Grid */}
         <div className="grid grid-cols-7 auto-rows-fr bg-[#F2F2F7] dark:bg-white/[0.02] gap-[1px]">
           {days.map((day) => {
-            const dayAppointments = appointments.filter(a => a.dueDate && isSameDay(new Date(a.dueDate), day));
+            const dayAppointments = appointments.filter(a => {
+              if (!a.dueDate) return false;
+              const date = (a.dueDate as any).toDate ? (a.dueDate as any).toDate() : new Date(a.dueDate);
+              return isSameDay(date, day);
+            });
             const dayBirthdays = contacts.filter(c => {
               if (!c.birthday) return false;
               const bDay = parseISO(c.birthday);
@@ -264,7 +272,7 @@ export default function Calendar() {
               ...dayAppointments.map(a => ({
                 id: a.id,
                 title: a.task,
-                date: new Date(a.dueDate!),
+                date: (a.dueDate as any).toDate ? (a.dueDate as any).toDate() : new Date(a.dueDate!),
                 type: 'appointment' as const,
                 completed: a.completed
               })),
@@ -357,7 +365,11 @@ export default function Calendar() {
               {/* List area */}
               <div className="p-4 bg-transparent min-h-[100px] shrink-0">
               {(() => {
-                const dayAppointments = appointments.filter(a => a.dueDate && isSameDay(new Date(a.dueDate), selectedDay.date));
+                const dayAppointments = appointments.filter(a => {
+                  if (!a.dueDate) return false;
+                  const date = (a.dueDate as any).toDate ? (a.dueDate as any).toDate() : new Date(a.dueDate);
+                  return isSameDay(date, selectedDay.date);
+                });
                 const dayBirthdays = contacts.filter(c => {
                   if (!c.birthday) return false;
                   const bDay = parseISO(c.birthday);
@@ -381,7 +393,11 @@ export default function Calendar() {
                       </li>
                     ))}
                     {dayAppointments
-                      .sort((a,b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime())
+                      .sort((a,b) => {
+                        const aDate = (a.dueDate as any).toDate ? (a.dueDate as any).toDate() : new Date(a.dueDate!);
+                        const bDate = (b.dueDate as any).toDate ? (b.dueDate as any).toDate() : new Date(b.dueDate!);
+                        return aDate.getTime() - bDate.getTime();
+                      })
                       .map(app => (
                         <li key={app.id} className="flex flex-col gap-1 p-3 border border-slate-200/50 dark:border-white/10 rounded-xl">
                           <div className="flex items-center gap-3">
@@ -395,7 +411,7 @@ export default function Calendar() {
                               <Check size={14} className={app.completed ? "opacity-100" : "opacity-0"} />
                             </button>
                             <div className={cn("flex-1 text-sm font-medium", app.completed ? "line-through text-brand-muted" : "text-brand")}>
-                               <div className="font-mono text-xs opacity-60 mb-0.5">{format(new Date(app.dueDate!), 'HH:mm')}</div>
+                               {app.hasTime && <div className="font-mono text-xs opacity-60 mb-0.5">{format((app.dueDate as any).toDate ? (app.dueDate as any).toDate() : new Date(app.dueDate!), 'HH:mm')}</div>}
                                {app.task}
                             </div>
                             <div className="flex items-center gap-1">
@@ -404,7 +420,8 @@ export default function Calendar() {
                                    e.stopPropagation();
                                    setEditingAppointment(app);
                                    setNewTaskText(app.task);
-                                   setNewTaskTime(format(new Date(app.dueDate!), 'HH:mm'));
+                                   const appDate = (app.dueDate as any).toDate ? (app.dueDate as any).toDate() : new Date(app.dueDate!);
+                                   setNewTaskTime(app.hasTime ? format(appDate, 'HH:mm') : '');
                                  }}
                                  className="p-1.5 text-slate-400 hover:text-accent hover:bg-accent/10 rounded-lg cursor-pointer transition-colors"
                                >
@@ -474,17 +491,7 @@ export default function Calendar() {
                         />
                         <CalendarIcon 
                           size={18} 
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted cursor-pointer hover:text-brand" 
-                          onClick={() => {
-                            const input = document.getElementById('cal-date-input') as any;
-                            if (input) {
-                              if (document.activeElement === input) {
-                                input.blur();
-                              } else {
-                                input.showPicker?.() || input.focus();
-                              }
-                            }
-                          }}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none" 
                         />
                       </div>
                     </div>
@@ -500,17 +507,7 @@ export default function Calendar() {
                         />
                         <Clock 
                           size={18} 
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted cursor-pointer hover:text-brand" 
-                          onClick={() => {
-                            const input = document.getElementById('cal-time-input') as any;
-                            if (input) {
-                              if (document.activeElement === input) {
-                                input.blur();
-                              } else {
-                                input.showPicker?.() || input.focus();
-                              }
-                            }
-                          }}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none" 
                         />
                       </div>
                     </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useSettings, MODULE_ICONS, MODULE_PATHS } from '../../contexts/SettingsContext';
+import * as Icons from 'lucide-react';
 import { 
   LayoutDashboard, CheckSquare, Calendar as CalendarIcon, FileText, 
   Link as LinkIcon, Menu, X, Sun, Zap, MessageSquare, 
@@ -27,22 +28,9 @@ interface NavItem {
   url?: string;
 }
 
-interface ExternalLink {
-  name: string;
-  icon: any;
-  url: string;
-}
-
-interface Category {
-  id: string;
-  name: string;
-  icon: any;
-  links: ExternalLink[];
-}
-
 export default function Layout() {
   const { user, logout } = useAuth();
-  const { modules } = useSettings();
+  const { modules, menuCategories } = useSettings();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -55,6 +43,7 @@ export default function Layout() {
     google: false,
     performance: false,
     ai: false,
+    tools: false,
     social: false
   });
   const [isMobileSearchExpanded, setIsMobileSearchExpanded] = useState(false);
@@ -170,66 +159,26 @@ export default function Layout() {
     path: MODULE_PATHS[m.id] || '/'
   }));
 
-  const categories: Category[] = [
-    {
-      id: 'google',
-      name: 'Google Dienste',
-      icon: Cloud,
-      links: [
-        { name: 'Gmail', icon: Mail, url: 'https://mail.google.com' },
-        { name: 'Google Drive', icon: Cloud, url: 'https://drive.google.com' },
-        { name: 'Google Docs', icon: FileText, url: 'https://docs.google.com' },
-        { name: 'Google Fotos', icon: ImageIcon, url: 'https://photos.google.com' },
-        { name: 'Google Analytics', icon: BarChart2, url: 'https://analytics.google.com' },
-        { name: 'Search Console', icon: Search, url: 'https://search.google.com/search-console' },
-        { name: 'Google Ads', icon: BarChart2, url: 'https://ads.google.com' },
-      ]
-    },
-    {
-      id: 'performance',
-      name: 'Performance',
-      icon: Gauge,
-      links: [
-        { name: 'Yellow Labs', icon: Activity, url: 'https://yellowlab.tools' },
-        { name: 'PageSpeed Insights', icon: Gauge, url: 'https://pagespeed.web.dev' },
-        { name: 'Seobility', icon: Shield, url: 'https://www.seobility.net' },
-      ]
-    },
-    {
-      id: 'ai',
-      name: 'KI Tools',
-      icon: Brain,
-      links: [
-        { name: 'Gemini', icon: Zap, url: 'https://gemini.google.com' },
-        { name: 'ChatGPT', icon: MessageSquare, url: 'https://chat.openai.com' },
-        { name: 'Claude', icon: Cpu, url: 'https://claude.ai' },
-        { name: 'Perplexity', icon: Search, url: 'https://www.perplexity.ai' },
-        { name: 'Google AI Studio', icon: Code, url: 'https://aistudio.google.com' },
-        { name: 'Notebook LM', icon: BookOpen, url: 'https://notebooklm.google.com' },
-        { name: 'Groq', icon: FastForward, url: 'https://groq.com' },
-        { name: 'DeepSeek', icon: Compass, url: 'https://www.deepseek.com' },
-        { name: 'Manus AI', icon: Sparkles, url: 'https://manus.ai' },
-        { name: 'Kimi AI', icon: MessageSquare, url: 'https://kimi.moonshot.cn' },
-        { name: 'Napkin AI', icon: Layers, url: 'https://www.napkin.ai' },
-        { name: 'Suno', icon: Music, url: 'https://suno.com' },
-        { name: 'ElevenLabs', icon: Volume2, url: 'https://elevenlabs.io' },
-        { name: 'Arena.ai', icon: Activity, url: 'https://chat.lmsys.org' },
-        { name: 'Copilot', icon: MessageSquare, url: 'https://copilot.microsoft.com' },
-        { name: 'Meta AI', icon: Sparkles, url: 'https://www.meta.ai' },
-        { name: 'Qwen', icon: Brain, url: 'https://chat.qwen.ai' },
-      ]
-    },
-    {
-      id: 'social',
-      name: 'Social Media',
-      icon: Share2,
-      links: [
-        { name: 'LinkedIn', icon: Linkedin, url: 'https://www.linkedin.com/in/robert-erbach-a173b2371/' },
-        { name: 'Facebook', icon: Facebook, url: 'https://www.facebook.com' },
-        { name: 'Instagram', icon: Instagram, url: 'https://www.instagram.com' },
-      ]
-    }
-  ];
+  const mappedCategories = menuCategories.filter(c => c.enabled).map(category => {
+    const CatIcon = (Icons as any)[category.iconName] || Cloud;
+    return {
+      id: category.id,
+      name: category.name,
+      icon: CatIcon,
+      links: category.links.filter(l => l.enabled).map(link => {
+        const ResolvedLinkIcon = (Icons as any)[link.iconName] || LinkIcon;
+        return {
+          name: link.name,
+          icon: ResolvedLinkIcon,
+          url: link.url,
+          path: link.path,
+          action: link.action === 'handleRandomize' ? handleRandomize : undefined,
+        };
+      }),
+    };
+  });
+
+  const categories = mappedCategories;
 
   const toggleCategory = (id: string) => {
     setOpenCategories(prev => ({ ...prev, [id]: !prev[id] }));
@@ -387,18 +336,59 @@ export default function Layout() {
                       transition={{ duration: 0.3, ease: 'easeInOut' }}
                       className="overflow-hidden space-y-1"
                     >
-                      {cat.links.map((link) => (
-                        <a
-                          key={link.name}
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-[15px] font-medium transition-all duration-200 text-[#424245] dark:text-[#A1A1A6] hover:bg-[#FBFBFD] dark:hover:bg-[#1C1C1E] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]"
-                        >
-                          <link.icon size={18} className="shrink-0 opacity-70" />
-                          <span className="truncate">{link.name}</span>
-                        </a>
-                      ))}
+                      {cat.links.map((link) => {
+                        const content = (
+                          <>
+                            <link.icon size={18} className={cn("shrink-0", (link.name === 'Zufallsgenerator' && isRolling) ? "animate-spin" : "opacity-70")} />
+                            <span className="truncate">{link.name}</span>
+                            {link.name === 'Zufallsgenerator' && randomResult && !isRolling && (
+                              <span className="font-black tracking-wider text-brand text-xs ml-auto">
+                                {randomResult === 'Ja' ? 'JA' : 'NEIN'}
+                              </span>
+                            )}
+                          </>
+                        );
+                        
+                        const className = "flex w-full items-center gap-3 px-4 py-2.5 rounded-xl text-[15px] font-medium transition-all duration-200 text-[#424245] dark:text-[#A1A1A6] hover:bg-[#FBFBFD] dark:hover:bg-[#1C1C1E] hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7]";
+
+                        if (link.action) {
+                          return (
+                            <button
+                              key={link.name}
+                              onClick={link.action}
+                              disabled={link.name === 'Zufallsgenerator' && isRolling}
+                              className={cn(className, link.name === 'Zufallsgenerator' && isRolling && "opacity-50")}
+                            >
+                              {content}
+                            </button>
+                          );
+                        }
+
+                        if (link.path) {
+                          return (
+                            <NavLink
+                              key={link.name}
+                              to={link.path}
+                              onClick={() => setIsSidebarOpen(false)}
+                              className={({ isActive }) => cn(className, isActive && "text-[#1D1D1F] dark:text-white bg-[#FBFBFD] dark:bg-[#1C1C1E]")}
+                            >
+                              {content}
+                            </NavLink>
+                          );
+                        }
+
+                        return (
+                          <a
+                            key={link.name}
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={className}
+                          >
+                            {content}
+                          </a>
+                        );
+                      })}
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -408,24 +398,6 @@ export default function Layout() {
         </nav>
 
         <div className={cn("p-4 border-t border-[#D2D2D7]/30 dark:border-[#424245]/30 shrink-0 flex gap-2", isSidebarCollapsed ? "flex-col" : "flex-row")}>
-           <button 
-             type="button"
-             onClick={handleRandomize}
-             disabled={isRolling}
-             className={cn("flex-1 h-10 flex items-center justify-center gap-2 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors text-[#86868B] hover:text-[#1D1D1F] dark:hover:text-white",
-               isRolling && "opacity-50",
-               isSidebarCollapsed ? "px-0 flex-col gap-1" : ""
-             )}
-             title="Zufallsgenerator"
-           >
-             <Dices size={20} className={cn(isRolling && "animate-spin")} />
-             {randomResult && !isRolling && (
-               <span className={cn("font-black tracking-wider text-brand", isSidebarCollapsed ? "text-[9px]" : "text-sm ml-1")}>
-                 {randomResult === 'Ja' ? 'JA' : 'NEIN'}
-               </span>
-             )}
-           </button>
-
            <NavLink
               to="/settings"
               onClick={() => setIsSidebarOpen(false)}

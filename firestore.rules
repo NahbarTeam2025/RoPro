@@ -260,5 +260,25 @@ service cloud.firestore {
       allow list: if isSignedIn() && userId == request.auth.uid;
       allow write: if isSignedIn() && userId == request.auth.uid && isValidUserSettings(incoming());
     }
+
+    // Shopping List
+    function isValidShoppingItem(data) {
+      return data.keys().hasAll(['name', 'completed', 'order', 'userId', 'createdAt']) &&
+             data.name is string && data.name.size() <= 500 &&
+             data.completed is bool &&
+             data.order is number &&
+             data.userId == request.auth.uid &&
+             data.createdAt is timestamp;
+    }
+
+    match /shoppinglist/{itemId} {
+      allow get: if isSignedIn() && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(itemId) && isValidShoppingItem(incoming()) && incoming().createdAt == request.time;
+      allow update: if isSignedIn() && isValidId(itemId) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['completed', 'order', 'name'])
+      ) && incoming().userId == existing().userId;
+      allow delete: if isSignedIn() && isValidId(itemId) && existing().userId == request.auth.uid;
+    }
   }
 }

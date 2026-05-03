@@ -18,6 +18,10 @@ const Household = lazy(() => import('./pages/Household'));
 const Contacts = lazy(() => import('./pages/Contacts'));
 const Passwords = lazy(() => import('./pages/Passwords'));
 const Settings = lazy(() => import('./pages/Settings'));
+const ShoppingList = lazy(() => import('./pages/ShoppingList'));
+const News = lazy(() => import('./pages/News'));
+const Calculator = lazy(() => import('./pages/Calculator'));
+const Converter = lazy(() => import('./pages/Converter'));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -53,6 +57,10 @@ export default function App() {
                 <Route path="contacts" element={<Contacts />} />
                 <Route path="passwords" element={<Passwords />} />
                 <Route path="settings" element={<Settings />} />
+                <Route path="shoppinglist" element={<ShoppingList />} />
+                <Route path="news" element={<News />} />
+                <Route path="calculator" element={<Calculator />} />
+                <Route path="umrechner" element={<Converter />} />
               </Route>
             </Routes>
           </Suspense>

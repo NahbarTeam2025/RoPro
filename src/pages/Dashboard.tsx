@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { collection, query, where, onSnapshot, updateDoc, deleteDoc, doc, serverTimestamp, orderBy } from 'firebase/firestore';
 import { format, startOfDay, addDays } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { CheckSquare, Calendar as CalendarIcon, Clock as ClockIcon, FileText, MessageSquare, Link as LinkIcon, Plus, ChevronRight, Check, Edit2, Trash2, Search, X, Save, Wallet, ArrowUpCircle, ArrowDownCircle, Zap, Pin, Users, Shield } from 'lucide-react';
+import { CheckSquare, Calendar as CalendarIcon, Clock as ClockIcon, FileText, MessageSquare, Link as LinkIcon, Plus, ChevronRight, Check, Edit2, Trash2, Search, X, Save, Wallet, ArrowUpCircle, ArrowDownCircle, Zap, Pin, Users, Shield, Rss, ShoppingCart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
@@ -50,8 +50,9 @@ export default function Dashboard() {
   const [links, setLinks] = useState<any[]>([]);
   const [contacts, setContacts] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [shoppingItems, setShoppingItems] = useState<any[]>([]);
   const [nextHoliday, setNextHoliday] = useState<{ date: Date, name: string } | null>(null);
-  
+
   const [loading, setLoading] = useState(true);
 
   const [editItem, setEditItem] = useState<{ type: 'todos' | 'notes' | 'prompts' | 'links' | 'appointments', data: any } | null>(null);
@@ -74,6 +75,13 @@ export default function Dashboard() {
 
     const unsubscribes: any[] = [];
     
+    const shoppingQ = query(collection(db, 'shoppinglist'), where('userId', '==', user.uid));
+    unsubscribes.push(onSnapshot(shoppingQ, snap => {
+      const allItems = snap.docs.map(d => ({ id: d.id, ...d.data() } as any));
+      const pendingItems = allItems.filter(i => !i.completed).sort((a,b) => a.order - b.order);
+      setShoppingItems(pendingItems);
+    }));
+
     const todosQ = query(collection(db, 'todos'), where('userId', '==', user.uid));
     unsubscribes.push(onSnapshot(todosQ, snap => {
       const todayStart = startOfDay(new Date());
@@ -113,14 +121,22 @@ export default function Dashboard() {
     unsubscribes.push(onSnapshot(promptsQ, snap => {
       setPrompts(snap.docs.map(d => ({ id: d.id, ...d.data() } as any))
         .filter(p => p.isPinned)
-        .sort((a, b) => (b.updatedAt?.toDate?.()?.getTime() || 0) - (a.updatedAt?.toDate?.()?.getTime() || 0)));
+        .sort((a, b) => {
+          const aDate = a.updatedAt?.toDate?.() || (a.updatedAt ? new Date(a.updatedAt) : new Date(0));
+          const bDate = b.updatedAt?.toDate?.() || (b.updatedAt ? new Date(b.updatedAt) : new Date(0));
+          return bDate.getTime() - aDate.getTime();
+        }));
     }));
 
     const linksQ = query(collection(db, 'links'), where('userId', '==', user.uid));
     unsubscribes.push(onSnapshot(linksQ, snap => {
       setLinks(snap.docs.map(d => ({ id: d.id, ...d.data() } as any))
         .filter(l => l.isPinned)
-        .sort((a, b) => (b.createdAt?.toDate?.()?.getTime() || 0) - (a.createdAt?.toDate?.()?.getTime() || 0)));
+        .sort((a, b) => {
+          const aDate = a.createdAt?.toDate?.() || (a.createdAt ? new Date(a.createdAt) : new Date(0));
+          const bDate = b.createdAt?.toDate?.() || (b.createdAt ? new Date(b.createdAt) : new Date(0));
+          return bDate.getTime() - aDate.getTime();
+        }));
     }));
 
     const contactsQ = query(collection(db, 'contacts'), where('userId', '==', user.uid), orderBy('name', 'asc'));
@@ -131,7 +147,11 @@ export default function Dashboard() {
     const transQ = query(collection(db, 'transactions'), where('userId', '==', user.uid));
     unsubscribes.push(onSnapshot(transQ, snap => {
       setTransactions(snap.docs.map(d => ({ id: d.id, ...d.data() } as any))
-        .sort((a, b) => (b.date?.toDate?.()?.getTime() || 0) - (a.date?.toDate?.()?.getTime() || 0)));
+        .sort((a, b) => {
+          const aDate = a.date?.toDate?.() || (a.date ? new Date(a.date) : new Date(0));
+          const bDate = b.date?.toDate?.() || (b.date ? new Date(b.date) : new Date(0));
+          return bDate.getTime() - aDate.getTime();
+        }));
     }));
 
     const loadTimeout = setTimeout(() => {
@@ -171,10 +191,20 @@ export default function Dashboard() {
     }
   };
 
-  const stats = transactions.reduce((acc, t) => {
-    const d = t.date?.toDate?.() || new Date();
-    const isThisMonth = format(d, 'yyyy-MM') === format(new Date(), 'yyyy-MM');
-    if (isThisMonth) {
+  const handleToggleShoppingItem = async (e: React.MouseEvent, item: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await updateDoc(doc(db, 'shoppinglist', item.id), { completed: !item.completed });
+    } catch (err) {
+      console.error('Toggle shopping item error:', err);
+    }
+  };
+
+    const stats = transactions.reduce((acc, t) => {
+      const d = t.date?.toDate?.() || (t.date ? new Date(t.date) : new Date());
+      const isThisMonth = format(d, 'yyyy-MM') === format(new Date(), 'yyyy-MM');
+      if (isThisMonth) {
       if (t.type === 'income') acc.income += t.amount;
       else acc.expenses += t.amount;
     }
@@ -218,12 +248,12 @@ export default function Dashboard() {
                 {appointments.map(app => (
                   <div key={app.id} className="refined-list-item h-[74px] shrink-0 flex items-center gap-4 px-6 relative group border-l-[3px] rounded-none" style={{ borderLeftColor: app.color || '#60A5FA' }}>
                     <div className="w-10 h-10 flex flex-col items-center justify-center shrink-0 ml-1">
-                       <span className="text-xs font-black text-slate-900 dark:text-white leading-none">{format(new Date(app.dueDate), 'dd')}</span>
-                       <span className="text-[8px] font-bold text-brand-muted uppercase tracking-tighter" style={{ opacity: 0.7 }}>{format(new Date(app.dueDate), 'MMM', { locale: de })}</span>
+                       <span className="text-xs font-black text-slate-900 dark:text-white leading-none">{format(app.dueDate?.toDate?.() || new Date(app.dueDate), 'dd')}</span>
+                       <span className="text-[8px] font-bold text-brand-muted uppercase tracking-tighter" style={{ opacity: 0.7 }}>{format(app.dueDate?.toDate?.() || new Date(app.dueDate), 'MMM', { locale: de })}</span>
                     </div>
                     <div className="flex-1 min-w-0 pr-10">
                       <span className="text-xs font-bold text-brand block truncate tracking-tight">{app.task}</span>
-                      <span className="text-xs font-medium text-brand-muted">{format(new Date(app.dueDate), 'HH:mm')} Uhr</span>
+                      {app.hasTime !== false && <span className="text-xs font-medium text-brand-muted">{format(app.dueDate?.toDate?.() || new Date(app.dueDate), 'HH:mm')} Uhr</span>}
                     </div>
                     <div className="absolute right-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button type="button" onClick={(e) => { e.stopPropagation(); setEditItem({ type: 'appointments', data: app }); }} className="p-1.5 text-brand-muted hover:text-accent transition-colors"><Edit2 size={12} /></button>
@@ -284,7 +314,7 @@ export default function Dashboard() {
                         {todo.dueDate && (
                           <div className="flex items-center gap-1 mt-0.5">
                             <span className="text-xs font-bold text-brand-muted uppercase tracking-tighter">
-                              {format(new Date(todo.dueDate), 'dd. MMM', { locale: de })} • {format(new Date(todo.dueDate), 'HH:mm')} Uhr
+                              {format(todo.dueDate && todo.dueDate.toDate ? todo.dueDate.toDate() : new Date(todo.dueDate), 'dd. MMM', { locale: de })}{todo.hasTime ? ` • ${format(todo.dueDate && todo.dueDate.toDate ? todo.dueDate.toDate() : new Date(todo.dueDate), 'HH:mm')} Uhr` : ''}
                             </span>
                           </div>
                         )}
@@ -314,7 +344,9 @@ export default function Dashboard() {
                     <div className="flex items-center gap-3 overflow-hidden ml-1">
                       <div className="min-w-0">
                         <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate tracking-tight">{note.title || 'Ohne Titel'}</h4>
-                        <span className="text-xs font-bold text-brand-muted/70 block mt-0.5 uppercase tracking-tighter">{format(note.updatedAt?.toDate() || new Date(), 'dd. MMM', { locale: de })}</span>
+                        <span className="text-xs font-bold text-brand-muted/70 block mt-0.5 uppercase tracking-tighter">
+                          {format(note.updatedAt?.toDate?.() || (note.updatedAt ? new Date(note.updatedAt) : new Date()), 'dd. MMM', { locale: de })}
+                        </span>
                       </div>
                     </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -358,7 +390,9 @@ export default function Dashboard() {
                      </div>
                      <div className="flex-1 min-w-0">
                        <div className="text-xs font-bold text-[#1D1D1F] dark:text-[#F5F5F7]"> {t.description}</div>
-                       <div className="text-xs font-medium text-[#86868B]">{format(t.date?.toDate() || new Date(), 'dd.MM')}</div>
+                       <div className="text-xs font-medium text-[#86868B]">
+                        {format(t.date?.toDate?.() || (t.date ? new Date(t.date) : new Date()), 'dd.MM')}
+                      </div>
                      </div>
                      <div className="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1">
                        <span className={t.type === 'income' ? "text-green-500" : "text-red-500"}>
@@ -462,8 +496,36 @@ export default function Dashboard() {
             )}
           </DashboardCard>
         );
-      default:
-        return null;
+      case 'shoppinglist':
+        return (
+          <DashboardCard key="shoppinglist" title="Einkaufsliste" icon={ShoppingCart} to="/shoppinglist" color="#FF3B30">
+            {shoppingItems.length > 0 ? (
+               <div className="flex flex-col -mx-6 -mb-6 max-h-[222px] md:max-h-[296px] overflow-y-auto custom-scrollbar">
+                  {shoppingItems.map(item => (
+                    <div key={item.id} className="refined-list-item h-[56px] flex items-center gap-4 px-6 shrink-0 relative group">
+                      <button 
+                        type="button" 
+                        onClick={(e) => handleToggleShoppingItem(e, item)} 
+                        className="flex-shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer border-[#86868B]/30 text-transparent hover:border-[#FF3B30] bg-transparent"
+                      >
+                        <Check size={12} className="stroke-[3]" />
+                      </button>
+                      <div className="flex-1 min-w-0 cursor-pointer">
+                        <span className="text-[15px] font-medium block truncate tracking-tight text-slate-900 dark:text-[#F5F5F7]">{item.name}</span>
+                      </div>
+                    </div>
+                  ))}
+               </div>
+            ) : (
+               <div className="text-center py-10 opacity-20 flex flex-col items-center">
+                 <ShoppingCart size={40} strokeWidth={1} />
+                 <span className="text-[10px] font-bold uppercase mt-3 tracking-widest">Alles erledigt</span>
+               </div>
+            )}
+          </DashboardCard>
+        );
+      case 'news':
+        return <NewsWidget key="news" />;
     }
   };
 
@@ -527,7 +589,7 @@ function TaskEditForm({ todo, onBack }: { todo: any, onBack: () => void }) {
     } catch { return ''; }
   });
   const [time, setTime] = useState(() => {
-    if (!todo.dueDate) return '';
+    if (!todo.dueDate || todo.hasTime === false) return '';
     try {
       return format(new Date(todo.dueDate), 'HH:mm');
     } catch { return ''; }
@@ -549,6 +611,7 @@ function TaskEditForm({ todo, onBack }: { todo: any, onBack: () => void }) {
         task: task.trim(),
         priority,
         dueDate: finalDueDate,
+        hasTime: !!time,
         categoryId,
         updatedAt: serverTimestamp()
       });
@@ -656,7 +719,7 @@ function AppointmentEditForm({ appointment, onBack }: { appointment: any, onBack
     } catch { return ''; }
   });
   const [time, setTime] = useState(() => {
-    if (!appointment.dueDate) return '';
+    if (!appointment.dueDate || appointment.hasTime === false) return '';
     try {
       return format(new Date(appointment.dueDate), 'HH:mm');
     } catch { return ''; }
@@ -674,6 +737,7 @@ function AppointmentEditForm({ appointment, onBack }: { appointment: any, onBack
       await updateDoc(doc(db, 'appointments', appointment.id), {
         task: task.trim(),
         dueDate: finalDueDate,
+        hasTime: !!time,
         updatedAt: serverTimestamp()
       });
       onBack();
@@ -749,6 +813,69 @@ function AppointmentEditForm({ appointment, onBack }: { appointment: any, onBack
         <button type="button" onClick={onBack} className="btn-red-glow w-full h-14">
           Abbrechen
         </button>
+      </div>
+    </div>
+  );
+}
+
+function NewsWidget() {
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent('https://www.tagesschau.de/xml/rss2/')}`);
+        const data = await res.json();
+        if (data.items) {
+          setItems(data.items.slice(0, 3));
+        }
+      } catch (err) {
+        console.error(err);
+      }
+      setLoading(false);
+    };
+    fetchNews();
+  }, []);
+
+  return (
+    <div className="w-full max-w-[480px] mx-auto md:max-w-none">
+      <div className="glass-card flex flex-col rounded-[2.5rem] overflow-hidden h-full border border-black/5 dark:border-white/[0.06] shadow-sm hover:shadow-md transition-shadow">
+        <div className="px-6 py-5 flex justify-between items-center">
+          <Link to="/news" className="flex items-center gap-3">
+             <div style={{ color: '#FF9500' }} className="shrink-0">
+               <Rss size={20} />
+             </div>
+             <h2 className="pro-heading">Nachrichten</h2>
+          </Link>
+        </div>
+        <div className="px-6 pb-6 pt-0 flex-1 flex flex-col gap-3">
+          {loading ? (
+             <div className="space-y-4">
+               {[1,2,3].map(i => (
+                 <div key={i} className="animate-pulse h-12 bg-black/5 dark:bg-white/5 rounded-xl" />
+               ))}
+             </div>
+          ) : items.length > 0 ? (
+             <div className="flex flex-col gap-3">
+               {items.map((item, i) => (
+                 <a key={i} href={item.link} target="_blank" rel="noopener noreferrer" className="block group hover:bg-black/5 dark:hover:bg-white/5 p-2 -mx-2 rounded-xl transition-colors">
+                   <h3 className="text-[13px] font-bold text-slate-900 dark:text-white leading-tight line-clamp-2">{item.title}</h3>
+                   <div className="flex items-center gap-1.5 mt-1.5 opacity-70">
+                     <span className="text-[10px] font-bold uppercase tracking-wider text-brand">Tagesschau</span>
+                     <span className="text-[10px]">&bull;</span>
+                     <span className="text-[10px] font-medium text-brand-muted">{new Date(item.pubDate).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span>
+                   </div>
+                 </a>
+               ))}
+             </div>
+          ) : (
+             <div className="text-center py-6 opacity-40 flex flex-col items-center">
+               <Rss size={32} strokeWidth={1.5} />
+               <span className="text-[10px] font-bold uppercase mt-2 tracking-widest">Keine News</span>
+             </div>
+          )}
+        </div>
       </div>
     </div>
   );
