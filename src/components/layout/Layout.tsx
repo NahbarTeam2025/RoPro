@@ -486,7 +486,24 @@ export default function Layout() {
           </div>
         </header>
 
-        <main ref={mainRef} className="flex-1 overflow-y-auto p-4 pt-24 sm:p-10 sm:pt-28 lg:p-12 outline-none" style={{ overflowAnchor: 'none' }}>
+        {/* Desktop Top Right Icons */}
+        <div className="hidden lg:flex absolute top-8 right-12 z-50 items-center justify-end pointer-events-none">
+          <div className="flex items-center gap-4 pointer-events-auto">
+            <button 
+              onClick={() => setIsSearchOpen(true)}
+              className="flex items-center gap-2 px-3 h-12 rounded-2xl bg-white/40 dark:bg-[#1C1C1E]/40 backdrop-blur-xl border border-white/50 dark:border-white/10 text-brand-muted hover:text-[#1D1D1F] dark:hover:text-[#F5F5F7] transition-all shadow-[0_8px_32px_rgba(0,0,0,0.08)] group"
+            >
+              <Search size={18} className="group-hover:scale-110 transition-transform" />
+              <span className="text-sm font-bold tracking-tight">Suchen...</span>
+              <kbd className="ml-2 px-1.5 py-0.5 rounded-md bg-black/5 dark:bg-white/10 text-[10px] font-black uppercase tracking-wider">⌘K</kbd>
+            </button>
+            <div className="flex items-center justify-center px-4 h-12 rounded-2xl bg-white/40 dark:bg-[#1C1C1E]/40 backdrop-blur-xl border border-white/50 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.08)] transition-all hover:scale-105">
+              <WeatherSummaryIcon iconSize={20} textSize="text-sm" />
+            </div>
+          </div>
+        </div>
+
+        <main ref={mainRef} className="flex-1 overflow-y-auto p-4 pt-24 sm:p-10 sm:pt-28 lg:p-12 lg:pt-28 outline-none" style={{ overflowAnchor: 'none' }}>
           <Outlet />
         </main>
       </div>
