@@ -23,6 +23,7 @@ interface Note {
   isPinned?: boolean;
   isDraft?: boolean;
   color?: string;
+  archived?: boolean;
   updatedAt: any;
   createdAt?: any;
 }
@@ -36,6 +37,7 @@ export default function Notes() {
 
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [filterMonth, setFilterMonth] = useState<string>('all');
+  const [activeTab, setActiveTab] = useState<'active' | 'archived'>('active');
   const [showCatManager, setShowCatManager] = useState(false);
   const [deleteModal, setDeleteModal] = useState<{ open: boolean, id: string } | null>(null);
 
@@ -124,6 +126,8 @@ export default function Notes() {
     ...(activeNote?.isDraft ? [activeNote] : []),
     ...notes
   ].filter(note => {
+    if (activeTab === 'active' && note.archived) return false;
+    if (activeTab === 'archived' && !note.archived) return false;
     if (filterCategory !== 'all' && note.categoryId !== filterCategory) return false;
     if (filterMonth !== 'all') {
        const monthStr = note.updatedAt?.toDate ? format(note.updatedAt.toDate(), 'yyyy-MM') : 
@@ -178,6 +182,26 @@ export default function Notes() {
                 ]}
                 className="flex-1"
              />
+          </div>
+          <div className="flex items-center gap-1 mt-2 bg-slate-100 dark:bg-white/[0.03] p-1 rounded-xl">
+            <button 
+              onClick={() => setActiveTab('active')}
+              className={cn(
+                "flex-1 px-2 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all text-center",
+                activeTab === 'active' ? "bg-white dark:bg-white/10 text-brand shadow-sm" : "text-brand-muted hover:text-brand"
+              )}
+            >
+              Aktiv
+            </button>
+            <button 
+              onClick={() => setActiveTab('archived')}
+              className={cn(
+                "flex-1 px-2 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all text-center",
+                activeTab === 'archived' ? "bg-white dark:bg-white/10 text-brand shadow-sm" : "text-brand-muted hover:text-brand"
+              )}
+            >
+              Archiv
+            </button>
           </div>
         </div>
         <div className="flex-1 bg-transparent rounded-[2rem] m-4 mt-0 overflow-hidden">

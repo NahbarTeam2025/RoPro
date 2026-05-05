@@ -199,12 +199,18 @@ export default function Layout() {
       </div>
 
       {/* Mobile sidebar overlay */}
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/20 z-40 lg:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="fixed inset-0 bg-black/40 backdrop-blur-md z-[45] lg:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Sidebar */}
       <aside 
@@ -421,35 +427,37 @@ export default function Layout() {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen relative z-10 transition-colors duration-500 overflow-hidden">
-        <header className="absolute top-0 inset-x-0 h-16 flex items-center justify-between px-4 lg:hidden shrink-0 bg-white/40 dark:bg-black/40 backdrop-blur-xl z-[60] border-none overflow-hidden">
-          {/* Hamburger Menu */}
-          <div className="flex items-center shrink-0 z-20 bg-transparent">
+      <div 
+        className={cn(
+          "flex-1 flex flex-col min-w-0 h-screen relative z-10 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden origin-left lg:origin-center",
+          isSidebarOpen ? "scale-95 translate-x-[4%] rounded-[2rem] shadow-2xl lg:scale-100 lg:translate-x-0 lg:rounded-none lg:shadow-none" : ""
+        )}
+      >
+        <header className="absolute top-0 inset-x-0 h-16 flex items-center justify-between px-4 lg:hidden shrink-0 bg-white/40 dark:bg-black/40 backdrop-blur-xl z-40 border-none overflow-hidden">
+          <div className="flex items-center gap-1 shrink-0 z-20 bg-transparent">
+            {/* Hamburger Menu */}
             <button 
               className="w-10 h-10 flex items-center justify-center -ml-2 text-brand-muted hover:text-[#1D1D1F] rounded-lg transition-colors"
               onClick={() => setIsSidebarOpen(true)}
             >
               <Menu size={28} />
             </button>
-          </div>
-
-          <div className="flex-1 flex items-center justify-end h-full relative mx-2" ref={mobileSearchContainerRef}>
             <AnimatePresence>
               {!isMobileSearchExpanded && (
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="absolute inset-y-0 left-0 flex items-center pointer-events-none"
+                  className="flex items-center text-blue-500 ml-1"
                 >
-                  <div className="flex items-center gap-2 text-blue-500">
-                    <Zap size={22} fill="currentColor" />
-                    <span className="font-brand font-bold text-lg tracking-tighter text-[#1D1D1F] dark:text-[#F5F5F7] uppercase">ROPRO</span>
-                  </div>
+                  <Zap size={22} fill="currentColor" />
+                  <span className="font-brand font-bold text-lg tracking-tighter text-[#1D1D1F] dark:text-[#F5F5F7] uppercase ml-1">ROPRO</span>
                 </motion.div>
               )}
             </AnimatePresence>
+          </div>
 
+          <div className="flex-1 flex items-center justify-end h-full relative mx-2" ref={mobileSearchContainerRef}>
             <AnimatePresence>
               {isMobileSearchExpanded && (
                 <motion.div 
@@ -471,8 +479,9 @@ export default function Layout() {
             </AnimatePresence>
           </div>
 
-          {/* Right side icons */}
+          {/* Right side icons and menu */}
           <div className="flex items-center gap-2 shrink-0 z-20 bg-transparent">
+            {/* Search Toggle */}
             <button 
               ref={mobileSearchToggleRef}
               onClick={() => setIsMobileSearchExpanded(!isMobileSearchExpanded)}

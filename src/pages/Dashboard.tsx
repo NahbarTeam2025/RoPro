@@ -16,6 +16,7 @@ import { CategorySelect } from '../components/CategorySelect';
 import { createPortal } from 'react-dom';
 
 import { CustomSelect } from '../components/CustomSelect';
+import { migrateShoppingLists } from '../services/migration';
 
 const hd = new Holidays('DE', 'BB');
 
@@ -75,12 +76,41 @@ export default function Dashboard() {
 
     const unsubscribes: any[] = [];
     
-    const shoppingQ = query(collection(db, 'shoppinglist'), where('userId', '==', user.uid));
+    let currentItemsUnsubs: Record<string, any> = {};
+    const shoppingQ = query(collection(db, 'shoppinglists'), where('userId', '==', user.uid));
     unsubscribes.push(onSnapshot(shoppingQ, snap => {
-      const allItems = snap.docs.map(d => ({ id: d.id, ...d.data() } as any));
-      const pendingItems = allItems.filter(i => !i.completed).sort((a,b) => a.order - b.order);
-      setShoppingItems(pendingItems);
+       if (snap.empty) {
+         migrateShoppingLists(user.uid);
+         return;
+       }
+       
+       const currentIds = snap.docs.map(d => d.id);
+       currentIds.forEach(listId => {
+          if (!currentItemsUnsubs[listId]) {
+             const itemsQ = query(collection(db, `shoppinglists/${listId}/items`), where('userId', '==', user.uid));
+             currentItemsUnsubs[listId] = onSnapshot(itemsQ, itemsSnap => {
+                const listItems = itemsSnap.docs.map(d => ({id: d.id, listId, ...d.data()}) as any);
+                setShoppingItems(prev => {
+                   const otherItems = prev.filter((i: any) => i.listId !== listId);
+                   const pendingItems = listItems.filter((i: any) => !i.completed).sort((a: any, b: any) => a.order - b.order);
+                   return [...otherItems, ...pendingItems];
+                });
+             });
+          }
+       });
+       
+       Object.keys(currentItemsUnsubs).forEach(listId => {
+          if (!currentIds.includes(listId)) {
+             currentItemsUnsubs[listId]();
+             delete currentItemsUnsubs[listId];
+             setShoppingItems(prev => prev.filter((i: any) => i.listId !== listId));
+          }
+       });
     }));
+    
+    unsubscribes.push(() => {
+       Object.values(currentItemsUnsubs).forEach(u => (u as Function)());
+    });
 
     const todosQ = query(collection(db, 'todos'), where('userId', '==', user.uid));
     unsubscribes.push(onSnapshot(todosQ, snap => {
@@ -195,7 +225,7 @@ export default function Dashboard() {
     e.preventDefault();
     e.stopPropagation();
     try {
-      await updateDoc(doc(db, 'shoppinglist', item.id), { completed: !item.completed });
+      await updateDoc(doc(db, `shoppinglists/${item.listId}/items`, item.id), { completed: !item.completed });
     } catch (err) {
       console.error('Toggle shopping item error:', err);
     }
@@ -246,14 +276,17 @@ export default function Dashboard() {
             {appointments.length > 0 ? (
                <div className={cn("flex flex-col -mx-6 max-h-[222px] md:max-h-[296px] overflow-y-auto custom-scrollbar", nextHoliday ? "-mb-3" : "-mb-6")}>
                 {appointments.map(app => (
-                  <div key={app.id} className="refined-list-item h-[74px] shrink-0 flex items-center gap-4 px-6 relative group border-l-[3px] rounded-none" style={{ borderLeftColor: app.color || '#60A5FA' }}>
+                  <div key={app.id} className="refined-list-item h-[74px] shrink-0 flex items-center gap-4 px-6 relative group">
                     <div className="w-10 h-10 flex flex-col items-center justify-center shrink-0 ml-1">
                        <span className="text-xs font-black text-slate-900 dark:text-white leading-none">{format(app.dueDate?.toDate?.() || new Date(app.dueDate), 'dd')}</span>
                        <span className="text-[10px] font-bold text-brand-muted uppercase tracking-tighter">{format(app.dueDate?.toDate?.() || new Date(app.dueDate), 'MMM', { locale: de })}</span>
                     </div>
-                    <div className="flex-1 min-w-0 pr-10">
-                      <span className="text-xs font-bold text-brand block truncate tracking-tight">{app.task}</span>
-                      {app.hasTime !== false && <span className="text-xs font-medium text-brand-muted">{format(app.dueDate?.toDate?.() || new Date(app.dueDate), 'HH:mm')} Uhr</span>}
+                    <div className="flex-1 min-w-0 pr-10 flex flex-col">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: app.color || '#60A5FA' }} />
+                        <span className="text-xs font-bold text-brand block truncate tracking-tight">{app.task}</span>
+                      </div>
+                      {app.hasTime !== false && <span className="text-xs font-medium text-brand-muted ml-4">{format(app.dueDate?.toDate?.() || new Date(app.dueDate), 'HH:mm')} Uhr</span>}
                     </div>
                     <div className="absolute right-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button type="button" onClick={(e) => { e.stopPropagation(); setEditItem({ type: 'appointments', data: app }); }} className="p-1.5 text-brand-muted hover:text-accent transition-colors"><Edit2 size={12} /></button>
@@ -285,13 +318,9 @@ export default function Dashboard() {
             {todos.length > 0 ? (
                <div className="flex flex-col -mx-6 -mb-6 max-h-[222px] md:max-h-[296px] overflow-y-auto custom-scrollbar">
                   {todos.map(todo => (
-                    <div key={todo.id} className="refined-list-item flex items-center gap-4 px-6 relative group border-l-[3px] rounded-none shrink-0"
+                    <div key={todo.id} className="refined-list-item flex items-center gap-4 px-6 relative group shrink-0"
                       style={{ 
-                        height: todo.dueDate ? '74px' : '37px',
-                        borderLeftColor: 
-                          todo.priority === 'high' ? '#FF3B30' : 
-                          todo.priority === 'medium' ? '#FF9500' : 
-                          '#34C759'
+                        height: todo.dueDate ? '74px' : '37px'
                       }}
                     >
                       <button 
@@ -308,7 +337,9 @@ export default function Dashboard() {
                         className="flex-1 min-w-0 pr-10 cursor-pointer" 
                         onClick={() => setEditItem({ type: 'todos', data: todo })}
                       >
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 relative">
+                          <div className={cn("w-1.5 h-1.5 rounded-full shrink-0", todo.completed && "opacity-40")} 
+                               style={{ backgroundColor: todo.priority === 'high' ? '#FF3B30' : todo.priority === 'medium' ? '#FF9500' : '#34C759' }} />
                           <span className={cn("text-xs font-bold block truncate tracking-tight", todo.completed ? "text-brand-muted line-through" : "text-slate-900 dark:text-white")}>{todo.task}</span>
                         </div>
                         {todo.dueDate && (
@@ -340,11 +371,14 @@ export default function Dashboard() {
             {notes.length > 0 ? (
                <div className="flex flex-col -mx-6 -mb-6 max-h-[222px] md:max-h-[296px] overflow-y-auto custom-scrollbar">
                 {notes.map(note => (
-                  <div key={note.id} className="refined-list-item h-[74px] shrink-0 flex items-center justify-between gap-3 px-6 relative group border-l-[3px] rounded-none" style={{ borderLeftColor: note.color || '#AF52DE' }}>
+                  <div key={note.id} className="refined-list-item h-[74px] shrink-0 flex items-center justify-between gap-3 px-6 relative group">
                     <div className="flex items-center gap-3 overflow-hidden ml-1">
-                      <div className="min-w-0">
-                        <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate tracking-tight">{note.title || 'Ohne Titel'}</h4>
-                        <span className="text-xs font-bold text-brand-muted block mt-0.5 uppercase tracking-tighter">
+                      <div className="min-w-0 flex flex-col justify-center">
+                        <div className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: note.color || '#AF52DE' }} />
+                          <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate tracking-tight">{note.title || 'Ohne Titel'}</h4>
+                        </div>
+                        <span className="text-[10px] font-bold text-brand-muted block mt-0.5 ml-3.5 uppercase tracking-tighter">
                           {format(note.updatedAt?.toDate?.() || (note.updatedAt ? new Date(note.updatedAt) : new Date()), 'dd. MMM', { locale: de })}
                         </span>
                       </div>
@@ -417,11 +451,14 @@ export default function Dashboard() {
             {prompts.length > 0 ? (
                <div className="flex flex-col -mx-6 -mb-6 max-h-[222px] md:max-h-[296px] overflow-y-auto custom-scrollbar">
                 {prompts.map(prompt => (
-                  <div key={prompt.id} className="refined-list-item h-[74px] shrink-0 flex items-center justify-between gap-3 px-6 relative group border-l-[3px] rounded-none" style={{ borderLeftColor: prompt.color || '#FF9500' }}>
+                  <div key={prompt.id} className="refined-list-item h-[74px] shrink-0 flex items-center justify-between gap-3 px-6 relative group">
                     <div className="flex items-center gap-3 overflow-hidden ml-1">
-                      <div className="min-w-0">
-                        <h4 className="text-xs font-bold text-brand truncate tracking-tight">{prompt.title || 'Ohne Titel'}</h4>
-                        <p className="text-xs font-medium text-brand-muted line-clamp-1 mt-0.5">{prompt.content}</p>
+                      <div className="min-w-0 flex flex-col justify-center">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: prompt.color || '#FF9500' }} />
+                          <h4 className="text-xs font-bold text-brand truncate tracking-tight">{prompt.title || 'Ohne Titel'}</h4>
+                        </div>
+                        <p className="text-xs font-medium text-brand-muted line-clamp-1 mt-0.5 ml-3">{prompt.content}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -447,15 +484,18 @@ export default function Dashboard() {
                 {links.map(link => {
                   const domain = link.url.replace(/^https?:\/\//i, '').replace(/^www\./i, '').split('/')[0];
                   return (
-                  <div key={link.id} className="refined-list-item relative group overflow-hidden border-l-[3px] rounded-none shrink-0 h-[74px]" style={{ borderLeftColor: link.color || '#5856D6' }}>
+                  <div key={link.id} className="refined-list-item relative group overflow-hidden shrink-0 h-[74px]">
                     <a href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-6 pr-10 ml-1 h-full w-full">
                       <div className="w-10 h-10 flex items-center justify-center shrink-0 overflow-hidden relative">
                         <img src={`https://www.google.com/s2/favicons?sz=64&domain=${domain}`} alt="" className="w-6 h-6 object-contain shadow-sm" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2386868B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>'; }} />
                         {link.isPinned && <div className="absolute top-0 right-0 p-0.5 bg-accent rounded-bl-lg"><Pin size={6} className="text-white fill-white" /></div>}
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <span className="text-xs font-bold text-brand block truncate tracking-tight">{link.title}</span>
-                        <span className="text-xs text-brand-muted block font-medium uppercase tracking-tighter leading-normal mt-0.5 break-all line-clamp-1">{domain}</span>
+                      <div className="min-w-0 flex-1 flex flex-col justify-center">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: link.color || '#5856D6' }} />
+                          <span className="text-xs font-bold text-brand block truncate tracking-tight">{link.title}</span>
+                        </div>
+                        <span className="text-[10px] text-brand-muted block font-medium uppercase tracking-tighter leading-normal mt-0.5 break-all line-clamp-1 ml-3">{domain}</span>
                       </div>
                     </a>
                   </div>
@@ -478,11 +518,13 @@ export default function Dashboard() {
                   <Link 
                     key={contact.id} 
                     to={`/contacts?id=${contact.id}`} 
-                    className="refined-list-item h-[74px] shrink-0 flex flex-col items-center justify-center gap-0.5 px-6 cursor-pointer border-l-[3px] rounded-none text-center"
-                    style={{ borderLeftColor: '#FFFFFF' }}
+                    className="refined-list-item h-[74px] shrink-0 flex flex-col items-center justify-center gap-0.5 px-6 cursor-pointer text-center"
                   >
                     <div className="min-w-0 w-full flex flex-col items-center justify-center">
-                      <span className="text-base font-bold text-slate-900 dark:text-white block truncate tracking-tight w-full">{contact.name}</span>
+                      <div className="flex items-center justify-center gap-1.5 w-full">
+                        {contact.isFavorite && <div className="w-1.5 h-1.5 rounded-full shrink-0 bg-slate-900 dark:bg-white" />}
+                        <span className="text-base font-bold text-slate-900 dark:text-white block truncate tracking-tight">{contact.name}</span>
+                      </div>
                       {contact.phone && <span className="text-sm text-brand-muted block truncate font-medium uppercase tracking-tighter leading-tight w-full">{contact.phone}</span>}
                     </div>
                   </Link>

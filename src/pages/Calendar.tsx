@@ -5,7 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { 
   format, addMonths, subMonths, startOfMonth, endOfMonth, 
   startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday,
-  isSunday, parseISO, setHours, setMinutes
+  isSunday, parseISO, setHours, setMinutes, addWeeks, subWeeks
 } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, Check, Calendar as CalendarIcon, Clock, X, Plus, Trash2, Search, Edit2, Cake } from 'lucide-react';
@@ -36,6 +36,7 @@ const hd = new Holidays('DE', 'BB');
 
 export default function Calendar() {
   const { user } = useAuth();
+  const [viewMode, setViewMode] = useState<'month' | 'week'>('month');
   const [deleteModal, setDeleteModal] = useState<{ open: boolean, id: string } | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -198,8 +199,12 @@ export default function Calendar() {
     end: endDate
   });
 
-  const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
-  const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
+  const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
+  const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
+  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
+
+  const nextPeriod = () => setCurrentDate(viewMode === 'month' ? addMonths(currentDate, 1) : addWeeks(currentDate, 1));
+  const prevPeriod = () => setCurrentDate(viewMode === 'month' ? subMonths(currentDate, 1) : subWeeks(currentDate, 1));
 
   const weekDayNames = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 
@@ -207,31 +212,81 @@ export default function Calendar() {
     <div className="max-w-5xl mx-auto space-y-6 relative z-10 w-full px-0 sm:px-0 pb-10 lg:pb-6">
       <div className="glass-card rounded-[2rem] p-3 mb-4">
         <div className="flex items-center justify-between gap-3">
-          <div className="hidden sm:block shrink-0">
+          <div className="hidden sm:flex shrink-0 gap-2 items-center">
             <button 
               onClick={() => setCurrentDate(new Date())}
               className="btn-briefing-glow h-10 px-5 text-sm flex items-center justify-center shrink-0"
             >
               Heute
             </button>
+            <div className="flex bg-slate-100 dark:bg-white/[0.03] rounded-xl p-1 gap-1">
+              <button 
+                onClick={() => setViewMode('month')} 
+                className={cn(
+                  "px-4 text-xs font-bold uppercase h-8 rounded-lg transition-all tracking-wider flex items-center justify-center",
+                  viewMode === 'month' 
+                    ? "bg-[#2563EB]/15 text-[#2563EB] border border-[#2563EB]" 
+                    : "text-brand-muted hover:text-brand border border-transparent"
+                )}
+              >
+                Monat
+              </button>
+              <button 
+                onClick={() => setViewMode('week')} 
+                className={cn(
+                  "px-4 text-xs font-bold uppercase h-8 rounded-lg transition-all tracking-wider flex items-center justify-center",
+                  viewMode === 'week' 
+                    ? "bg-[#2563EB]/15 text-[#2563EB] border border-[#2563EB]" 
+                    : "text-brand-muted hover:text-brand border border-transparent"
+                )}
+              >
+                Woche
+              </button>
+            </div>
           </div>
 
           <div className="flex-1 px-1 sm:px-4 flex justify-center">
-            <h1 className="text-lg sm:text-2xl font-black tracking-tighter text-brand capitalize leading-none text-center flex flex-row items-baseline gap-2">
-              <span className="block">{format(currentDate, "MMMM", { locale: de })}</span>
-              <span className="text-xs sm:text-sm text-brand-muted font-bold tracking-widest block">{format(currentDate, "yyyy")}</span>
-            </h1>
+            <div className="flex flex-col items-center">
+              <div className="sm:hidden flex bg-slate-100 dark:bg-white/[0.03] rounded-xl p-1 gap-1 mb-2">
+                <button 
+                  onClick={() => setViewMode('month')} 
+                  className={cn(
+                    "px-3 text-[10px] font-bold uppercase h-6 rounded-md transition-all tracking-wider flex items-center justify-center",
+                    viewMode === 'month' 
+                      ? "bg-[#2563EB]/15 text-[#2563EB] border border-[#2563EB]" 
+                      : "text-brand-muted hover:text-brand border border-transparent"
+                  )}
+                >
+                  Monat
+                </button>
+                <button 
+                  onClick={() => setViewMode('week')} 
+                  className={cn(
+                    "px-3 text-[10px] font-bold uppercase h-6 rounded-md transition-all tracking-wider flex items-center justify-center",
+                    viewMode === 'week' 
+                      ? "bg-[#2563EB]/15 text-[#2563EB] border border-[#2563EB]" 
+                      : "text-brand-muted hover:text-brand border border-transparent"
+                  )}
+                >
+                  Woche
+                </button>
+              </div>
+              <h1 className="text-lg sm:text-2xl font-black tracking-tighter text-brand capitalize leading-none text-center flex flex-row items-baseline gap-2">
+                <span className="block">{format(currentDate, "MMMM", { locale: de })}</span>
+                <span className="text-xs sm:text-sm text-brand-muted font-bold tracking-widest block">{format(currentDate, "yyyy")}</span>
+              </h1>
+            </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 shrink-0">
             <button 
-              onClick={prevMonth}
+              onClick={prevPeriod}
               className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-white/[0.03] border border-slate-200/50 dark:border-white/5 text-brand shadow-sm hover:bg-slate-50 dark:hover:bg-white/[0.08] transition-all active:scale-90"
             >
               <ChevronLeft size={20} />
             </button>
             <button 
-              onClick={nextMonth}
+              onClick={nextPeriod}
               className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-white/[0.03] border border-slate-200/50 dark:border-white/5 text-brand shadow-sm hover:bg-slate-50 dark:hover:bg-white/[0.08] transition-all active:scale-90"
             >
               <ChevronRight size={20} />
@@ -242,93 +297,208 @@ export default function Calendar() {
 
       <div className="glass-card rounded-3xl overflow-hidden flex flex-col shadow-2xl border border-black/5 dark:border-white/5">
         {/* Days Header */}
-        <div className="grid grid-cols-7 border-b border-slate-200/50 dark:border-white/10 bg-white/30 dark:bg-black/20">
-          {weekDayNames.map((day, idx) => (
-            <div key={day} className={cn(
-              "py-4 text-center pro-heading",
-              idx === 6 ? "text-red-500" : "text-brand-muted"
-            )}>
-              {day}
-            </div>
-          ))}
-        </div>
+        {viewMode === 'month' && (
+          <div className="grid grid-cols-7 border-b border-slate-200/50 dark:border-white/10 bg-white/30 dark:bg-black/20">
+            {weekDayNames.map((day, idx) => (
+              <div key={day} className={cn(
+                "py-4 text-center pro-heading",
+                idx === 6 ? "text-red-500" : "text-brand-muted"
+              )}>
+                {day}
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Days Grid */}
-        <div className="grid grid-cols-7 auto-rows-fr bg-[#F2F2F7] dark:bg-white/[0.02] gap-[1px]">
-          {days.map((day) => {
-            const dayAppointments = appointments.filter(a => {
-              if (!a.dueDate) return false;
-              const date = (a.dueDate as any).toDate ? (a.dueDate as any).toDate() : new Date(a.dueDate);
-              return isSameDay(date, day);
-            });
-            const dayBirthdays = contacts.filter(c => {
-              if (!c.birthday) return false;
-              const bDay = parseISO(c.birthday);
-              return bDay.getMonth() === day.getMonth() && bDay.getDate() === day.getDate();
-            });
+        {viewMode === 'month' ? (
+          <div className="grid grid-cols-7 auto-rows-fr bg-[#F2F2F7] dark:bg-white/[0.02] gap-[1px]">
+            {days.map((day) => {
+              const dayAppointments = appointments.filter(a => {
+                if (!a.dueDate) return false;
+                const date = (a.dueDate as any).toDate ? (a.dueDate as any).toDate() : new Date(a.dueDate);
+                return isSameDay(date, day);
+              });
+              const dayBirthdays = contacts.filter(c => {
+                if (!c.birthday) return false;
+                const bDay = parseISO(c.birthday);
+                return bDay.getMonth() === day.getMonth() && bDay.getDate() === day.getDate();
+              });
 
-            // Combine into temporary events for display
-            const dayEvents: CalendarEvent[] = [
-              ...dayAppointments.map(a => ({
-                id: a.id,
-                title: a.task,
-                date: (a.dueDate as any).toDate ? (a.dueDate as any).toDate() : new Date(a.dueDate!),
-                type: 'appointment' as const,
-                completed: a.completed
-              })),
-              ...dayBirthdays.map(c => ({
-                id: `bday-${c.id}`,
-                title: `🎂 ${c.name}`,
-                date: day, // Use the current day for sorting if no time is involved
-                type: 'birthday' as const
-              }))
-            ];
+              // Combine into temporary events for display
+              const dayEvents: CalendarEvent[] = [
+                ...dayAppointments.map(a => ({
+                  id: a.id,
+                  title: a.task,
+                  date: (a.dueDate as any).toDate ? (a.dueDate as any).toDate() : new Date(a.dueDate!),
+                  type: 'appointment' as const,
+                  completed: a.completed,
+                  hasTime: a.hasTime
+                })),
+                ...dayBirthdays.map(c => ({
+                  id: `bday-${c.id}`,
+                  title: `🎂 ${c.name}`,
+                  date: day, // Use the current day for sorting if no time is involved
+                  type: 'birthday' as const
+                }))
+              ];
 
-            // Sort dayEvents by time
-            dayEvents.sort((a,b) => a.date.getTime() - b.date.getTime());
-            
-            const holidayArr = hd.isHoliday(day);
-            const isHoliday = holidayArr && holidayArr.length > 0;
-            const holidayName = isHoliday ? holidayArr[0].name : null;
-            const sunday = isSunday(day);
-            
-              return (
-                <div 
-                  key={day.toString()} 
-                  onClick={() => handleDayClick(day, holidayName)}
-                  className={cn(
-                    "min-h-[64px] sm:min-h-[80px] bg-transparent p-1 sm:p-2 transition-colors cursor-pointer hover:bg-slate-50 dark:hover:bg-white/[0.05] group relative flex flex-col items-center justify-center",
-                    !isSameMonth(day, monthStart) && "opacity-20 pointer-events-none"
-                  )}
-                >
-                  <div className="relative flex items-center justify-center">
-                    <span className={cn(
-                      "w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-sm font-black transition-all relative z-10",
-                      isToday(day) ? "bg-accent text-white rounded-full shadow-lg shadow-accent/20" : 
-                      sunday ? "text-red-500" : "text-slate-900 dark:text-white"
-                    )}>
-                      {format(day, 'd')}
-                    </span>
+              // Sort dayEvents by time
+              dayEvents.sort((a,b) => a.date.getTime() - b.date.getTime());
+              
+              const holidayArr = hd.isHoliday(day);
+              const isHoliday = holidayArr && holidayArr.length > 0;
+              const holidayName = isHoliday ? holidayArr[0].name : null;
+              const sunday = isSunday(day);
+              
+                return (
+                  <div 
+                    key={day.toString()} 
+                    onClick={() => handleDayClick(day, holidayName)}
+                    className={cn(
+                      "min-h-[64px] sm:min-h-[80px] bg-transparent p-1 sm:p-2 transition-colors cursor-pointer hover:bg-slate-50 dark:hover:bg-white/[0.05] group relative flex flex-col items-center justify-center",
+                      !isSameMonth(day, monthStart) && "opacity-20 pointer-events-none"
+                    )}
+                  >
+                    <div className="relative flex items-center justify-center">
+                      <span className={cn(
+                        "w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-sm font-black transition-all relative z-10",
+                        isToday(day) ? "bg-accent text-white rounded-full shadow-lg shadow-accent/20" : 
+                        sunday ? "text-red-500" : "text-slate-900 dark:text-white"
+                      )}>
+                        {format(day, 'd')}
+                      </span>
+                      
+                      {/* Ring indicator for events */}
+                      {dayEvents.length > 0 && !isToday(day) && (
+                        <div className="absolute inset-[-4px] rounded-full border-2 border-green-500/30 dark:border-green-400/20" />
+                      )}
+                    </div>
+
+                    {isHoliday && (
+                      <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.4)]" title={holidayName || 'Feiertag'} />
+                    )}
                     
-                    {/* Ring indicator for events */}
-                    {dayEvents.length > 0 && !isToday(day) && (
-                      <div className="absolute inset-[-4px] rounded-full border-2 border-green-500/30 dark:border-green-400/20" />
+                    {!isToday(day) && !isHoliday && (
+                      <div className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-brand-muted">
+                        <Plus size={12} />
+                      </div>
                     )}
                   </div>
+                );
+            })}
+          </div>
+        ) : (
+          <div className="flex flex-col w-full bg-transparent p-2 sm:p-6">
+            {weekDays.map((day, idx) => {
+              const dayAppointments = appointments.filter(a => {
+                if (!a.dueDate) return false;
+                const date = (a.dueDate as any).toDate ? (a.dueDate as any).toDate() : new Date(a.dueDate);
+                return isSameDay(date, day);
+              });
+              const dayBirthdays = contacts.filter(c => {
+                if (!c.birthday) return false;
+                const bDay = parseISO(c.birthday);
+                return bDay.getMonth() === day.getMonth() && bDay.getDate() === day.getDate();
+              });
 
-                  {isHoliday && (
-                    <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.4)]" title={holidayName || 'Feiertag'} />
+              const dayEvents = [
+                ...dayAppointments.map(a => ({
+                  id: a.id,
+                  title: a.task,
+                  date: (a.dueDate as any).toDate ? (a.dueDate as any).toDate() : new Date(a.dueDate!),
+                  type: 'appointment' as const,
+                  completed: a.completed,
+                  hasTime: a.hasTime
+                })),
+                ...dayBirthdays.map(c => ({
+                  id: `bday-${c.id}`,
+                  title: `🎂 ${c.name}`,
+                  date: day,
+                  type: 'birthday' as const
+                }))
+              ];
+
+              dayEvents.sort((a,b) => a.date.getTime() - b.date.getTime());
+              
+              const holidayArr = hd.isHoliday(day);
+              const isHoliday = holidayArr && holidayArr.length > 0;
+              const holidayName = isHoliday ? holidayArr[0].name : null;
+              const isTodayDate = isToday(day);
+
+              return (
+                <div 
+                  key={day.toString()}
+                  onClick={() => handleDayClick(day, holidayName)}
+                  className="flex group cursor-pointer relative"
+                >
+                  {/* Vertical Line */}
+                  {idx !== weekDays.length - 1 && (
+                    <div className="absolute left-8 sm:left-10 top-14 bottom-[-1rem] w-px bg-slate-200 dark:bg-white/10" />
                   )}
                   
-                  {!isToday(day) && !isHoliday && (
-                    <div className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-brand-muted">
-                      <Plus size={12} />
+                  {/* Left Side: Date Circle */}
+                  <div className="w-16 sm:w-20 shrink-0 flex flex-col items-center pt-4 relative z-10">
+                    <div className={cn(
+                      "w-12 h-12 rounded-full flex flex-col items-center justify-center border-4 border-[#F2F2F7] dark:border-[#1C1C1E] shadow-sm transition-all relative z-10",
+                      isTodayDate ? "bg-[#2563EB] text-white outline outline-2 outline-offset-2 outline-[#2563EB]/30" : "bg-white dark:bg-black/40 text-brand group-hover:bg-slate-200 dark:group-hover:bg-white/10"
+                    )}>
+                      <span className="text-[10px] font-bold uppercase leading-none opacity-80">{format(day, 'EEE', { locale: de })}</span>
+                      <span className="text-lg font-black leading-none mt-0.5">{format(day, 'd')}</span>
                     </div>
-                  )}
+                  </div>
+                  
+                  {/* Right Side: Content */}
+                  <div className="flex-1 py-4 pr-1 sm:pr-4">
+                    <div className={cn(
+                      "rounded-3xl p-4 sm:p-5 transition-all outline outline-1",
+                      isTodayDate ? "bg-[#2563EB]/5 outline-[#2563EB]/20 shadow-sm" : "bg-white/40 dark:bg-black/20 outline-black/5 dark:outline-white/5 hover:bg-white/80 dark:hover:bg-white/5"
+                    )}>
+                      {isHoliday && <div className="text-xs font-bold text-amber-500 mb-3">{holidayName}</div>}
+                      
+                      {dayEvents.length === 0 ? (
+                        <div className="h-10 rounded-xl flex items-center text-brand-muted text-sm font-medium w-full transition-colors opacity-60">
+                          Keine Termine
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-2">
+                          {dayEvents.map(event => (
+                            <div 
+                              key={event.id}
+                              className={cn(
+                                "rounded-2xl p-3 text-left transition-all border border-black/5 dark:border-white/5 flex gap-3 items-center",
+                                event.completed ? "opacity-50 line-through bg-transparent" : "shadow-sm",
+                                event.type === 'birthday' 
+                                  ? "bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300" 
+                                  : (isTodayDate ? "bg-white/80 dark:bg-black/40" : "bg-white dark:bg-white/[0.04]")
+                              )}
+                            >
+                              {event.type === 'appointment' && (event as any).hasTime ? (
+                                <div className={cn(
+                                  "text-[10px] font-mono font-bold uppercase tracking-wider opacity-70 shrink-0 w-10 text-center"
+                                )}>
+                                  {format(event.date, 'HH:mm')}
+                                </div>
+                              ) : (
+                                <div className="w-10 shrink-0 flex justify-center"><CalendarIcon size={14} className="opacity-40" /></div>
+                              )}
+                              <div className={cn(
+                                "text-sm font-bold leading-tight flex-1",
+                                event.type === 'birthday' ? "" : (isTodayDate ? "text-[#2563EB]" : "text-brand")
+                              )}>
+                                {event.title}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               );
-          })}
-        </div>
+            })}
+          </div>
+        )}
       </div>
 
       <div className="flex justify-center mt-8 px-4">

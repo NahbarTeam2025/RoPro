@@ -6,7 +6,7 @@ import {
   Plus, Trash2, ArrowUpCircle, ArrowDownCircle, Wallet, 
   Search, Filter, TrendingUp, TrendingDown, PiggyBank,
   Check, X, Edit2, ChevronRight, ChevronDown, PieChart as PieChartIcon,
-  BarChart3
+  BarChart3, Download
 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, isSameMonth, eachDayOfInterval, subMonths } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -44,6 +44,17 @@ interface Transaction {
   createdAt?: any;
 }
 
+const HOUSEHOLD_CATEGORIES = [
+  'Lebensmittel',
+  'Miete & Nebenkosten',
+  'Transport',
+  'Freizeit',
+  'Gesundheit',
+  'Shopping',
+  'Abonnements',
+  'Sonstiges'
+];
+
 export default function Household() {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -58,12 +69,13 @@ export default function Household() {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [type, setType] = useState<'income' | 'expense'>('expense');
-  const [categoryId, setCategoryId] = useState('');
+  const [categoryId, setCategoryId] = useState('Sonstiges');
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [isRecurring, setIsRecurring] = useState(false);
   const [interval, setInterval] = useState<'monthly' | 'yearly'>('monthly');
 
   const [filterMonth, setFilterMonth] = useState(format(new Date(), 'yyyy-MM'));
+  const [filterCategory, setFilterCategory] = useState<string>('all');
   const [showCatManager, setShowCatManager] = useState(false);
   const { categories } = useCategories('household');
   const formRef = React.useRef<HTMLFormElement>(null);
@@ -228,7 +240,7 @@ export default function Household() {
   const resetForm = () => {
     setDescription('');
     setAmount('');
-    setCategoryId('');
+    setCategoryId('Sonstiges');
     setDate(format(new Date(), 'yyyy-MM-dd'));
     setIsRecurring(false);
     setInterval('monthly');
@@ -240,7 +252,7 @@ export default function Household() {
     setDescription(t.description);
     setAmount(t.amount.toString());
     setType(t.type);
-    setCategoryId(t.category);
+    setCategoryId(t.category || 'Sonstiges');
     const tDate = t.date?.toDate ? t.date.toDate() : new Date();
     setDate(format(tDate, 'yyyy-MM-dd'));
     setIsRecurring(!!t.isRecurring);
@@ -286,11 +298,49 @@ export default function Household() {
   const filteredTransactions = transactions.filter(t => {
     try {
       const tDate = t.date?.toDate ? t.date.toDate() : new Date(t.date);
-      return format(tDate, 'yyyy-MM') === filterMonth;
+      const isMonthMatch = format(tDate, 'yyyy-MM') === filterMonth;
+      const isCategoryMatch = filterCategory === 'all' || (t.category || 'Sonstiges') === filterCategory;
+      return isMonthMatch && isCategoryMatch;
     } catch(e) {
       return false;
     }
   });
+
+  const exportToCSV = () => {
+    const monthTransactions = transactions.filter(t => {
+      try {
+        const tDate = t.date?.toDate ? t.date.toDate() : new Date(t.date);
+        return format(tDate, 'yyyy-MM') === filterMonth;
+      } catch(e) {
+        return false;
+      }
+    });
+
+    const headers = ['Datum', 'Name', 'Kategorie', 'Betrag', 'Typ', 'Intervall'];
+    const rows = monthTransactions.map(t => {
+      const tDate = t.date?.toDate ? t.date.toDate() : new Date(t.date);
+      const dateStr = format(tDate, 'dd.MM.yyyy');
+      const name = `"${(t.description || '').replace(/"/g, '""')}"`;
+      const category = `"${(t.category || 'Sonstiges').replace(/"/g, '""')}"`;
+      const amount = t.amount.toString().replace('.', ',');
+      const typeStr = t.type === 'income' ? 'Einnahme' : 'Ausgabe';
+      const intervalStr = t.isRecurring ? (t.interval === 'yearly' ? 'Jährlich' : 'Monatlich') : 'Einmalig';
+      return [dateStr, name, category, amount, typeStr, intervalStr].join(';');
+    });
+
+    const csvContent = '\uFEFF' + [headers.join(';'), ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    
+    const [year, month] = filterMonth.split('-');
+    link.setAttribute('download', `RoPro_Haushaltsbuch_${month}_${year}.csv`);
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const income = filteredTransactions
     .filter(t => t.type === 'income')
@@ -701,12 +751,37 @@ export default function Household() {
               triggerClassName="!h-11 !bg-transparent !border-none !text-sm"
             />
           </div>
+
+          <div className="w-px h-6 bg-slate-200 dark:bg-white/10 self-center mx-1 hidden sm:block" />
+          
+          <div className="hidden sm:block flex-1 sm:flex-none relative h-11 shrink-0">
+             <CustomSelect 
+                value={filterCategory} 
+                onChange={setFilterCategory}
+                options={[
+                  { value: 'all', label: 'Alle Kategorien' },
+                  ...HOUSEHOLD_CATEGORIES.map(c => ({ value: c, label: c }))
+                ]}
+                triggerClassName="!h-11 !bg-transparent !border-none !text-sm min-w-[150px]"
+             />
+          </div>
+
+          <div className="w-px h-6 bg-slate-200 dark:bg-white/10 self-center mx-1" />
+
+          <button
+            onClick={exportToCSV}
+            className="h-11 px-3 sm:px-4 flex items-center gap-2 text-brand-muted hover:text-brand hover:bg-slate-500/5 transition-colors rounded-xl text-sm font-bold"
+            title="CSV Export"
+          >
+            <Download size={18} />
+            <span className="hidden sm:block uppercase tracking-wider text-[10px]">Export</span>
+          </button>
         </div>
       </header>
 
       {showAdd && (
         <form ref={formRef} onSubmit={handleSave} className="glass-card p-6 sm:p-8 rounded-[2.5rem] mb-10 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
             <div className="space-y-1.5 lg:col-span-1">
               <label className="text-xs font-black text-brand-muted uppercase tracking-[0.2em] px-1">Typ</label>
               <div className="flex gap-2 p-1.5 bg-accent/[0.03] dark:bg-white/[0.03] rounded-2xl h-12">
@@ -750,6 +825,16 @@ export default function Household() {
                 placeholder="z.B. Miete"
                 className="glass-input h-12 focus:ring-2 focus:ring-accent/50 font-bold" required
               />
+            </div>
+
+            <div className="space-y-1.5 lg:col-span-1">
+              <label className="text-xs font-black text-brand uppercase tracking-[0.2em] px-1">Kategorie</label>
+               <CustomSelect 
+                  value={categoryId} 
+                  onChange={setCategoryId}
+                  options={HOUSEHOLD_CATEGORIES.map(c => ({ value: c, label: c }))}
+                  className="h-12"
+               />
             </div>
 
             <div className="space-y-1.5 lg:col-span-1">
@@ -1112,12 +1197,17 @@ export default function Household() {
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <div className="flex flex-col gap-1">
+                        <div className="flex flex-col gap-1 items-start">
                           <h4 className="font-bold text-slate-900 dark:text-white whitespace-nowrap truncate">{t.description}</h4>
-                          <span className="text-xs font-black text-accent uppercase tracking-tighter w-fit">
-                            {t.isRecurring ? (t.interval === 'yearly' ? 'Jährlich' : 'Monatlich') : 'Einmalig'}
-                          </span>
-                          <span className="text-xs sm:text-xs font-bold text-brand-muted uppercase tracking-wider flex items-center gap-1 italic">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-[10px] sm:text-xs font-black text-accent uppercase tracking-tighter px-2 py-0.5 rounded-md bg-accent/10 border border-accent/20">
+                              {t.isRecurring ? (t.interval === 'yearly' ? 'Jährlich' : 'Monatlich') : 'Einmalig'}
+                            </span>
+                            <span className="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-md bg-slate-200 dark:bg-white/10 text-brand-muted uppercase tracking-wider">
+                              {t.category || 'Sonstiges'}
+                            </span>
+                          </div>
+                          <span className="text-xs sm:text-xs font-bold text-brand-muted uppercase tracking-wider flex items-center gap-1 italic mt-1">
                             {safeFormatDate(t.date, 'dd.MM.yyyy')}
                           </span>
                         </div>

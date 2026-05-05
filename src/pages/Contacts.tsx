@@ -10,7 +10,7 @@ import {
 } from 'firebase/firestore';
 import { useAuth } from '../hooks/useAuth';
 import { motion, AnimatePresence } from 'motion/react';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, differenceInDays, setYear, isBefore, startOfDay, addYears, isValid } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { cn } from '../lib/utils';
 import { useSearchParams } from 'react-router-dom';
@@ -30,6 +30,25 @@ interface Contact {
   updatedAt: any;
 }
 
+
+const computeBirthdayCountdown = (birthdayStr: string | undefined) => {
+  if (!birthdayStr) return null;
+  const bDay = parseISO(birthdayStr);
+  if (!isValid(bDay)) return null;
+
+  const today = startOfDay(new Date());
+  let nextBirthday = setYear(bDay, today.getFullYear());
+  
+  if (isBefore(nextBirthday, today)) {
+    nextBirthday = addYears(nextBirthday, 1);
+  }
+  
+  const days = differenceInDays(nextBirthday, today);
+  if (days === 0) return "Heute Geburtstag 🎉";
+  if (days <= 30) return `Geburtstag in ${days} ${days === 1 ? 'Tag' : 'Tagen'}`;
+  return null;
+};
+
 export default function Contacts() {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
@@ -38,6 +57,7 @@ export default function Contacts() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [filterTab, setFilterTab] = useState<'all' | 'favorites'>('all');
 
   // Form state
   const [formData, setFormData] = useState({
@@ -66,8 +86,6 @@ export default function Contacts() {
       })) as Contact[];
       
       const sorted = [...data].sort((a, b) => {
-        if (a.isFavorite && !b.isFavorite) return -1;
-        if (!a.isFavorite && b.isFavorite) return 1;
         return a.name.localeCompare(b.name, 'de');
       });
 
@@ -153,7 +171,7 @@ export default function Contacts() {
     });
   };
 
-  const filteredContacts = contacts;
+  const filteredContacts = contacts.filter(contact => filterTab === 'all' || contact.isFavorite);
 
   return (
     <div className="h-full flex flex-col md:flex-row gap-6 relative z-10 w-full pb-6">
@@ -170,6 +188,26 @@ export default function Contacts() {
               className="p-2 bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white rounded-xl transition-all cursor-pointer font-bold flex items-center justify-center"
             >
                <Plus size={18} />
+            </button>
+          </div>
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-white/[0.03] p-1 rounded-xl">
+            <button 
+              onClick={() => setFilterTab('all')}
+              className={cn(
+                "flex-1 px-2 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all text-center",
+                filterTab === 'all' ? "bg-white dark:bg-white/10 text-brand shadow-sm" : "text-brand-muted hover:text-brand"
+              )}
+            >
+              Alle
+            </button>
+            <button 
+              onClick={() => setFilterTab('favorites')}
+              className={cn(
+                "flex-1 px-2 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all text-center",
+                filterTab === 'favorites' ? "bg-white dark:bg-white/10 text-brand shadow-sm" : "text-brand-muted hover:text-brand"
+              )}
+            >
+              Favoriten
             </button>
           </div>
         </div>
@@ -396,15 +434,22 @@ export default function Contacts() {
                       <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_10px_rgba(255,149,0,0.6)] mt-2" />
                     )}
                   </div>
-                  <div className="flex flex-wrap justify-start gap-2 text-xs font-black text-brand-muted uppercase tracking-widest">
-                     {selectedContact.birthday && (
-                        <span className="px-3 py-1.5 rounded-full border border-slate-200/30 dark:border-white/5">
-                          🎂 {format(parseISO(selectedContact.birthday), 'd. MMMM', { locale: de })}
-                        </span>
-                     )}
-                     <span className="px-3 py-1.5 rounded-full border border-slate-200/30 dark:border-white/5">
-                        Seit {format(selectedContact.createdAt?.toDate?.() || new Date(), 'dd.MM.yyyy')}
-                     </span>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-wrap justify-start gap-2 text-xs font-black text-brand-muted uppercase tracking-widest">
+                       {selectedContact.birthday && (
+                          <span className="px-3 py-1.5 rounded-full border border-slate-200/30 dark:border-white/5">
+                            🎂 {format(parseISO(selectedContact.birthday), 'd. MMMM', { locale: de })}
+                          </span>
+                       )}
+                       <span className="px-3 py-1.5 rounded-full border border-slate-200/30 dark:border-white/5">
+                          Seit {format(selectedContact.createdAt?.toDate?.() || new Date(), 'dd.MM.yyyy')}
+                       </span>
+                    </div>
+                    {computeBirthdayCountdown(selectedContact.birthday) && (
+                      <div className="text-sm font-bold text-amber-500 bg-amber-500/10 self-start px-3 py-1 rounded-lg">
+                        {computeBirthdayCountdown(selectedContact.birthday)}
+                      </div>
+                    )}
                   </div>
                 </div>
 

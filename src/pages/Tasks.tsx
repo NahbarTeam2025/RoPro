@@ -4,7 +4,7 @@ import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { Check, Clock, Plus, Trash2, AlertCircle, Edit2, Settings2, X, ChevronDown, Calendar as CalendarIcon } from 'lucide-react';
+import { Check, Clock, Plus, Trash2, Archive, AlertCircle, Edit2, Settings2, X, ChevronDown, Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { CategorySelect } from '../components/CategorySelect';
 import { CategoryManager } from '../components/CategoryManager';
@@ -21,6 +21,7 @@ interface Todo {
   priority: 'high' | 'medium' | 'low';
   color?: string;
   completed: boolean;
+  archived?: boolean;
   userId: string;
   isRecurring?: boolean;
   recurrenceInterval?: 'daily' | 'weekly' | 'monthly' | null;
@@ -40,6 +41,7 @@ export default function Tasks() {
   const [categoryId, setCategoryId] = useState('');
   const { categories } = useCategories('task');
 
+  const [activeTab, setActiveTab] = useState<'active' | 'completed' | 'archived'>('active');
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [filterMonth, setFilterMonth] = useState<string>('all');
   const [showCatManager, setShowCatManager] = useState(false);
@@ -165,6 +167,17 @@ export default function Tasks() {
     }
   };
 
+  const handleArchive = async (todo: Todo) => {
+    try {
+      await updateDoc(doc(db, 'todos', todo.id), {
+        archived: true,
+        updatedAt: serverTimestamp()
+      });
+    } catch (error) {
+      console.error("Error archiving task:", error);
+    }
+  };
+
   // Generate unique months from due dates and creation dates for filter
   const availableMonths = Array.from(new Set(todos.map(t => {
     if (t.dueDate) return format(new Date(t.dueDate), 'yyyy-MM');
@@ -182,15 +195,25 @@ export default function Tasks() {
     return true;
   });
 
-  const activeTodos = filteredTodos
-    .filter(t => !t.completed)
+  const displayTodos = filteredTodos
+    .filter(t => {
+      if (activeTab === 'active') return !t.completed && !t.archived;
+      if (activeTab === 'completed') return t.completed && !t.archived;
+      if (activeTab === 'archived') return t.archived;
+      return false;
+    })
     .sort((a, b) => {
-      if (a.dueDate && b.dueDate) return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-      if (a.dueDate) return -1;
-      if (b.dueDate) return 1;
-      return 0;
+      if (activeTab === 'active') {
+        if (a.dueDate && b.dueDate) return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+        if (a.dueDate) return -1;
+        if (b.dueDate) return 1;
+        return 0;
+      } else {
+        const timeA = a.updatedAt?.toDate?.()?.getTime() || 0;
+        const timeB = b.updatedAt?.toDate?.()?.getTime() || 0;
+        return timeB - timeA;
+      }
     });
-  const completedTodos = filteredTodos.filter(t => t.completed);
 
   return (
     <div className="h-full flex flex-col md:flex-row gap-6 relative z-10 w-full pb-6">
@@ -244,25 +267,49 @@ export default function Tasks() {
                />
             </div>
           </div>
-          <div className="px-4 py-2 flex items-center justify-between z-20 bg-white/40 dark:bg-[#1C1C1E]/40 backdrop-blur-md border-b border-slate-200/50 dark:border-white/10 shrink-0">
-            <span className="text-xs font-black text-brand-muted uppercase tracking-widest">Aktiv</span>
-            <span className="text-xs font-black text-brand-muted px-2 py-0.5 rounded-full bg-slate-500/10">
-              {activeTodos.length}
-            </span>
+          <div className="px-2 py-2 flex items-center justify-between z-20 bg-white/40 dark:bg-[#1C1C1E]/40 backdrop-blur-md border-b border-slate-200/50 dark:border-white/10 shrink-0 gap-1">
+            <button 
+              onClick={() => setActiveTab('active')}
+              className={cn(
+                "flex-1 px-2 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all",
+                activeTab === 'active' ? "bg-accent/10 text-brand" : "text-brand-muted hover:bg-slate-500/5 hover:text-brand"
+              )}
+            >
+              Aktiv
+            </button>
+            <button 
+              onClick={() => setActiveTab('completed')}
+              className={cn(
+                "flex-1 px-2 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all",
+                activeTab === 'completed' ? "bg-accent/10 text-brand" : "text-brand-muted hover:bg-slate-500/5 hover:text-brand"
+              )}
+            >
+              Erledigt
+            </button>
+            <button 
+              onClick={() => setActiveTab('archived')}
+              className={cn(
+                "flex-1 px-2 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all",
+                activeTab === 'archived' ? "bg-accent/10 text-brand" : "text-brand-muted hover:bg-slate-500/5 hover:text-brand"
+              )}
+            >
+              Archiv
+            </button>
           </div>
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             <div className="space-y-1">
-              {activeTodos.length === 0 ? (
+              {displayTodos.length === 0 ? (
                 <div className="p-8 text-center text-xs uppercase font-bold text-brand-muted tracking-widest">Keine Aufgaben</div>
               ) : (
                 <div className="flex flex-col">
-                  {activeTodos.map(todo => (
+                  {displayTodos.map(todo => (
                     <TaskItem 
                       key={todo.id} 
                       todo={todo} 
                       isActive={editTask?.id === todo.id}
                       onToggle={() => toggleTodo(todo)} 
-                      onDelete={() => setDeleteModal({ open: true, id: todo.id })} 
+                      onDelete={activeTab !== 'completed' ? () => setDeleteModal({ open: true, id: todo.id }) : undefined}
+                      onArchive={activeTab === 'completed' ? () => handleArchive(todo) : undefined}
                       onEdit={() => { setEditTask(todo); setIsFormExpanded(false); }}
                       categories={categories} 
                     />
@@ -272,33 +319,6 @@ export default function Tasks() {
             </div>
           </div>
         </div>
-
-        {/* Completed Tasks Card */}
-        {completedTodos.length > 0 && (
-          <div className="max-h-[33%] min-h-[150px] flex flex-col glass-card rounded-3xl overflow-hidden flex-shrink-0">
-            <div className="px-4 py-3 border-b border-slate-200/50 dark:border-white/10 flex items-center justify-between z-20 bg-white/40 dark:bg-[#1C1C1E]/40 backdrop-blur-md shrink-0">
-              <span className="text-xs font-black text-brand uppercase tracking-widest">Erledigt</span>
-              <span className="text-xs font-black text-brand-muted px-2 py-0.5 rounded-full bg-slate-500/10">
-                {completedTodos.length}
-              </span>
-            </div>
-            <div className="flex-1 overflow-y-auto custom-scrollbar">
-              <div className="flex flex-col opacity-60 hover:opacity-100 transition-opacity">
-                {completedTodos.map(todo => (
-                  <TaskItem 
-                    key={todo.id} 
-                    todo={todo} 
-                    isActive={editTask?.id === todo.id}
-                    onToggle={() => toggleTodo(todo)} 
-                    onDelete={() => setDeleteModal({ open: true, id: todo.id })} 
-                    onEdit={() => { setEditTask(todo); setIsFormExpanded(false); }}
-                    categories={categories} 
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Main Content Area */}
@@ -593,7 +613,7 @@ export default function Tasks() {
   );
 }
 
-function TaskItem({ todo, isActive, onToggle, onDelete, onEdit, categories }: { todo: Todo, isActive?: boolean, onToggle: () => void, onDelete: () => void, onEdit: () => void, categories: any[] }) {
+function TaskItem({ todo, isActive, onToggle, onDelete, onEdit, onArchive, categories }: { todo: Todo, isActive?: boolean, onToggle: () => void, onDelete?: () => void, onEdit: () => void, onArchive?: () => void, categories: any[] }) {
   const isOverdue = todo.dueDate && !todo.completed && new Date(todo.dueDate) < new Date();
   const catName = categories.find(c => c.id === todo.categoryId)?.name || todo.categoryId || '';
   
@@ -642,12 +662,24 @@ function TaskItem({ todo, isActive, onToggle, onDelete, onEdit, categories }: { 
              )}
           </div>
         </div>
-        <button
-          onClick={(e) => { e.stopPropagation(); onDelete(); }}
-          className="p-1 text-brand-muted hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition-opacity"
-        >
-          <Trash2 size={12} />
-        </button>
+        {onArchive && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onArchive(); }}
+            className="p-1 text-brand-muted hover:text-amber-500 md:opacity-0 group-hover:opacity-100 transition-opacity"
+            title="Archivieren"
+          >
+            <Archive size={12} />
+          </button>
+        )}
+        {onDelete && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(); }}
+            className="p-1 text-brand-muted hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition-opacity"
+            title="Löschen"
+          >
+            <Trash2 size={12} />
+          </button>
+        )}
       </div>
     </div>
   );

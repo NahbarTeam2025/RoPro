@@ -19,9 +19,45 @@ interface GlobalSearchProps {
 export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [searchHistory, setSearchHistory] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('searchHistory') || '[]');
+    } catch {
+      return [];
+    }
+  });
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const data = useGlobalSearchData();
+
+  useEffect(() => {
+    localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+  }, [searchHistory]);
+
+  const saveToHistory = (searchTerm: string) => {
+    const term = searchTerm.trim();
+    if (!term) return;
+    setSearchHistory(prev => {
+      const filtered = prev.filter(t => t !== term);
+      const newHistory = [term, ...filtered].slice(0, 10);
+      localStorage.setItem('searchHistory', JSON.stringify(newHistory));
+      return newHistory;
+    });
+  };
+
+  const removeFromHistory = (e: React.MouseEvent, term: string) => {
+    e.stopPropagation();
+    setSearchHistory(prev => {
+      const newHistory = prev.filter(t => t !== term);
+      localStorage.setItem('searchHistory', JSON.stringify(newHistory));
+      return newHistory;
+    });
+  };
+    
+  const clearHistory = () => {
+    setSearchHistory([]);
+    localStorage.setItem('searchHistory', '[]');
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -202,6 +238,7 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
   };
 
   const handleSelect = (result: SearchResult) => {
+    saveToHistory(query);
     navigate(result.path);
     onClose();
   };
@@ -270,7 +307,7 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
               </div>
             </div>
 
-            <div className={cn("max-h-[60vh] overflow-y-auto custom-scrollbar p-2", !query.trim() && "hidden")}>
+            <div className={cn("max-h-[60vh] overflow-y-auto custom-scrollbar p-2")}>
               {results.length > 0 ? (
                 <div className="flex flex-col gap-1 p-2">
                   {results.map((result, index) => {
@@ -300,7 +337,7 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <h4 className={cn("font-bold text-sm truncate tracking-tight transition-colors", selectedIndex === index ? "text-slate-900 dark:text-white" : "text-slate-900 dark:text-white/80")}>
+                               <h4 className={cn("font-bold text-sm truncate tracking-tight transition-colors", selectedIndex === index ? "text-slate-900 dark:text-white" : "text-slate-900 dark:text-white/80")}>
                                 {result.title}
                               </h4>
                               {result.metadata?.priority === 'high' && <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]" />}
@@ -330,9 +367,42 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                   <h3 className="pro-heading !text-brand text-lg">Nichts gefunden</h3>
                   <p className="text-sm font-medium text-brand-muted mt-2">Versuche es mit anderen Schlagworten.</p>
                 </div>
-              ) : (
-                null
-              )}
+              ) : searchHistory.length > 0 ? (
+                <div className="flex flex-col p-2">
+                  <div className="px-4 pt-4 pb-2 text-xs font-black text-brand-muted uppercase tracking-[0.2em]">
+                    Zuletzt gesucht
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    {searchHistory.map((item) => (
+                      <div key={item} className="flex items-center gap-2 group p-2 rounded-2xl hover:bg-brand/5 transition-all">
+                        <button
+                          onClick={() => setQuery(item)}
+                          className="flex-1 text-left flex items-center gap-4 py-2"
+                        >
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-brand/5 text-brand-muted">
+                            <Clock size={16} />
+                          </div>
+                          <span className="font-bold text-sm text-brand">{item}</span>
+                        </button>
+                        <button
+                          onClick={(e) => removeFromHistory(e, item)}
+                          className="p-2 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 flex justify-center">
+                    <button
+                      onClick={clearHistory}
+                      className="text-xs font-bold uppercase tracking-wider text-brand-muted hover:text-brand transition-colors py-2 px-4 rounded-lg hover:bg-brand/5"
+                    >
+                      Verlauf löschen
+                    </button>
+                  </div>
+                </div>
+              ) : null}
             </div>
           </motion.div>
         </div>

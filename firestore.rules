@@ -261,24 +261,48 @@ service cloud.firestore {
       allow write: if isSignedIn() && userId == request.auth.uid && isValidUserSettings(incoming());
     }
 
-    // Shopping List
-    function isValidShoppingItem(data) {
-      return data.keys().hasAll(['name', 'completed', 'order', 'userId', 'createdAt']) &&
-             data.name is string && data.name.size() <= 500 &&
-             data.completed is bool &&
-             data.order is number &&
+    // OLD Shopping List (Kept for Migration)
+    match /shoppinglist/{itemId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // NEW Shopping Lists
+    function isValidShoppingList(data) {
+      return data.keys().hasAll(['name', 'userId', 'createdAt']) &&
+             data.name is string && data.name.size() <= 200 &&
              data.userId == request.auth.uid &&
              data.createdAt is timestamp;
     }
 
-    match /shoppinglist/{itemId} {
+    match /shoppinglists/{listId} {
       allow get: if isSignedIn() && existing().userId == request.auth.uid;
       allow list: if isSignedIn() && existing().userId == request.auth.uid;
-      allow create: if isSignedIn() && isValidId(itemId) && isValidShoppingItem(incoming()) && incoming().createdAt == request.time;
-      allow update: if isSignedIn() && isValidId(itemId) && (
-        incoming().diff(existing()).affectedKeys().hasOnly(['completed', 'order', 'name'])
+      allow create: if isSignedIn() && isValidId(listId) && isValidShoppingList(incoming()) && incoming().createdAt == request.time;
+      allow update: if isSignedIn() && isValidId(listId) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['name'])
       ) && incoming().userId == existing().userId;
-      allow delete: if isSignedIn() && isValidId(itemId) && existing().userId == request.auth.uid;
+      allow delete: if isSignedIn() && isValidId(listId) && existing().userId == request.auth.uid;
+      
+      // Items inside list
+      function isValidShoppingItem(data) {
+        return data.keys().hasAll(['name', 'completed', 'order', 'userId', 'createdAt']) &&
+               data.name is string && data.name.size() <= 500 &&
+               data.completed is bool &&
+               data.order is number &&
+               data.userId == request.auth.uid &&
+               data.createdAt is timestamp;
+      }
+      
+      match /items/{itemId} {
+        allow get: if isSignedIn() && existing().userId == request.auth.uid;
+        allow list: if isSignedIn() && existing().userId == request.auth.uid;
+        allow create: if isSignedIn() && isValidId(itemId) && isValidShoppingItem(incoming()) && incoming().createdAt == request.time;
+        allow update: if isSignedIn() && isValidId(itemId) && (
+          incoming().diff(existing()).affectedKeys().hasOnly(['completed', 'order', 'name'])
+        ) && incoming().userId == existing().userId;
+        allow delete: if isSignedIn() && isValidId(itemId) && existing().userId == request.auth.uid;
+      }
     }
   }
 }

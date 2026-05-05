@@ -3,9 +3,10 @@ import { addDoc, collection, updateDoc, deleteDoc, doc, serverTimestamp } from '
 import { db } from '../lib/firebase';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { Trash2, Bold, Italic, List, ListOrdered, Heading2, Save, X } from 'lucide-react';
+import { Trash2, Archive, Bold, Italic, List, ListOrdered, Heading2, Save, X, FilePlus } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { CategorySelect } from '../components/CategorySelect';
+import { format } from 'date-fns';
 
 interface Note {
   id: string;
@@ -27,6 +28,23 @@ export function NoteEditor({ note, onBack, onSave }: { note: Note, onBack: () =>
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [deleteModal, setDeleteModal] = useState<{ open: boolean, id: string } | null>(null);
+  const [showTemplates, setShowTemplates] = useState(false);
+
+  const templates = [
+    { name: 'Meeting', content: '<h2>Agenda</h2><ul><li><p></p></li></ul><h2>Teilnehmer</h2><ul><li><p></p></li></ul><h2>Ergebnisse</h2><ul><li><p></p></li></ul><h2>Nächste Schritte</h2><ul><li><p></p></li></ul>' },
+    { name: 'Idee', content: '<h2>Idee</h2><p></p><h2>Problem, das es löst</h2><p></p><h2>Nächster Schritt</h2><p></p>' },
+    { name: 'Checkliste', content: '<ul><li><p></p></li><li><p></p></li><li><p></p></li><li><p></p></li><li><p></p></li></ul>' },
+    { name: 'Tagebuch', content: `<h2>${format(new Date(), 'dd.MM.yyyy')}</h2><h2>Wie war der Tag?</h2><p></p><h2>Was war gut?</h2><p></p><h2>Was war schwierig?</h2><p></p>` }
+  ];
+
+  const loadTemplate = (tmpl: { name: string, content: string }) => {
+    if (editor) {
+      editor.commands.setContent(tmpl.content);
+      setTitle(tmpl.name);
+      setHasChanges(true);
+      setShowTemplates(false);
+    }
+  };
 
   const colors = [
     { name: 'Standard', value: '' },
@@ -89,6 +107,19 @@ export function NoteEditor({ note, onBack, onSave }: { note: Note, onBack: () =>
     }
   };
 
+  const handleArchive = async () => {
+    if (note.isDraft) return;
+    try {
+      await updateDoc(doc(db, 'notes', note.id), {
+        archived: true,
+        updatedAt: serverTimestamp()
+      });
+      onBack();
+    } catch (error) {
+      console.error("Error archiving note:", error);
+    }
+  };
+
   useEffect(() => {
     if (title !== note.title || category !== note.categoryId || color !== (note.color || '')) {
       setHasChanges(true);
@@ -127,7 +158,30 @@ export function NoteEditor({ note, onBack, onSave }: { note: Note, onBack: () =>
               className="text-lg sm:text-xl font-bold text-brand border-none focus:ring-0 p-0 w-full bg-transparent placeholder-brand-muted/50 outline-none"
             />
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0 relative">
+            <button
+              onClick={() => setShowTemplates(!showTemplates)}
+              className="p-2 text-brand-muted hover:text-accent hover:bg-accent/10 rounded-xl transition-colors flex flex-shrink-0 items-center justify-center cursor-pointer"
+              title="Vorlage laden"
+            >
+              <FilePlus size={20} />
+            </button>
+            {showTemplates && (
+              <div className="absolute top-12 left-0 sm:left-auto sm:-right-20 md:right-auto md:left-0 z-50 bg-white dark:bg-[#1C1C1E] rounded-2xl shadow-xl border border-slate-200/50 dark:border-white/10 w-full min-w-[200px] overflow-hidden">
+                <div className="p-3 text-xs font-black uppercase text-brand-muted tracking-widest border-b border-slate-200/50 dark:border-white/5">
+                  Vorlage wählen
+                </div>
+                {templates.map(t => (
+                  <button
+                    key={t.name}
+                    onClick={() => loadTemplate(t)}
+                    className="w-full text-left px-4 py-3 font-bold text-sm text-brand hover:bg-slate-50 dark:hover:bg-white/5 transition-colors border-b border-slate-200/30 dark:border-white/5 last:border-0"
+                  >
+                    {t.name}
+                  </button>
+                ))}
+              </div>
+            )}
             <button 
               onClick={() => setDeleteModal({ open: true, id: note.id })}
               className="p-2 text-brand-muted hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors flex-shrink-0 cursor-pointer"
@@ -135,6 +189,15 @@ export function NoteEditor({ note, onBack, onSave }: { note: Note, onBack: () =>
             >
               <Trash2 size={20} />
             </button>
+            {!note.isDraft && (
+              <button 
+                onClick={handleArchive}
+                className="p-2 text-brand-muted hover:text-amber-500 hover:bg-amber-500/10 rounded-xl transition-colors flex-shrink-0 cursor-pointer"
+                title="Notiz archivieren"
+              >
+                <Archive size={20} />
+              </button>
+            )}
             <button 
               type="button"
               onClick={handleSave}

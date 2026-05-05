@@ -171,9 +171,41 @@
         "modules": { "type": "array" }
       },
       "required": ["modules"]
+    },
+    "ShoppingListMeta": {
+      "title": "ShoppingListMeta",
+      "description": "Metadata for a shopping list",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "timestamp" }
+      },
+      "required": ["name", "userId", "createdAt"]
+    },
+    "ShoppingListItem": {
+      "title": "ShoppingListItem",
+      "description": "An item in a shopping list",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "completed": { "type": "boolean" },
+        "order": { "type": "number" },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "timestamp" }
+      },
+      "required": ["name", "completed", "order", "userId", "createdAt"]
     }
   },
   "firestore": {
+    "/shoppinglists/{listId}": {
+      "schema": { "$ref": "#/entities/ShoppingListMeta" },
+      "description": "Stores shopping lists"
+    },
+    "/shoppinglists/{listId}/items/{itemId}": {
+      "schema": { "$ref": "#/entities/ShoppingListItem" },
+      "description": "Stores items inside a shopping list"
+    },
     "/notes/{noteId}": {
       "schema": { "$ref": "#/entities/Note" },
       "description": "Stores user notes"
