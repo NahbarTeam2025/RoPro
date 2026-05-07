@@ -133,50 +133,54 @@ export default function News() {
       </div>
 
       <div className="mb-6 relative z-50" ref={dropdownRef}>
-        <button
+        <button 
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="glass-input cursor-pointer font-bold flex items-center justify-between shadow-sm"
+          className="w-full flex items-center justify-between text-left h-12 pl-4 pr-3 glass-card rounded-xl group transition-all duration-300"
         >
-          {activeFeed === 'all' ? 'Alle Nachrichten' : FEEDS.find(f => f.id === activeFeed)?.name}
-          <ChevronDown size={16} className={`transition-transform text-brand-muted ${isDropdownOpen ? 'rotate-180' : ''}`} />
+          <span className="truncate text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+            {activeFeed === 'all' ? 'Alle Nachrichten' : FEEDS.find(f => f.id === activeFeed)?.name}
+          </span>
+          <ChevronDown size={18} className={cn("text-brand-muted transition-transform shrink-0", isDropdownOpen && "rotate-180")} />
         </button>
         
         <AnimatePresence>
           {isDropdownOpen && (
             <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="absolute top-14 left-0 w-full bg-white/40 dark:bg-[#1C1C1E]/40 backdrop-blur-xl rounded-xl border border-black/5 dark:border-white/10 overflow-auto z-50 shadow-[0_8px_32px_rgba(0,0,0,0.12)] custom-scrollbar" 
-              style={{ maxHeight: '240px' }}
+              initial={{ opacity: 0, y: -4, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -4, scale: 0.98 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute top-14 left-0 right-0 bg-white dark:bg-[#1C1C1E] rounded-xl shadow-2xl z-50 p-2 border border-black/10 dark:border-white/10"
             >
-              <button
-                onClick={() => {
-                  setActiveFeed('all');
-                  setIsDropdownOpen(false);
-                }}
-                className={cn(
-                  "w-full text-left px-4 py-3 text-sm font-bold text-slate-900 dark:text-white transition-colors block border-b border-black/5 dark:border-white/5",
-                  activeFeed === 'all' ? "bg-black/5 dark:bg-white/10" : "hover:bg-black/5 dark:hover:bg-white/5"
-                )}
-              >
-                Alle Nachrichten
-              </button>
-              {FEEDS.map(feed => (
+              <div className="max-h-64 flex flex-col gap-1 overflow-y-auto custom-scrollbar">
                 <button
-                  key={feed.id}
                   onClick={() => {
-                    setActiveFeed(feed.id);
+                    setActiveFeed('all');
                     setIsDropdownOpen(false);
                   }}
                   className={cn(
-                    "w-full text-left px-4 py-3 text-sm font-bold text-slate-900 dark:text-white transition-colors block",
-                    activeFeed === feed.id ? "bg-black/5 dark:bg-white/10" : "hover:bg-black/5 dark:hover:bg-white/5"
+                    "w-full text-left px-3 py-2.5 rounded-lg font-bold transition-colors text-sm hover:bg-black/5 dark:hover:bg-white/5",
+                    activeFeed === 'all' ? "bg-brand/10 text-brand" : "text-slate-900 dark:text-white"
                   )}
                 >
-                  {feed.name}
+                  Alle Nachrichten
                 </button>
-              ))}
+                {FEEDS.map(feed => (
+                  <button
+                    key={feed.id}
+                    onClick={() => {
+                      setActiveFeed(feed.id);
+                      setIsDropdownOpen(false);
+                    }}
+                    className={cn(
+                      "w-full text-left px-3 py-2.5 rounded-lg font-bold transition-colors text-sm hover:bg-black/5 dark:hover:bg-white/5",
+                      activeFeed === feed.id ? "bg-brand/10 text-brand" : "text-slate-900 dark:text-white"
+                    )}
+                  >
+                    {feed.name}
+                  </button>
+                ))}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

@@ -346,7 +346,7 @@ export default function ShoppingList() {
               </button>
               
               {isDropdownOpen && (
-                <div className="absolute top-14 left-0 right-0 glass-card rounded-xl shadow-xl z-50 p-2 py-2 border border-black/10 dark:border-white/10 flex flex-col gap-1 max-h-64 overflow-y-auto">
+                <div className="absolute top-14 left-0 right-0 bg-white dark:bg-[#1C1C1E] rounded-xl shadow-2xl z-50 p-2 py-2 border border-black/10 dark:border-white/10 flex flex-col gap-1 max-h-64 overflow-y-auto">
                   {lists.map(list => (
                     <button
                       key={list.id}
