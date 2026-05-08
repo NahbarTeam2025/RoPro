@@ -1256,7 +1256,7 @@ export default function Household() {
       {/* Detail Modal */}
       {detailModal && detailModal.open && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
-          <div className="bg-white/40 dark:bg-white/10 backdrop-blur-3xl rounded-[2.5rem] w-full max-w-[480px] overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.4)] flex flex-col max-h-[90vh] border border-white/40 dark:border-white/20">
+          <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] overflow-hidden flex flex-col max-h-[90vh]">
             <div className="p-8 border-b border-slate-200/50 dark:border-white/10 flex justify-between items-center">
               <div>
                 <h3 className="text-2xl font-black text-brand tracking-tight">
@@ -1369,7 +1369,7 @@ export default function Household() {
       {/* Delete Confirmation Modal */}
       {deleteModal && deleteModal.open && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
-          <div className="bg-white/40 dark:bg-white/10 backdrop-blur-3xl border border-white/40 dark:border-white/20 w-full max-w-[480px] rounded-[2.5rem] p-10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+          <div className="glass-card w-full max-w-[480px] rounded-[2.5rem] p-10">
             <h3 className="text-2xl font-black text-red-500 mb-2 tracking-tight">Löschen?</h3>
             <p className="text-sm text-brand-muted mb-8">Dieser Eintrag wird unwiderruflich entfernt.</p>
             <div className="flex flex-col gap-3">

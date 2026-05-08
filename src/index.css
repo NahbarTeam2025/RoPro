@@ -54,11 +54,11 @@ body {
 @layer components {
   /* Apple-style Premium Card */
   .glass-card {
-    @apply bg-[#1c1c1e]/20 backdrop-blur-lg border border-white/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300;
+    @apply bg-white/70 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.1)] transition-all duration-300;
   }
   
   .dark .glass-card {
-    @apply bg-[#1c1c1e]/20 border-white/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.6)];
+    @apply bg-[#1c1c1e]/60 backdrop-blur-xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.6)];
   }
 
   /* Refined List Items */

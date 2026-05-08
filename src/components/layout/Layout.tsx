@@ -192,7 +192,7 @@ export default function Layout() {
         <img
           src="https://meine-assets.pages.dev/b1.webp"
           alt="Background"
-          className="w-full h-full object-cover opacity-90"
+          className="w-full h-full object-cover opacity-100"
         />
         {/* Overlay to ensure readability and glass effect works well */}
         <div className="absolute inset-0 bg-white/5 dark:bg-black/40 backdrop-blur-[2px]" />
