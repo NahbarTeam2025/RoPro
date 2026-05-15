@@ -49,7 +49,6 @@ export default function Links() {
   ];
 
   const [filterCategory, setFilterCategory] = useState<string>('all');
-  const [filterMonth, setFilterMonth] = useState<string>('all');
   const [showCatManager, setShowCatManager] = useState(false);
 
   useEffect(() => {
@@ -182,17 +181,8 @@ export default function Links() {
     }
   };
 
-  const availableMonths = Array.from(new Set(links.map(l => {
-    if (l.createdAt?.toDate) return format(l.createdAt.toDate(), 'yyyy-MM');
-    return null;
-  }).filter(Boolean) as string[])).sort().reverse();
-
   const filteredLinks = links.filter(l => {
     if (filterCategory !== 'all' && l.categoryId !== filterCategory) return false;
-    if (filterMonth !== 'all') {
-      const monthStr = l.createdAt?.toDate ? format(l.createdAt.toDate(), 'yyyy-MM') : null;
-      if (monthStr !== filterMonth) return false;
-    }
     return true;
   });
   return (
@@ -226,20 +216,8 @@ export default function Links() {
                 value={filterCategory} 
                 onChange={setFilterCategory}
                 options={[
-                  { value: 'all', label: 'Kategorie' },
+                  { value: 'all', label: 'Alle' },
                   ...categories.map(c => ({ value: c.id, label: c.name }))
-                ]}
-                className="flex-1"
-             />
-             <CustomSelect 
-                value={filterMonth} 
-                onChange={setFilterMonth}
-                options={[
-                  { value: 'all', label: 'Zeitraum' },
-                  ...availableMonths.map(m => ({ 
-                    value: m, 
-                    label: format(new Date(`${m}-01`), 'MMM yy', { locale: de }) 
-                  }))
                 ]}
                 className="flex-1"
              />

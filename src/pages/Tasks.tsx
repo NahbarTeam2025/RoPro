@@ -248,7 +248,7 @@ export default function Tasks() {
                   value={filterCategory} 
                   onChange={setFilterCategory}
                   options={[
-                    { value: 'all', label: 'Kategorie' },
+                    { value: 'all', label: 'Alle' },
                     ...categories.map(c => ({ value: c.id, label: c.name }))
                   ]}
                   className="flex-1"
